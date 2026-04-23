@@ -33,7 +33,18 @@
       "Bash(awk '-F[,x]' '{print $1, $\\(NF-1\\), $NF}')",
       "Bash(chmod +x /Users/abhishekvyas/Desktop/simul_design/scripts/*.py /Users/abhishekvyas/Desktop/simul_design/scripts/*.sh echo \"=== detect-confounds.py run on Univest matrix ===\" python3 /Users/abhishekvyas/Desktop/simul_design/scripts/detect-confounds.py /Users/abhishekvyas/Desktop/simul_design/data/univest/element_matrix.json)",
       "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\('Summary:', json.dumps\\(d['summary']\\)\\); print\\('Full confounds:'\\); [print\\(' -', ' ↔ '.join\\(c['pair']\\)\\) for c in d['detected_confounds'] if c['severity']=='full']; print\\('Cross-check vs matrix hand-written confounds:'\\); print\\(' both in auto + hand:', len\\(d['cross_check_vs_matrix']['both']\\)\\); print\\(' auto only:', len\\(d['cross_check_vs_matrix']['auto_only']\\)\\); print\\(' hand only:', len\\(d['cross_check_vs_matrix']['hand_only']\\)\\)\")",
-      "Bash(python3 /Users/abhishekvyas/Desktop/simul_design/scripts/wilson-intervals.py --p 0.25 --n 12)"
+      "Bash(python3 /Users/abhishekvyas/Desktop/simul_design/scripts/wilson-intervals.py --p 0.25 --n 12)",
+      "Edit(/.claude/skills/handoff/**)",
+      "Bash(chmod +x /Users/abhishekvyas/Desktop/simul_design/scripts/sim-flow.py)",
+      "Bash(/Users/abhishekvyas/Desktop/simul_design/scripts/sim-flow.py list *)",
+      "Bash(/Users/abhishekvyas/Desktop/simul_design/scripts/sim-flow.py status *)",
+      "Bash(echo \"=== Exit code: $? ===\")",
+      "Bash(scripts/sim-flow.py status *)",
+      "Bash(echo \"Exit code for univest \\(has 3 blockers\\): $?\")",
+      "Bash(echo \"Exit code for nonexistent client: $?\")",
+      "Bash(scripts/sim-flow.py list *)",
+      "Bash(echo \"Exit code for list: $?\")",
+      "Bash(grep -v \"^$\")"
     ],
     "additionalDirectories": [
       "/Users/abhishekvyas/Desktop/simul_design/.claude",

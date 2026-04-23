@@ -30,11 +30,14 @@ The short version:
 ## Pipeline status at a glance
 
 ```bash
-scripts/sim-flow.py list             # list all clients
-scripts/sim-flow.py status univest   # one-screen dashboard
+scripts/sim-flow.py list                                   # list all clients
+scripts/sim-flow.py status univest                         # one-screen dashboard
+scripts/sim-flow.py record-actuals univest actuals.json    # close the loop post-ship
 ```
 
 Inspired by SETUP.md's session-start ritual. Reads state directly from `data/<client>/` (no state file to desync). Reports every pipeline stage, adversary blockers, matrix flags, validation status, and the recommended next action. Exit codes: 0 = clean, 1 = input error, 2 = has unresolved blockers (useful for CI).
+
+**Immutable evaluator loop:** `record-actuals` freezes `conversion_estimates.json` into `data/<client>/evaluator/predicted.json` at first run (never overwrites — IDEA.md §9 immutability), stores the reported actuals alongside, and computes the predicted-vs-actual comparison. `status` then surfaces per-segment delta + calibration signal in the Post-ship block.
 
 ## Starting a session
 
