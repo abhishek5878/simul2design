@@ -38,9 +38,10 @@ The short version:
 
 ## Current state
 
-- **Scaffold phase complete** (2026-04-23). All of SETUP.md Section 10 is done.
-- **Active work:** Phase 1 of `tasks/parse-simulation-plan.md` — element taxonomy design. Load-bearing step.
-- **Blocked on:** Univest Apriori output file (not yet in repo).
+- **Univest proof-of-concept: design-complete.** End-to-end pipeline executed: `data/univest/` contains the source, element matrix, weighted scores, synthesized V5 variant, adversary review, Wilson conversion estimates, buildable spec, and visual design mockups (V4 before, V5a green, V5b muted_premium).
+- **Deliverable:** [`data/univest/v5-spec.md`](data/univest/v5-spec.md) (buildable) + [`data/univest/design/`](data/univest/design/) (PNG mockups).
+- **V5 prediction:** 48.6% weighted overall (Wilson 95% band 22.3%–52.0%) vs V4 actual 44%. Medium confidence. Ship blocked on 3 Operational Preconditions (legal / ops / product sign-off per adversary blockers 1-3).
+- **Next work:** post-ship Univest actuals (feeds calibration) OR second-client engagement (genericity test).
 
 ## Structure
 
@@ -52,20 +53,34 @@ The short version:
 ├── .claude/
 │   ├── CLAUDE.md               # Project rules (auto-loaded)
 │   ├── settings.json           # Permissions + hooks
-│   ├── rules/                  # @imported rule files
-│   ├── skills/                 # plan, commit, verify (+ growing) — each in <skill>/SKILL.md
-│   ├── agents/                 # planner, code-reviewer — <agent>/AGENT.md, plus <agent>.md symlinks for Task-tool discovery
-│   ├── hooks/                  # Format, typecheck, plan-anchor, progress nudge, stop-verify, compact-suggest, log-tool-call, log-user-correction
-│   ├── research/               # Daily autoresearch prompt + cron stub
-│   ├── observability/          # Tool-call + correction logs (gitignored)
-│   ├── self-edit/              # Weekly ritual
-│   └── plans/                  # Saved plans from plan mode
+│   ├── rules/                  # @imported rule files incl. element-taxonomy-{base,<client>}.md
+│   ├── skills/                 # plan, commit, verify + parse-simulation, weigh-segments, synthesize, estimate-conversion, generate-spec
+│   ├── agents/                 # planner, code-reviewer, adversary (folder + AGENT.md + symlink)
+│   ├── hooks/                  # 8 hooks (format, typecheck, plan-anchor, progress-nudge, stop-verify, compact-suggest, log-tool-call, log-user-correction)
+│   ├── research/               # Daily autoresearch prompt + cron runner
+│   ├── observability/          # Tool-call + correction JSONL logs (gitignored)
+│   └── self-edit/              # Weekly ritual
+├── data/
+│   └── univest/                # First client's artifacts
+│       ├── source.md                  # Immutable raw simulation source
+│       ├── element_matrix.json        # parse-simulation output
+│       ├── weighted_scores.json       # weigh-segments output
+│       ├── synthesized_variant.json + .md   # V5 element set + citations
+│       ├── adversary_review.json      # 3 blockers, 5 should-fixes
+│       ├── conversion_estimates.json  # Wilson intervals + kill-conditions
+│       ├── v5-spec.md                 # The buildable deliverable
+│       └── design/                    # V4 before + V5a/V5b mockup PNGs
+├── scripts/
+│   ├── refetch-source.sh       # Versioned source re-fetch (no overwrite)
+│   ├── detect-confounds.py     # Auto-detect element confounds
+│   └── wilson-intervals.py     # Wilson 95% binomial CI helper
 └── tasks/
     ├── todo.md                 # Active plan pointer
-    ├── lessons.md              # Self-improvement ledger
+    ├── lessons.md              # Reactive: corrections the user has given
+    ├── improvements.md         # Proactive: weaknesses seen, deferred
     ├── findings.md             # Research log
-    ├── progress.md             # Backward-looking log
-    └── parse-simulation-plan.md  # First feature plan
+    ├── progress.md             # Backward-looking session log
+    └── *-plan.md               # Feature plans (parse-simulation, weigh-segments, synthesize)
 ```
 
 ## Conventions

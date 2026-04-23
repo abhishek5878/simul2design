@@ -259,3 +259,29 @@ Refactor complete. Matrix validates. `data/<client>/` pattern established. SKILL
 V5 for Univest is **design-complete**. An engineer can read `data/univest/v5-spec.md` and produce an implementation plan without further context (subject to Univest's codebase conventions overlaying the semantic component names). Three Operational Preconditions must be signed off by Product/Ops/Legal before ship. V5 ship is blocked on Univest-internal commitments, not on the synthesis pipeline.
 
 Next work per IDEA.md week 8: post-ship actuals feed back into `tasks/lessons.md`; the predicted-vs-actual delta calibrates the non-linearity discount factor and the coupled-mechanism assumption. Until then, the system idles on Univest; the test of genericity is a second client.
+
+---
+
+## 2026-04-23 (final) — V5 visual design + scripts + GitHub push
+
+### Actions taken
+- Built three HTML mockups under `data/univest/design/`: V4-before (blurred card + 84.7% abstract claim + dual-CTA mismatch), V5a-green (high_contrast_green CTA, full new layout), V5b-muted-premium (dark-teal CTA alternative per adversary obj-005).
+- Rendered each to retina-quality PNG (375×812 iPhone viewport, 2x) via Chrome headless. **The "V5.png" deliverable the user asked for** lives at `data/univest/design/v5a-green.png` and `v5b-muted-premium.png`.
+- Built `scripts/detect-confounds.py` — auto-detects element confounds via co-occurrence analysis. Smoke-tested against Univest matrix: found 9 full + 10 partial confounds; cross-check against hand-written list showed 8 auto-only (spurious default-coincidences) and 3 hand-only (3+-way clusters the naive detector missed). Refinement logged as nice-to-have improvement.
+- Built `scripts/wilson-intervals.py` — Wilson 95% CI helper in single + matrix modes. Reproduces the interval widths used in `conversion_estimates.json`.
+- Updated `tasks/improvements.md` with 2 new Applied entries (visual design + scripts, confound-detector noise refinement).
+- **Three commits** split cleanly: (1) scaffold per SETUP.md, (2) pipeline skills + adversary, (3) Univest end-to-end deliverable.
+- **Pushed to GitHub:** `https://github.com/abhishek5878/simul2design` — all 4 commits now on `origin/main`.
+
+### Files added (this session)
+- `data/univest/design/v4-before.html` + `.png` (56KB)
+- `data/univest/design/v5a-green.html` + `.png` (154KB retina)
+- `data/univest/design/v5b-muted-premium.html` + `.png` (154KB retina)
+- `scripts/detect-confounds.py`
+- `scripts/wilson-intervals.py`
+- GitHub remote wired + all commits pushed
+
+### Status — end of session
+**Univest proof-of-concept: design-complete, committed, pushed.** Public at github.com/abhishek5878/simul2design. V5 visual design is the headline artifact; the buildable spec is the engineer-facing deliverable; the full pipeline reasoning (matrix → weighted scores → synthesis → adversary → Wilson estimates → spec → visual mockup) is auditable through the committed JSON/Markdown artifacts.
+
+Remaining Open improvements (4): non-linearity discount calibration (needs post-ship actuals), cross-segment user modeling (needs real user analytics), stock-selection out-of-matrix context (needs real user data), research/observation layers unused (needs user to schedule cron + observe). All require external data/commitment outside this session's scope.
