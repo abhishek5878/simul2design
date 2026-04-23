@@ -4,6 +4,8 @@ This file is the pointer to the currently active plan.
 
 **Active plan:** _None — V5 buildable design shipped_
 
+**Latest handoff:** [`tasks/handoff-2026-04-23.md`](handoff-2026-04-23.md) — read first if you're picking this up.
+
 **The V5 buildable design is in `data/univest/v5-spec.md`.** Engineer-ready. Subject to 3 Operational Preconditions (legal/ops/product sign-offs).
 
 **Status:** Univest proof-of-concept complete end-to-end through the five-skill + three-agent pipeline. Next work is either (a) post-ship Univest actuals feed-back when they arrive, or (b) a second client engagement to validate genericity.
