@@ -1,0 +1,47 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git init *)",
+      "Bash(git -C /Users/abhishekvyas/Desktop/simul_design commit -m ' *)",
+      "Edit(/.claude/skills/verify/**)",
+      "Bash(node .claude/hooks/pre-tool-use-plan.js)",
+      "Bash(mkdir -p .claude/agents/planner .claude/agents/code-reviewer)",
+      "Bash(mv .claude/agents/planner.md .claude/agents/planner/AGENT.md)",
+      "Bash(mv .claude/agents/code-reviewer.md .claude/agents/code-reviewer/AGENT.md)",
+      "Bash(ln -s planner/AGENT.md planner.md)",
+      "Bash(ln -s code-reviewer/AGENT.md code-reviewer.md)",
+      "WebFetch(domain:apriori.work)",
+      "Edit(/.claude/skills/parse-simulation/**)",
+      "Bash(python3 -c ' *)",
+      "Bash(git mv *)",
+      "Edit(/.claude/skills/weigh-segments/**)",
+      "Edit(/.claude/skills/synthesize/**)",
+      "Bash(ln -sf adversary/AGENT.md adversary.md)",
+      "Edit(/.claude/skills/estimate-conversion/**)",
+      "Edit(/.claude/skills/generate-spec/**)",
+      "Bash(mkdir -p scripts)",
+      "Bash(chmod +x scripts/refetch-source.sh)",
+      "Bash(chmod +x /Users/abhishekvyas/Desktop/simul_design/scripts/refetch-source.sh)",
+      "Bash(git -C /Users/abhishekvyas/Desktop/simul_design status --short)",
+      "Bash(git -C /Users/abhishekvyas/Desktop/simul_design log --oneline -20)",
+      "Bash(git -C /Users/abhishekvyas/Desktop/simul_design remote -v)",
+      "Bash('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --headless=new --disable-gpu --no-sandbox --hide-scrollbars --window-size=415,920 --screenshot=__TRACKED_VAR__/__TRACKED_VAR__.png file://__TRACKED_VAR__/__TRACKED_VAR__.html)",
+      "Bash('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --headless=new --disable-gpu --no-sandbox --hide-scrollbars --window-size=420,900 --screenshot=__TRACKED_VAR__/__TRACKED_VAR__.png file://__TRACKED_VAR__/__TRACKED_VAR__.html)",
+      "Bash('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --headless=new --disable-gpu --no-sandbox --hide-scrollbars --window-size=420,870 --screenshot=__TRACKED_VAR__/__TRACKED_VAR__.png file://__TRACKED_VAR__/__TRACKED_VAR__.html)",
+      "Bash('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --headless=new --disable-gpu --no-sandbox --hide-scrollbars --window-size=420,880 --screenshot=__TRACKED_VAR__/__TRACKED_VAR__.png file://__TRACKED_VAR__/__TRACKED_VAR__.html)",
+      "Bash('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --headless=new --disable-gpu --no-sandbox --hide-scrollbars --window-size=420,920 --force-device-scale-factor=2 --screenshot=__TRACKED_VAR__/__TRACKED_VAR__.png file://__TRACKED_VAR__/__TRACKED_VAR__.html)",
+      "Bash(awk '-F[,x]' '{print $1, $\\(NF-1\\), $NF}')",
+      "Bash(chmod +x /Users/abhishekvyas/Desktop/simul_design/scripts/*.py /Users/abhishekvyas/Desktop/simul_design/scripts/*.sh echo \"=== detect-confounds.py run on Univest matrix ===\" python3 /Users/abhishekvyas/Desktop/simul_design/scripts/detect-confounds.py /Users/abhishekvyas/Desktop/simul_design/data/univest/element_matrix.json)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\('Summary:', json.dumps\\(d['summary']\\)\\); print\\('Full confounds:'\\); [print\\(' -', ' ↔ '.join\\(c['pair']\\)\\) for c in d['detected_confounds'] if c['severity']=='full']; print\\('Cross-check vs matrix hand-written confounds:'\\); print\\(' both in auto + hand:', len\\(d['cross_check_vs_matrix']['both']\\)\\); print\\(' auto only:', len\\(d['cross_check_vs_matrix']['auto_only']\\)\\); print\\(' hand only:', len\\(d['cross_check_vs_matrix']['hand_only']\\)\\)\")",
+      "Bash(python3 /Users/abhishekvyas/Desktop/simul_design/scripts/wilson-intervals.py --p 0.25 --n 12)"
+    ],
+    "additionalDirectories": [
+      "/Users/abhishekvyas/Desktop/simul_design/.claude",
+      "/Users/abhishekvyas/Desktop/simul_design/.claude/agents/planner",
+      "/Users/abhishekvyas/Desktop/simul_design/.claude/skills",
+      "/Users/abhishekvyas/Desktop/simul_design/.claude/rules",
+      "/Users/abhishekvyas/Desktop/simul_design/.claude/agents",
+      "/Users/abhishekvyas/Desktop/simul_design/.claude/agents/.claude/skills"
+    ]
+  }
+}

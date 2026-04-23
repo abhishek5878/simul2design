@@ -1,0 +1,13 @@
+node_modules/
+dist/
+build/
+.env
+.env.local
+*.log
+
+# Observability logs (per-machine, not versioned)
+.claude/observability/*.jsonl
+.claude/.tool-call-counter
+
+# OS
+.DS_Store
