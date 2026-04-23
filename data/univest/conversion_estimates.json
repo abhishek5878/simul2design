@@ -1,0 +1,113 @@
+{
+  "version": "1.0",
+  "client": "univest",
+  "variant_estimated": "V5",
+  "estimated_at": "2026-04-23",
+  "source_synthesis": "data/univest/synthesized_variant.json",
+  "source_adversary": "data/univest/adversary_review.json",
+
+  "method": "wilson_95_with_coupling_adjustment",
+  "wilson_z": 1.96,
+  "coupling_discount_applied": {
+    "skeptical_investor": 0.714,
+    "_note": "Adversary flagged 3 coupled untested mechanisms targeting Skeptical Investor (cta_primary_label, refund_or_guarantee_copy, trade_evidence — all share 'show-a-real-thing' honesty substrate). Synthesize used 0.7 non-linearity discount assuming independent mechanisms; estimator applies 0.5 per adversary's analysis. The ratio 0.5/0.7 = 0.714 multiplies the Skeptical lift component."
+  },
+
+  "per_segment_estimate": {
+    "skeptical_investor": {
+      "n": 12,
+      "baseline_variant": "V4",
+      "baseline_conversion": 0.25,
+      "baseline_wilson_95_ci": [0.09, 0.53],
+      "synthesize_predicted_point": 0.35,
+      "synthesize_predicted_interval": [0.30, 0.40],
+      "estimator_revised_point": 0.32,
+      "estimator_revised_interval": [0.09, 0.36],
+      "revision_reason": "Baseline Wilson widens low to 0.09 (n=12 on a 25% rate; at 95% CI, V4's true Skeptical rate could have been anywhere from 9% to 53%). Coupled-mechanism discount (0.5 vs 0.7) compresses the lift component from [+5,+15] to [+4,+11]pt. Estimator low becomes Wilson baseline low (mechanism could fail entirely). Estimator high: V4 + revised lift_high.",
+      "kill_conditions": [
+        "real_closed_trade backend delivers a loss trade during peak traffic window (first-session failure rate > 10% of sessions)",
+        "refund SLA p90 exceeds 60s in first 500 trials (promised-but-undelivered → trust violation larger than V4 baseline)",
+        "'See 1 real trade, free' flow requires ₹1 before showing the trade (mismatch relocates to post-click, drop-off > 40% at that step)",
+        "Skeptical Investor conversion ≤ 27% after 2 weeks of post-ship data (2pt above V4 = mechanisms not transferring)"
+      ]
+    },
+    "curious_beginner": {
+      "n": 15,
+      "baseline_variant": "V4",
+      "baseline_conversion": 0.33,
+      "baseline_wilson_95_ci": [0.15, 0.58],
+      "synthesize_predicted_point": 0.40,
+      "synthesize_predicted_interval": [0.36, 0.44],
+      "estimator_revised_point": 0.40,
+      "estimator_revised_interval": [0.15, 0.44],
+      "revision_reason": "Baseline Wilson widens low to 0.15. No coupling concerns for this segment; mechanism lift from synthesize preserved.",
+      "kill_conditions": [
+        "Stocks in named-wins carousel don't resonate with real user cohort (engagement time on carousel < 2s avg)",
+        "real_closed_trade visually displaces the named-wins carousel and the Curious anchor mechanism doesn't land",
+        "Curious Beginner conversion within ±2pt of V4 (33%) indicates the +7pt mechanism lift failed"
+      ]
+    },
+    "bargain_hunter": {
+      "n": 13,
+      "baseline_variant": "V4",
+      "baseline_conversion": 0.69,
+      "baseline_wilson_95_ci": [0.42, 0.87],
+      "synthesize_predicted_point": 0.71,
+      "synthesize_predicted_interval": [0.69, 0.73],
+      "estimator_revised_point": 0.71,
+      "estimator_revised_interval": [0.42, 0.73],
+      "revision_reason": "Baseline Wilson widens dramatically — at n=13, a 69% rate has 95% CI [42%, 87%]. Bargain Hunter is near ceiling; mechanism lift is small (0-4pt). Point estimate preserved.",
+      "kill_conditions": [
+        "Added trust/evidence elements slow the 7-second decision flow to >10s (cognitive load negates the conversion speed advantage)",
+        "Dual-stack removal removes a psychological 'two options' hook that was part of V4's Bargain draw (Bargain < 65%)"
+      ]
+    },
+    "trust_seeker": {
+      "n": 10,
+      "baseline_variant": "V4",
+      "baseline_conversion": 0.50,
+      "baseline_wilson_95_ci": [0.24, 0.76],
+      "synthesize_predicted_point": 0.52,
+      "synthesize_predicted_interval": [0.48, 0.56],
+      "estimator_revised_point": 0.52,
+      "estimator_revised_interval": [0.24, 0.56],
+      "revision_reason": "Baseline Wilson at n=10 is especially wide [24%, 76%]. This is the segment with the smallest sample — every conclusion about Trust Seekers is correspondingly less reliable. No coupling discount (Trust mechanisms differ from Skeptical's). Mechanism lift preserved.",
+      "kill_conditions": [
+        "V5 Trust Seeker ≥ 13pt below V1's 60% (i.e., Trust Seeker < 47%) indicates the green CTA penalty is larger than the V2→V3 contrast measured, and muted_premium should have been the primary cta_style choice",
+        "Restored trust_signal + evidence_detail do not offset green penalty (Trust < 48%)",
+        "Fatigue effect: Trust Seekers dismiss SEBI + named wins as pattern-matched compliance (Trust at V4 parity, 50%)"
+      ]
+    }
+  },
+
+  "weighted_overall_estimate": {
+    "synthesize_point": 0.493,
+    "synthesize_interval": [0.455, 0.530],
+    "estimator_revised_point": 0.486,
+    "estimator_revised_interval": [0.223, 0.520],
+    "v4_baseline": 0.440,
+    "lift_over_baseline_pts": {
+      "revised_point": 4.6,
+      "revised_low": -21.7,
+      "revised_high": 8.0,
+      "note": "Low tier is negative — V5 could underperform V4 within the honest Wilson confidence band. This is not a prediction that V5 WILL fail; it reflects the small-sample uncertainty on the V4 baseline itself. Per-segment Wilson bands compound."
+    },
+    "revision_note": "Wilson intervals on baselines widen the low tier dramatically (n=10-15 per segment means a 25% rate has 95% CI ranging [9%, 53%]). Synthesize's [45.5%, 53.0%] interval was too narrow — it reflected only mechanism uncertainty, not baseline uncertainty. Estimator combines both. Point estimate barely moves (49.3% → 48.6%); the honest picture is a wide band with the central tendency intact."
+  },
+
+  "revised_recommendation": {
+    "ship_decision_framework": "V5 is defensible at the point estimate (48.6% weighted overall, +4.6pt over V4). The wide low tier is a correct reflection of the 5-variant × n=10-15 dataset's information content, not evidence that V5 will fail. The ship decision rests on whether Univest accepts the Operational Preconditions (adversary blockers 1-3). Without them, the low tier risk is real. With them, the band tightens toward the point.",
+    "pre_ship_actions": [
+      "Resolve adversary blocker 1 (legal + flow on 'free' language)",
+      "Resolve adversary blocker 2 (refund SLA ops signoff)",
+      "Resolve adversary blocker 3 (real_closed_trade source/staleness/cherry-pick rules)",
+      "Consider A/B: V5a (green) vs V5b (muted_premium) per adversary obj-005"
+    ]
+  },
+
+  "flags": [
+    "Wilson intervals widen low tier to -22pt vs V4 — NOT a prediction V5 fails. It's the honest uncertainty on the baseline at n=10-15 per segment. Synthesize's previous [45.5%, 53.0%] was an artifact of only counting mechanism uncertainty.",
+    "Coupled-mechanism discount applied only to Skeptical (3 untested mechanisms share honesty substrate per adversary). Curious/Bargain/Trust retain synthesize's assumption of independent mechanisms — they have 0-1 untested mechanisms each.",
+    "To narrow the V5 interval, the binding constraint is sample size in future simulations, not algorithm refinement. The next Univest simulation should use n ≥ 30 per segment minimum to narrow Wilson bands to usable widths."
+  ]
+}
