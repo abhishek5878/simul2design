@@ -27,6 +27,15 @@ The short version:
 | [`tasks/todo.md`](tasks/todo.md) | Pointer to the active plan. |
 | [`tasks/lessons.md`](tasks/lessons.md) | The self-improvement ledger. Every correction lands here. |
 
+## Pipeline status at a glance
+
+```bash
+scripts/sim-flow.py list             # list all clients
+scripts/sim-flow.py status univest   # one-screen dashboard
+```
+
+Inspired by SETUP.md's session-start ritual. Reads state directly from `data/<client>/` (no state file to desync). Reports every pipeline stage, adversary blockers, matrix flags, validation status, and the recommended next action. Exit codes: 0 = clean, 1 = input error, 2 = has unresolved blockers (useful for CI).
+
 ## Starting a session
 
 1. `cat tasks/lessons.md` — skim accumulated rules.
