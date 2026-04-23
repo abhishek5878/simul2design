@@ -4,7 +4,7 @@ This file is the pointer to the currently active plan.
 
 **Active plan:** _None — V5 buildable design shipped_
 
-**Latest handoff:** [`tasks/handoff-2026-04-23.md`](handoff-2026-04-23.md) — read first if you're picking this up.
+**Latest handoff:** [`tasks/handoff-2026-04-23-late.md`](handoff-2026-04-23-late.md) — read first if you're picking this up. (Supersedes the earlier same-day handoff.)
 
 **The V5 buildable design is in `data/univest/v5-spec.md`.** Engineer-ready. Subject to 3 Operational Preconditions (legal/ops/product sign-offs).
 

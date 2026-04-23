@@ -285,3 +285,38 @@ Next work per IDEA.md week 8: post-ship actuals feed back into `tasks/lessons.md
 **Univest proof-of-concept: design-complete, committed, pushed.** Public at github.com/abhishek5878/simul2design. V5 visual design is the headline artifact; the buildable spec is the engineer-facing deliverable; the full pipeline reasoning (matrix → weighted scores → synthesis → adversary → Wilson estimates → spec → visual mockup) is auditable through the committed JSON/Markdown artifacts.
 
 Remaining Open improvements (4): non-linearity discount calibration (needs post-ship actuals), cross-segment user modeling (needs real user analytics), stock-selection out-of-matrix context (needs real user data), research/observation layers unused (needs user to schedule cron + observe). All require external data/commitment outside this session's scope.
+
+---
+
+## 2026-04-23 (later, 2nd ritual session) — sim-flow + evaluator loop
+
+### Actions taken
+- **Session-start ritual applied:** 60s read of lessons / active plan / progress / live `sim-flow status`. Picked ONE phase: build the session-start-style pipeline dashboard. Drafted plan, critiqued once, narrowed v1 from 4 commands to 1 (just `status`).
+- Built `scripts/sim-flow.py` (commit `82d0d55`). One-screen dashboard per client: 7 stage markers with inline summaries, post-ship evaluator state, adversary blockers, matrix flags, validation check, next-action recommendation. Reads filesystem directly — no state manifest to desync. Exit codes: 0 clean / 1 input error / 2 has blockers.
+- **Second session-start ritual** (same day): state read, picked ONE phase — close the immutable evaluator loop that `sim-flow status` pointed at as missing.
+- Added `record-actuals <client> <actuals.json>` verb (commit `cb6d1f0`). Three-file evaluator separation:
+  - `evaluator/predicted.json` — frozen snapshot, never overwrites after first record, `_frozen_at` timestamp baked in.
+  - `evaluator/actual.json` — raw post-ship truth, user-supplied.
+  - `evaluator/comparison.json` — derived delta + calibration signal (weighted point bias pts, segments-within-band count). Can be recomputed; never hand-edited.
+- Tested end-to-end on Univest with synthetic `/tmp/` fixtures (realistic: predicted 48.6% → actual 47.0%, within Wilson band, all segments ✓, calibration signal "over-predicted by 1.6pt"). Cleaned synthetic data before commit.
+- Adversarial self-review against SETUP.md Appendix A — 8 honest critiques of the system + V5, including "confirmation-bias machine," "Wilson-widened low tier is correct arithmetic on a bad assumption," and "boring notebook captures 85% in 4 hours." Delivered inline to the user; offered to save but they didn't ask.
+
+### Files modified / added
+- `scripts/sim-flow.py` (+427 lines across two commits — dashboard + record-actuals)
+- `README.md` (+Pipeline status section + +record-actuals doc)
+- `tasks/lessons.md` (+4 lessons: status-probe-not-state-file, exit-codes-as-CI, immutable-evaluator-3-files, test-destructive-on-throwaway)
+- No client artifacts modified — evaluator test run was to `/tmp/`, cleaned before commit
+
+### Commits this session
+- `82d0d55` — sim-flow.py: session-start-style pipeline dashboard
+- `cb6d1f0` — sim-flow: add record-actuals verb and immutable-evaluator loop
+
+### What the pipeline now has that it didn't 4 hours ago
+- A `<2s` state probe for "where are we on client X"
+- CI-compatible exit codes (0 clean / 2 blockers)
+- A mechanical immutable-evaluator record that freezes predictions at ship time
+- Calibration signal that directly drives the non-linearity-discount calibration improvement when real actuals arrive
+- 7 new lessons covering pipeline-operation discipline
+
+### Status — end of session
+Pipeline observability + evaluator loop complete. Univest remains ship-blocked on internal sign-off of the 3 Operational Preconditions; now `sim-flow record-actuals univest <actuals>` is the one-command close-the-loop when they do ship.
