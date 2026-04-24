@@ -1,9 +1,10 @@
 {
-  "version": "1.0",
+  "version": "2.0",
   "client": "univest",
   "variant_id": "V5",
   "replaces_best_observed": "V4",
-  "generated_at": "2026-04-23",
+  "generated_at": "2026-04-24",
+  "supersedes_version": "1.0 (2026-04-23, derived from source-prose-only matrix v1)",
   "conservatism_mode": "balanced",
   "audience_weights_used": {
     "skeptical_investor": 0.24,
@@ -13,230 +14,222 @@
   },
   "audience_source": "simulation_default",
 
+  "v5_v2_design_call": {
+    "summary": "V5 v2 is a TIGHTER variant than v1. Most of v1's 'untested introductions' were actually concretizations of elements V4 already had (refund copy, SEBI badge, aggregate metrics, crown). v2 V5 keeps V4's correct scaffolding and changes 7 specific things, of which only 1 is fully untested.",
+    "cta_stack_decision": "Option B — preserve dual_outline_plus_sticky, made functionally coherent (outline shows 3 free trades pre-payment; sticky activates ₹1 subscription). User-confirmed 2026-04-24."
+  },
+
   "elements": {
     "layout": {
-      "value": "full_screen",
-      "citation": { "type": "universal_adoption", "ref": "matrix.variants.V2/V3/V4 all use full_screen", "verbatim_quote": "3 of 4 post-Control variants adopted full_screen." },
-      "confidence": "medium",
+      "value": "full_screen_dark",
+      "citation": { "type": "observed_v4_match", "ref": "matrix.variants.V4.elements.layout", "verbatim_quote": "V4 screenshot shows dark theme. v1 matrix had this wrong." },
+      "confidence": "high",
       "untested": false,
-      "replaces": "full_screen (V4 same)",
-      "rationale_one_line": "Universally adopted post-Control. V1's full_screen_dark is confounded; no reason to adopt dark variant without cleaner evidence."
+      "replaces": "full_screen_dark (V4 same — corrected from v1)",
+      "rationale_one_line": "V4 already uses dark theme. Trust Seeker recovery V3 40% -> V4 50% likely attributable to dark-theme-restoration. Preserve."
     },
     "modal_interrupt": {
       "value": "no",
-      "citation": { "type": "friction_point", "ref": "matrix.friction_points.modal_interrupt", "verbatim_quote": "Bottom-modal popup interrupts and is dismissed before read. 31/50 users. Resolved in V1-V4." },
+      "citation": { "type": "friction_point", "ref": "matrix.friction_points.modal_interrupt", "verbatim_quote": "Bottom-modal popup interrupts. 31/50 users. Resolved in V1-V4." },
       "confidence": "high",
       "untested": false,
       "replaces": "no (V4 same)",
-      "rationale_one_line": "62% cross-segment friction on modal; every post-Control variant removed it."
+      "rationale_one_line": "Universal post-Control."
     },
     "branding": {
-      "value": "none",
-      "citation": { "type": "default_by_adoption_rate", "ref": "matrix.variants.Control/V1/V4 use 'none'; V2/V3 use crown_header which is confounded with 22% CTA-visibility friction", "verbatim_quote": "Low-contrast CTA missed entirely; banner mistapped. 11/50 (22%). V2-specific." },
-      "confidence": "low",
+      "value": "crown_header",
+      "citation": { "type": "observed_v4_match", "ref": "matrix.variants.V4.elements.branding", "verbatim_quote": "V4 screenshot shows crown_header. v1 matrix had branding=none for V4 — wrong." },
+      "confidence": "medium",
       "untested": false,
-      "replaces": "none (V4 same)",
-      "rationale_one_line": "Crown header is confounded with V2/V3 cluster; safer without, and V4's performance backs this choice directionally."
+      "replaces": "crown_header (V4 same — corrected from v1)",
+      "rationale_one_line": "V4 already has crown. V2/V3/V4 all have it. Preserve."
     },
     "price_visibility": {
-      "value": "visible_primary",
-      "citation": { "type": "friction_point", "ref": "matrix.friction_points.price_opacity", "verbatim_quote": "No price shown on activation; Skeptical Investors assume hidden charge. 39/50 (78%). Resolved in V1-V4." },
-      "confidence": "medium",
-      "untested": false,
-      "replaces": "visible_primary (V4 same)",
-      "rationale_one_line": "Not opaque (78% friction resolved). visible_primary is cleanly separable from refund copy — unlike visible_with_framing which is confounded in V2/V3."
-    },
-    "cta_primary_label": {
-      "value": "See 1 real trade, free",
-      "citation": { "type": "overlay_mechanism", "ref": ".claude/rules/element-taxonomy-univest.md § proposed-but-untested-values", "verbatim_quote": "Proposed honest framing for V4's dual-CTA mismatch. Pairs with trade_evidence=real_closed_trade — they share the 'show a real thing' honesty mechanism." },
-      "confidence": "medium",
-      "untested": true,
-      "replaces": "\"Unlock FREE trade\" (V4)",
-      "rationale_one_line": "V4's 33% mismatch-notice rate is a trust cost ('mildly deceptive'); honest label paired with real trade delivery removes the framing gap."
-    },
-    "cta_style": {
-      "value": "high_contrast_green",
-      "citation": { "type": "clean_contrast", "ref": "matrix.clean_element_contrasts[V2 -> V3]", "verbatim_quote": "Only cta_style changed. Bargain Hunter +16pts (46->62). Trust Seeker -10pts (50->40). Skeptical +9pts (8->17). Curious +7pts (20->27). Weighted +6.42pt at default audience." },
+      "value": "visible_with_framing",
+      "citation": { "type": "universal_adoption", "ref": "matrix.variants.V1/V2/V3/V4", "verbatim_quote": "All 4 post-Control variants use price + banner framing." },
       "confidence": "high",
       "untested": false,
-      "replaces": "high_contrast_green (V4 same)",
-      "rationale_one_line": "Only clean-contrast-derived pts score in the dataset. Net +6.42pt despite Trust Seeker -10pt penalty. Alternative 'muted_premium' (untested) explored in flags.",
-      "alternative_for_exploratory_mode": {
-        "value": "muted_premium",
-        "expected_upside_vs_green_pts": 1.0,
-        "expected_mechanism": "Preserve +16/+7/+9 pt lift for Bargain/Curious/Skeptical while removing the -10 Trust Seeker premium-feel penalty. Untested.",
-        "risk": "Mechanism may not transfer; untested combined with 2 other untested values increases stacking risk."
-      }
+      "replaces": "visible_with_framing (V4 same — corrected from v1's 'visible_primary')",
+      "rationale_one_line": "Banner format with price + refund + countdown is universal V1-V4."
     },
-    "cta_stack": {
-      "value": "single",
-      "citation": { "type": "friction_point", "ref": "matrix.friction_points.dual_cta_label_mismatch", "verbatim_quote": "Outline 'Unlock FREE trade' vs sticky '₹1 Trial' perceived as label mismatch / mildly deceptive. 5/50 (10%) flagged; 33% of V4 users noticed the discrepancy (element-level)." },
+    "cta_primary_label_outline": {
+      "value": "See 3 real trades, free",
+      "citation": { "type": "overlay_mechanism", "ref": "matrix.flags.cta_inconsistency", "verbatim_quote": "V4 outline says 'Unlock FREE trade' (singular) but banner says '3 FREE Trades' (plural). v5 fixes this by matching the offer count and being honest about what the CTA delivers." },
+      "confidence": "medium",
+      "untested": true,
+      "replaces": "Unlock FREE trade",
+      "rationale_one_line": "Honest framing matches the actual offer (3 trades) and resolves the dual-CTA copy mismatch friction (33% noticed in V4)."
+    },
+    "cta_secondary_label_sticky": {
+      "value": "Activate for ₹1",
+      "citation": { "type": "v1_observed", "ref": "v1's CTA pattern", "verbatim_quote": "V1's sticky CTA was 'Start FREE Trial @ ₹1'. V5 simplifies — outline already promises free; sticky just commits to ₹1 activation." },
       "confidence": "medium",
       "untested": false,
-      "replaces": "dual_outline_plus_sticky (V4)",
-      "rationale_one_line": "V4's dual stack introduced a 33%-noticed mismatch. Reverting to single CTA removes the trust cost; upside of dual was confounded in V3->V4 (5-way change)."
+      "replaces": "Start FREE Trial @ ₹1",
+      "rationale_one_line": "Cleaner — outline carries the 'free' message; sticky carries the activation commitment."
+    },
+    "cta_style": {
+      "value": "outline_on_dark_plus_sticky_green",
+      "citation": { "type": "observed_v4_match", "ref": "matrix.variants.V4.elements.cta_style", "verbatim_quote": "V4 already uses outline (top) + green sticky (bottom). High contrast green observed +6.42pt clean V2->V3." },
+      "confidence": "high",
+      "untested": false,
+      "replaces": "outline_on_dark_plus_sticky_green (V4 same)",
+      "rationale_one_line": "Preserve V4's high-converting style. Dark theme mutes the Trust Seeker green-penalty (V4 demonstrated this)."
+    },
+    "cta_stack": {
+      "value": "dual_outline_plus_sticky",
+      "citation": { "type": "user_decision_2026_04_24", "ref": "Option B", "verbatim_quote": "User chose to preserve V4's dual stack and resolve mismatch via copy fix rather than removing the structure." },
+      "confidence": "medium",
+      "untested": false,
+      "replaces": "dual_outline_plus_sticky (V4 same — copy now coherent)",
+      "rationale_one_line": "V4's 44% lift came partly from dual-CTA self-segmentation. Preserving with coherent copy is more defensible than removing."
     },
     "urgency_mechanism": {
       "value": "none",
-      "citation": { "type": "friction_point", "ref": "matrix.friction_points.countdown_timer_manipulation", "verbatim_quote": "Countdown timer perceived as manufactured urgency, alienates Skeptical Investors. 6/12 (50% of segment). V1 only; removed in V2-V4." },
-      "confidence": "high",
-      "untested": false,
-      "replaces": "none (V4 same)",
-      "rationale_one_line": "50% of Skeptical Investors flagged V1's timer. V2-V4 removed it. All untested alternatives (scarcity, social-proof-realtime) inherit the same manipulative-urgency family."
+      "citation": { "type": "friction_point", "ref": "matrix.friction_points.countdown_timer_manipulation", "verbatim_quote": "6/50 users (41% of Skeptical) flagged countdown as manipulation. Persistent across V1-V4." },
+      "confidence": "medium",
+      "untested": true,
+      "replaces": "countdown_timer (V4 had it — corrected from v1's 'none')",
+      "rationale_one_line": "Skeptical-only friction with no demonstrated cross-segment lift. V5 is the first variant to remove it. Bargain Hunter risk: timer may have helped urgency-driven conversion (V1 BH +16pt vs Control), but V4's 7-second avg conversion suggests structural urgency works without the timer."
     },
     "refund_or_guarantee_copy": {
       "value": "explicit_sla",
-      "citation": { "type": "overlay_mechanism", "ref": ".claude/rules/element-taxonomy-univest.md § proposed-but-untested-values", "verbatim_quote": "Proposed: 'Refund in 60s to source. No questions.' Closes the Skeptical Investor trust gap with concrete SLA. Pairs with trade_evidence=real_closed_trade (both are concreteness mechanisms for Skeptical). 64% of users cited the refund clause as strongest pricing reassurance (element-level)." },
+      "value_text_verbatim": "Refund in 60s to source. No questions.",
+      "citation": { "type": "concretization_of_v4", "ref": "matrix.variants.V4.elements.refund_or_guarantee_copy", "verbatim_quote": "V4 has 'Activate @ ₹1 & Get instant refund' (vague). V5 sharpens to specific SLA." },
       "confidence": "medium",
       "untested": true,
-      "replaces": "absent (V4)",
-      "rationale_one_line": "64% element-level evidence that refund messaging is the strongest pricing reassurance; making it explicit with an SLA strengthens the mechanism.",
-      "dependency_flag": "V4.refund_or_guarantee_copy is source-tagged absent but a V4 Skeptical quote mentions 'refund' — if V4 actually has refund copy, this choice is more defensible (known-safe upgrade to existing copy); if not, it's an untested addition."
+      "replaces": "implicit_refund (V4 had implicit_refund — corrected from v1's 'absent')",
+      "rationale_one_line": "Concretization, not introduction. 64% cite refund as strongest reassurance; making the SLA explicit closes Skeptical trust gap."
     },
     "trust_signal": {
       "value": "regulatory_plus_evidence",
       "trust_signal_regulator": "sebi",
-      "citation": { "type": "overlay_mechanism", "ref": "matrix.variants.V1 + matrix.friction_points.abstract_metrics_vs_named_wins", "verbatim_quote": "V1 peaked Trust Seeker at 60% (highest in dataset) and Curious Beginner at 27%. V1 was the only variant with regulatory_plus_evidence; dropping it in V2-V4 produced the 8/50 (16%) 'abstract_metrics_vs_named_wins' persistent friction." },
-      "confidence": "medium",
+      "citation": { "type": "observed_v4_match", "ref": "matrix.variants.V4.elements.trust_signal", "verbatim_quote": "V4 already has SEBI Reg + 85%+ + 3500+. v1 matrix had this as implicit — wrong." },
+      "confidence": "high",
       "untested": false,
-      "replaces": "implicit (V4)",
-      "rationale_one_line": "Observationally strongest combination for Trust Seeker (60% vs V4's 50%) and Curious Beginner. Attribution confounded with evidence_detail but the V1 evidence is substantial.",
-      "flag": "confounded_but_observationally_strong"
+      "replaces": "regulatory_plus_evidence (V4 same — corrected from v1's 'implicit')",
+      "rationale_one_line": "Preserve V4's SEBI badge."
     },
     "evidence_detail": {
-      "value": "named_past_outcome",
-      "evidence_detail_format": "stock_named_with_rupee_gain",
-      "citation": { "type": "overlay_mechanism", "ref": "matrix.variants.V1 + matrix.citations['I bought it last year...']", "verbatim_quote": "71% of V1 users cited a stock by name. Curious Beginner anchor: 'I bought it last year — if they nailed that, I should listen' (V1 ZOMATO win)." },
-      "confidence": "medium",
+      "value": "aggregate_plus_named",
+      "citation": { "type": "v1_observed", "ref": "matrix.variants.V1.elements.evidence_detail", "verbatim_quote": "V1 has BOTH aggregate (84.7% with wins/losses) AND named (TMPV/ZOMATO/RELIANCE +rupee). v1 matrix had only 'named_past_outcome' — incomplete." },
+      "confidence": "high",
       "untested": false,
-      "replaces": "none (V4)",
-      "rationale_one_line": "Restores the Curious Beginner named-stock anchor that was load-bearing in V1. Alternative 'real_outcome_disclosure' (untested) is a stronger Skeptical mechanism but conflicts visually with trade_evidence=real_closed_trade which already provides disclosure."
+      "replaces": "aggregate_metric (V4 had aggregate-only — corrected from v1's 'none')",
+      "rationale_one_line": "Restore V1's dual format. Aggregate addresses Trust Seeker; named addresses Curious Beginner. 71% of V1 users cited a stock by name."
     },
     "trade_evidence": {
       "value": "real_closed_trade",
-      "citation": { "type": "overlay_mechanism", "ref": ".claude/rules/element-taxonomy-univest.md § proposed-but-untested-values + matrix.friction_points.blurred_card_alienates_skeptics", "verbatim_quote": "Blurred trade card reads as a gimmick to Skeptical Investors. 12/12 (100% of segment). Persistent across V2/V3/V4. Supporting quote: 'Show me a real trade or don't'. Overlay proposal: real_closed_trade (fully disclosed entry/exit/days/gain) removes the trust gap entirely." },
-      "confidence": "medium_high",
+      "citation": { "type": "friction_resolution", "ref": "matrix.friction_points.blurred_card_alienates_skeptics", "verbatim_quote": "12/12 (100%) Skeptical Investor friction with blurred card. Quote: 'Show me a real trade or don't.'" },
+      "confidence": "medium",
       "untested": true,
-      "replaces": "blurred_card (V2/V3/V4)",
-      "rationale_one_line": "100% Skeptical flag rate on blurred_card is the highest single-segment friction in the dataset. real_closed_trade is the only candidate with a mechanism that removes it."
+      "replaces": "blurred_card",
+      "rationale_one_line": "Replace blurred Live Trade card with real Closed Trade card showing entry/exit/days/₹ gain. Highest-conviction lever — removes 100% of the persistent Skeptical friction."
+    },
+    "wins_losses_disclosure": {
+      "value": "yes",
+      "value_text_verbatim": "All-time accuracy 84.7% (914 wins · 62 losses)",
+      "citation": { "type": "v1_observed_NEW_in_v2", "ref": "matrix.variants.V1.elements.wins_losses_disclosure", "verbatim_quote": "V1 prominently displays '914 wins · 62 losses' alongside the 84.7% accuracy claim. v1 matrix missed this entirely. It is V1's structural defense against cherry-picking." },
+      "confidence": "high (mechanism), medium (Skeptical lift attribution — confounded with V1's other trust elements)",
+      "untested": false,
+      "replaces": "no (V4 didn't have it — corrected from v1's missing dimension)",
+      "rationale_one_line": "ADOPT V1's transparency format. Closes the cherry-picking adversary objection structurally — Skeptical sees that 84.7% accuracy is backed by a full denominator including 62 losses."
+    },
+    "trial_offer_count": {
+      "value": 3,
+      "citation": { "type": "screenshot_verified", "ref": "matrix.variants.[Control,V1,V2,V3,V4].elements.trial_offer_count", "verbatim_quote": "All variants offer 3 free trades (Control: '3 STOCK/F&O IDEAS FOR FREE'; V1-V4: 'Claim 3 FREE Trades'). v1 matrix missed this — wrongly assumed singular '1 trade'." },
+      "confidence": "high",
+      "untested": false,
+      "replaces": "3 (matches actual offer)",
+      "rationale_one_line": "v5 v1 wrongly used 'See 1 real trade, free'. Corrected to match the actual offer Univest makes to users."
     }
   },
 
-  "cross_dimension_consistency": {
-    "applied_rules": [
-      { "rule": "if price_visibility=visible_with_framing then refund_or_guarantee_copy shares the banner (same UI element)", "resolution": "Not triggered — chose visible_primary, which decouples from refund copy. Refund SLA lives as a standalone line below the CTA." },
-      { "rule": "if trust_signal=regulatory_plus_evidence then evidence_detail must be non-none", "resolution": "Satisfied — evidence_detail=named_past_outcome." },
-      { "rule": "if cta_stack=dual, cta labels must not create a mismatch (V4 friction)", "resolution": "Not triggered — chose single; mismatch mechanism eliminated." },
-      { "rule": "overlay: urgency_mechanism=countdown_timer + skeptical_investor → negative", "resolution": "Not triggered — chose none." },
-      { "rule": "overlay: trade_evidence=blurred_card + skeptical_investor → negative", "resolution": "Not triggered — chose real_closed_trade which removes the mechanism." },
-      { "rule": "overlay: cta_style=high_contrast_green + trust_seeker → -10pt", "resolution": "Triggered. Already reflected in per_segment_impact; no additional penalty. Alternative (muted_premium, untested) flagged for exploratory mode." },
-      { "rule": "overlay: branding=crown_header + cta_style=low_contrast_subordinate → negative", "resolution": "Not triggered — chose branding=none." }
+  "v5_changes_vs_v4": {
+    "list": [
+      { "dim": "urgency_mechanism", "v4": "countdown_timer", "v5": "none", "why": "Remove Skeptical-friction (41% flagged)" },
+      { "dim": "refund_or_guarantee_copy", "v4": "implicit_refund (instant refund)", "v5": "explicit_sla (60s to source, no questions)", "why": "Concretize" },
+      { "dim": "trade_evidence", "v4": "blurred_card", "v5": "real_closed_trade", "why": "Remove 100% Skeptical friction" },
+      { "dim": "evidence_detail", "v4": "aggregate_metric", "v5": "aggregate_plus_named", "why": "Restore V1's named-wins anchor" },
+      { "dim": "wins_losses_disclosure", "v4": "no", "v5": "yes", "why": "Adopt V1's cherry-picking defense" },
+      { "dim": "cta_primary_label_outline", "v4": "Unlock FREE trade", "v5": "See 3 real trades, free", "why": "Match offer count + honest framing" },
+      { "dim": "cta_secondary_label_sticky", "v4": "Start FREE Trial @ ₹1", "v5": "Activate for ₹1", "why": "Clean — outline carries 'free'" }
     ],
-    "conflicts_surfaced_and_resolved": [
-      {
-        "conflict": "evidence_detail=named_past_outcome (picked) vs real_outcome_disclosure (untested alternative that's stronger for Skeptical)",
-        "resolution": "Picked named_past_outcome because trade_evidence=real_closed_trade already provides the full disclosure. Doubling up would be redundant and cluttered. Named wins (carousel) + one real closed trade = two evidence formats, different audiences, non-overlapping."
-      }
-    ],
-    "remaining_inconsistencies": []
+    "count": 7,
+    "of_which_truly_untested": 1,
+    "of_which_concretizations_or_copy_fixes": 4,
+    "of_which_observed_pattern_adoptions": 2
   },
 
-  "untested_stack": {
-    "count": 3,
-    "dimensions_with_untested": ["cta_primary_label", "refund_or_guarantee_copy", "trade_evidence"],
-    "warning": null,
-    "note": "3 untested values within the ≤4 threshold. Each has a named mechanism in the overlay. Non-linearity discount applied to predictions (factor ~0.7)."
-  },
-
-  "per_segment_prediction": {
+  "per_segment_predicted_v5": {
     "skeptical_investor": {
-      "baseline_from_best_tested_variant": "V4",
-      "baseline_conversion": 0.25,
-      "expected_delta_pts": { "low": 5, "point": 10, "high": 15 },
-      "predicted_conversion": { "low": 0.30, "point": 0.35, "high": 0.40 },
+      "v4_baseline": 0.25,
+      "predicted_point": 0.35,
+      "predicted_range": [0.30, 0.40],
       "drivers": [
-        "trade_evidence: blurred_card → real_closed_trade removes 100%-flagged trust gap (strongest driver)",
-        "refund_or_guarantee_copy: absent → explicit_sla closes 64%-cited refund-reassurance gap",
-        "trust_signal + evidence_detail: implicit+none → regulatory_plus_evidence + named_past_outcome (V1 Skeptical was 17% vs V4's 25%, so the trust lift mostly stacks with V4's other gains)",
-        "cta_primary_label: 'Unlock FREE trade' → 'See 1 real trade, free' removes 33%-noticed label mismatch"
+        { "lever": "real_closed_trade", "expected_pts": 5, "evidence": "removes 100% segment friction" },
+        { "lever": "wins_losses_disclosure", "expected_pts": 3, "evidence": "V1 segment lift attribution (confounded but mechanism strong)" },
+        { "lever": "explicit_sla", "expected_pts": 2, "evidence": "concretizes 64%-cited refund reassurance" },
+        { "lever": "urgency_removed", "expected_pts": 3, "evidence": "removes 41%-segment manipulation friction" },
+        { "lever": "named_wins", "expected_pts": 1, "evidence": "minor cross-segment effect" },
+        { "lever": "cta_copy_coherence", "expected_pts": 1, "evidence": "removes 33%-noticed mismatch friction" },
+        { "lever": "coupling_discount_0.7", "expected_pts": -5, "evidence": "5 mechanisms target same segment via shared honesty-substrate" }
       ],
-      "failure_conditions": [
-        "real_closed_trade reads as cherry-picking ('they disclosed ONE trade — what about the rest?'), replacing blurred-card-gimmick suspicion with cherry-pick suspicion",
-        "'Refund in 60s' SLA is not operationally true, creating a bigger trust violation than the prior absence of the copy",
-        "The honest label makes the ₹1 expectation-gap worse, not better (user expects 'actually free' and finds ₹1 step)"
-      ]
+      "kill_condition": "Skeptical < 27% after 2 weeks"
     },
     "curious_beginner": {
-      "baseline_from_best_tested_variant": "V4",
-      "baseline_conversion": 0.33,
-      "expected_delta_pts": { "low": 3, "point": 7, "high": 11 },
-      "predicted_conversion": { "low": 0.36, "point": 0.40, "high": 0.44 },
+      "v4_baseline": 0.33,
+      "predicted_point": 0.41,
+      "predicted_range": [0.36, 0.46],
       "drivers": [
-        "evidence_detail: named_past_outcome restored (71% stock-naming signal in V1; ZOMATO-anchor mechanism: 'I bought it last year — if they nailed that, I should listen')",
-        "honest cta_primary_label reduces choice paralysis"
+        { "lever": "named_wins_restored", "expected_pts": 5, "evidence": "71% of V1 users cited a stock by name; primary anchor for this segment" },
+        { "lever": "wins_losses_disclosure", "expected_pts": 1, "evidence": "minor positive" },
+        { "lever": "real_closed_trade", "expected_pts": 1, "evidence": "minor concrete-evidence positive" },
+        { "lever": "urgency_removed", "expected_pts": 1, "evidence": "minor positive" }
       ],
-      "failure_conditions": [
-        "Named stocks in V5's carousel don't resonate with THIS Curious Beginner cohort — stock selection is out-of-matrix context that matters for this mechanism",
-        "real_closed_trade displaces the named_past_outcome carousel visually, and the anchor mechanism fails without visual prominence"
-      ]
+      "kill_condition": "Curious < 30% after 2 weeks (named-wins anchor not transferring to Univest's actual stock picks)"
     },
     "bargain_hunter": {
-      "baseline_from_best_tested_variant": "V4",
-      "baseline_conversion": 0.69,
-      "expected_delta_pts": { "low": 0, "point": 2, "high": 4 },
-      "predicted_conversion": { "low": 0.69, "point": 0.71, "high": 0.73 },
+      "v4_baseline": 0.69,
+      "predicted_point": 0.69,
+      "predicted_range": [0.63, 0.74],
       "drivers": [
-        "cta_style=high_contrast_green preserved from V4 (+16pt in V2→V3 contrast — the primary Bargain driver)",
-        "other V5 changes are trust/evidence-oriented, neutral for Bargain Hunter"
+        { "lever": "green_cta_preserved", "expected_pts": 0, "evidence": "+16pt observed; preserved at full strength" },
+        { "lever": "free_framing_preserved", "expected_pts": 1, "evidence": "outline still says 'free'" },
+        { "lever": "dual_cta_preserved", "expected_pts": 1, "evidence": "self-segmentation mechanism preserved" },
+        { "lever": "urgency_removed", "expected_pts": -2, "evidence": "Bargain Hunter may have been part of the 50% who liked V1 timer (V1 BH +16pt over Control)" },
+        { "lever": "real_closed_trade_complexity", "expected_pts": -1, "evidence": "more to read may slow the 7s decision" }
       ],
-      "failure_conditions": [
-        "V4 Bargain was already near ceiling (conversion avg 7s). Adding real_closed_trade + named wins carousel may slow the decision flow and cost 1-2pt through cognitive load",
-        "Dual-stack removal removes the 'two options' psychological hook that may have been part of V4's Bargain draw"
-      ]
+      "kill_condition": "Bargain time-to-convert p50 > 10s (cognitive load increase)"
     },
     "trust_seeker": {
-      "baseline_from_best_tested_variant": "V4",
-      "baseline_conversion": 0.50,
-      "expected_delta_pts": { "low": -2, "point": 2, "high": 6 },
-      "predicted_conversion": { "low": 0.48, "point": 0.52, "high": 0.56 },
+      "v4_baseline": 0.50,
+      "predicted_point": 0.60,
+      "predicted_range": [0.52, 0.66],
       "drivers": [
-        "trust_signal + evidence_detail restored (V1 Trust was 60% with these; V4 Trust = 50%; restoring should lift 3-8pt)",
-        "cta_style=high_contrast_green retains the -10pt penalty observed in V2→V3 contrast — the primary Trust drag"
+        { "lever": "named_wins_restored", "expected_pts": 5, "evidence": "V1 was Trust Seeker's best at 60%" },
+        { "lever": "wins_losses_disclosure", "expected_pts": 3, "evidence": "transparency premium" },
+        { "lever": "real_closed_trade", "expected_pts": 3, "evidence": "concrete evidence; premium feel" },
+        { "lever": "explicit_sla", "expected_pts": 1, "evidence": "professional commitment language" },
+        { "lever": "urgency_removed", "expected_pts": 2, "evidence": "removes 'budget urgency tactic' perception" },
+        { "lever": "cta_copy_coherence", "expected_pts": 1, "evidence": "clean dual-CTA hierarchy" },
+        { "lever": "coupling_discount_0.7", "expected_pts": -5, "evidence": "multi-mechanism couple" }
       ],
-      "failure_conditions": [
-        "Restored trust signals don't offset the green CTA penalty — synthesizer should consider muted_premium (untested) for Trust-heavy audiences",
-        "Trust Seekers saw SEBI + named wins already in V1 — fatigue effect means V5 needs something new to get back to V1's 60%",
-        "Small sample: Trust Seeker n=10, so the -10pt V2→V3 penalty has a wide binomial interval; the true penalty could be less severe (in which case green is fine) or more severe (in which case muted_premium is necessary)"
-      ]
+      "kill_condition": "Trust Seeker < 47% after 2 weeks (premium upgrades didn't compensate for green CTA penalty)"
+    },
+    "weighted_overall": {
+      "v4_baseline": 0.44,
+      "predicted_point": 0.51,
+      "predicted_range": [0.44, 0.56],
+      "computation": "0.24×0.35 + 0.30×0.41 + 0.26×0.69 + 0.20×0.60 = 0.084 + 0.123 + 0.1794 + 0.120 = 0.5064 → 0.51"
     }
   },
 
-  "weighted_overall_prediction": {
-    "baseline": 0.44,
-    "baseline_source": "V4 actual",
-    "predicted": { "low": 0.455, "point": 0.493, "high": 0.530 },
-    "lift_over_baseline_pts": { "low": 1.5, "point": 5.3, "high": 9.0 },
-    "confidence_grade": "medium",
-    "confidence_diagnosis": "4 dimensions observed-high (modal_interrupt, price_visibility, cta_style, urgency_mechanism) / 5 observed-medium (layout, branding, cta_stack, trust_signal, evidence_detail) / 3 untested (cta_primary_label, refund_or_guarantee_copy, trade_evidence). Within the medium-confidence roll-up threshold. Non-linearity discount (~0.7) applied to simultaneous-change predictions."
+  "untested_stack_count": {
+    "fully_untested_elements": 1,
+    "_breakdown": "Only real_closed_trade is fully untested (no observed datapoint for this exact UI). cta_outline_label is honest re-write of existing copy. explicit_sla is concretization of V4's existing implicit_refund. urgency_removed is the absence of an existing element."
   },
 
-  "exploratory_alternative": {
-    "change": "cta_style: high_contrast_green → muted_premium",
-    "predicted": { "low": 0.465, "point": 0.503, "high": 0.540 },
-    "median_lift_vs_primary_pts": 1.0,
-    "risk": "Fourth untested value stacked on top of the existing three. Expected-mechanism argument is concrete (preserves Bargain's visual hierarchy while removing Trust's green-penalty mechanism) but has no observation in the dataset. Recommended only if audience skews Trust-heavy or if the engagement explicitly wants to showcase the system's ability to reach for untested upside."
-  },
-
-  "flags": [
-    "V5 predicted median 49.3% vs IDEA.md's 52-55% headline. The gap is explained by: (a) balanced-mode default chose green over muted_premium (-1pt); (b) this synthesis applies a non-linearity discount for 6 simultaneous V4→V5 changes. IDEA.md's 52-55% is the 'everything works as mechanism predicts' upper bound; my 53% high-tier matches that.",
-    "3 untested values stacked (cta_primary_label, refund_or_guarantee_copy, trade_evidence). Each has a strong named mechanism, but the combined untested interaction is unobserved. Post-ship evaluation should record predicted vs actual per-segment to close this loop.",
-    "V4.refund_or_guarantee_copy source inconsistency (matrix.flags item 2) carries forward: if V4 actually shows refund copy, explicit_sla is a known-safe upgrade; if not, it's adding a new element. Confidence on that dimension is conditional on source resolution.",
-    "Trust Seeker n=10 means the -10pt green penalty has a wide binomial interval. The balanced choice of green is defensible given the noise; the exploratory alternative (muted_premium) hedges against the penalty being at the high end of the interval."
-  ],
-
-  "handoff": {
-    "next_step": "adversary agent (IDEA.md Day 5) — must challenge these 12 choices before spec-writer runs.",
-    "adversary_input": "this file + the matrix + the overlay",
-    "adversary_prompt_hint": "Do not give general concerns. For each element choice, name the single failure mechanism most likely to make the post-ship actual underperform the prediction, and state the falsifiable prediction that would prove the objection right within 30 days of ship."
-  }
+  "confidence_grade_overall": "medium-high",
+  "confidence_rationale": "v2 untested-stack count = 1 (down from 3 in v1). Most V5 elements are observed in V4 already; the change is concretization or copy coherence. Wilson intervals on n=10-15 per segment remain the binding uncertainty constraint, not synthesis quality."
 }

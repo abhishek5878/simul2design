@@ -1,120 +1,103 @@
 {
-  "version": "1.0",
+  "version": "2.0",
   "client": "univest",
   "variant_reviewed": "V5",
-  "reviewed_at": "2026-04-23",
-  "synthesis_file": "data/univest/synthesized_variant.json",
+  "reviewed_at": "2026-04-24",
+  "synthesis_file": "data/univest/synthesized_variant.json (v2)",
+  "supersedes_version": "1.0 (2026-04-23)",
   "blind_review": false,
-  "client_preference_bias_detected": true,
-  "client_preference_note": "I read IDEA.md during parse-simulation. IDEA.md's V5 proposal (muted_premium / real_closed_trade / explicit_sla / 'See 1 real trade, free' / named wins restored) aligns with 5 of 6 of my synthesized V5 substantive changes. Partial confirmation bias present but mitigated: every choice is cited against weighted_scores.json evidence, and I substituted high_contrast_green for muted_premium on the evidence basis. For the next client, the synthesize run must be performed by an agent that has NOT read the client-narrative doc — structural separation required per CLAUDE.md.",
+  "client_preference_bias_note": "Reviewer has read prior session context. Partial confirmation bias mitigated by: (a) every objection has a falsifiable kill-condition; (b) the v2 re-extraction itself was prompted by user challenge of facts, not by alignment with prior narrative.",
+
+  "v2_change_summary": "v2 V5 design has fewer untested elements than v1 V5 (1 vs 3) because the matrix re-extraction revealed V4 already had refund copy, SEBI badge, aggregate metrics, crown branding. Many v1 blockers no longer apply.",
 
   "objections": [
     {
       "id": "obj-001",
-      "targets": ["cta_primary_label"],
-      "severity": "blocker",
-      "in_matrix_challenge": "Citation is overlay_mechanism only — no in-matrix evidence. The 33% V4 mismatch-notice is evidence that the current 'Unlock FREE trade' label is a trust cost, not evidence that any replacement label works better.",
-      "out_of_matrix_mechanism": "Two stacked failures: (a) SEBI advertising rules on 'free' language — 'free' claims that resolve to a ₹1 step may trigger a compliance flag; (b) the label's honesty depends entirely on the subsequent flow actually being 'free to see the trade' — if the user clicks and the very next step asks for ₹1, the mismatch is not removed, it's relocated to a worse position (post-click trust violation is worse than pre-click).",
-      "falsifiable_prediction": "(a) Legal/compliance review flags the word 'free' within 2 weeks of copy submission. (b) If 'See 1 real trade' leads to a ₹1 step before the trade is shown, Skeptical Investor drop-off at that step is ≥ 40% (measurable in session funnel analytics).",
-      "suggested_revision": "Either (i) subsequent flow must deliver on 'free' — see one real trade without any payment friction — which is a product change, not a copy change, and must be agreed with Univest product team; OR (ii) revise label to 'See a real trade for ₹1' — less compelling but operationally defensible."
+      "targets": ["cta_primary_label_outline"],
+      "severity": "operational_precondition",
+      "v1_severity_was": "blocker",
+      "title": "'See 3 real trades, free' must actually deliver 3 free trades pre-payment",
+      "challenge": "If user taps the outline CTA and gets a paywall instead of 3 real trades, the copy is deceptive — bigger trust violation than V4's mismatched but vague labels. v1 raised this same concern; v2 sharpens to a precondition.",
+      "kill_condition": "Instrumentation event v5_payment_required_before_trade fires at all → stop-ship. v5_trade_shown_before_payment must fire on every outline-CTA tap.",
+      "status_in_v2": "Unresolved at design-time; must be operational commitment (Operational Precondition 1 in spec)."
     },
     {
       "id": "obj-002",
       "targets": ["refund_or_guarantee_copy"],
-      "severity": "blocker",
-      "in_matrix_challenge": "Citation is 64% element-level cite of refund as strongest reassurance — supports the mechanism direction, not the specific '60s to source, no questions' SLA.",
-      "out_of_matrix_mechanism": "The SLA is an OPERATIONAL promise. Indian payment rails: UPI refund is fast (seconds to minutes), but if the ₹1 was on card the refund can take 5-7 business days; bank transfer refunds are 1-3 days. A published 60s SLA that breaks on card or bank payments is a bigger trust violation than the prior absence of refund copy. Secondary: 'No questions asked' creates adverse-selection risk — serial free-trialers may shift LTV down even if activation is up.",
-      "falsifiable_prediction": "(a) p90 refund fulfillment time across V5 cohort's first 500 trials exceeds 60s. (b) V5 cohort 30-day LTV is ≥ 20% below V4 cohort despite higher activation (adverse selection signal).",
-      "suggested_revision": "Revise to match Univest's actual operational capability. Candidates: 'Refund in 2 minutes for UPI, up to 3 days for cards' (specific), OR 'Full refund, no questions asked' (removes SLA risk, keeps the pro-Skeptical mechanism — but still exposes adverse selection). The SLA line must be backed by ops signoff before ship."
+      "severity": "operational_precondition",
+      "v1_severity_was": "blocker",
+      "title": "'Refund in 60s to source. No questions.' must match Univest's actual refund SLA per payment method",
+      "challenge": "If UPI is 30s but card is 5 days, the SLA is fiction. Skeptical Investor's trust gap closes only if the SLA is real. Same as v1; spec's per-payment-method SLA matrix in §4 addresses this.",
+      "kill_condition": "v5_refund_issued p90 elapsed_seconds > stated SLA for ≥ 1 week → switch to weaker copy ('Refund issued same business day') and update spec.",
+      "status_in_v2": "Unresolved at design-time; must be operational commitment with per-payment-method SLA matrix (Operational Precondition 2)."
     },
     {
       "id": "obj-003",
-      "targets": ["trade_evidence"],
-      "severity": "blocker",
-      "in_matrix_challenge": "100% Skeptical friction on blurred_card is solid direction. Mechanism that real_closed_trade removes the gap is coherent but untested. Citation is overlay_mechanism only.",
-      "out_of_matrix_mechanism": "Four stacked operational / regulatory concerns: (a) backend variance — if the 'most recent closed trade' is a loss, the conversion pitch collapses on first page load; (b) SEBI past-performance rules require a disclaimer that reintroduces 'abstract metrics' trust cost at the disclaimer level; (c) 'real' is under-specified — 3-hour-old vs 3-day-old trades have different trust value; (d) cherry-picking suspicion — if the system only ever shows wins, Skeptical pattern-matches within a few visits.",
-      "falsifiable_prediction": "(a) V5 Skeptical Investor conversion ≤ 27% (≤ 2pt above V4's 25%) means the mechanism didn't transfer. (b) Regulatory review flags the trade card within the first week of content submission. (c) User session analytics show average trade-card-age > 72 hours — too stale to drive urgency.",
-      "suggested_revision": "Spec-writer must specify: (i) stock selection rule (most recent closed winning trade of any subscribed-plan customer, sampled hourly?), (ii) staleness ceiling (trade must be < 24h old or surface is hidden / fallback copy shown), (iii) SEBI disclaimer placement that does not re-introduce abstract-metrics noise, (iv) explicit cycle-detection for cherry-picking (if a user sees 5 wins in a row, show 'browse recent trades (mixed)' link). Without these, real_closed_trade is a promise the product cannot keep."
+      "targets": ["trade_evidence", "wins_losses_disclosure"],
+      "severity": "should_fix",
+      "v1_severity_was": "blocker",
+      "title": "Real closed trade risks cherry-picking; partly mitigated by wins/losses disclosure but trade selection rules still need spec",
+      "challenge": "Showing one closed winning trade reads as cherry-picked unless: (a) the user can browse all recent trades including losses, AND (b) the selection rule is published. v2 V5 helps via wins_losses_disclosure ('914 wins · 62 losses') which structurally defeats the 'they only show winners' suspicion at the aggregate level. But the specific shown trade still needs a defensible selection rule.",
+      "kill_condition": "If post-test 'browse all trades' link engagement < 5%, the cherry-picking mitigation didn't reach users. Switch to a 'mixed pool' display (1 win + 1 loss) for V5.1.",
+      "status_in_v2": "Mitigated structurally; spec must specify (i) trade selection rule (e.g., 'most recent closed trade in subscriber-tier portfolio, last 24h'), (ii) Browse all link visibility, (iii) max-trade-age threshold."
     },
     {
       "id": "obj-004",
       "targets": ["branding"],
-      "severity": "should_fix",
-      "in_matrix_challenge": "Weakest citation in the V5 output: 'default_by_adoption_rate' means 'most variants picked this' — not evidence that it's right. The in-matrix confound is the V2/V3 cluster, not a clean 'no branding wins' contrast.",
-      "out_of_matrix_mechanism": "Crown header may drive Trust Seeker conversion via premium-tone signaling separately from its confounded V2/V3 friction. Dropping all branding could cost 2-3pt on Trust Seeker.",
-      "falsifiable_prediction": "V5 Trust Seeker conversion within ±2pt of V4 (50%) instead of the predicted 52% — no meaningful lift from the restored trust_signal + evidence_detail.",
-      "suggested_revision": "Run a mini-test V5a (no branding) vs V5b (logo_only) for 2 weeks before full ship. If Trust Seeker delta > 3pt, adopt logo_only. Low-cost hedge against a weak citation."
+      "severity": "RESOLVED",
+      "v1_severity_was": "should_fix",
+      "title": "Crown branding evidence",
+      "challenge": "v1 V5 had branding=none with weak evidence. v2 confirms V4 actually has crown_header (V2/V3/V4 all do). Crown is universal-adoption tier — well-evidenced.",
+      "status_in_v2": "RESOLVED by re-extraction. V5 keeps crown_header per V4."
     },
     {
       "id": "obj-005",
       "targets": ["cta_style"],
-      "severity": "should_fix",
-      "in_matrix_challenge": "+6.42pt is the strongest in-matrix claim in V5. But the Trust Seeker -10pt is on n=10 (binomial 95% interval is approximately -25pt to +5pt).",
-      "out_of_matrix_mechanism": "Temporal drift: 2026 fintech design trends have moved toward muted palettes; bright green may be 'budget fintech' coded in a way the simulation (likely done in earlier simulation-time) did not capture. The Trust Seeker penalty may be larger now than the V2→V3 contrast measured.",
-      "falsifiable_prediction": "V5 Trust Seeker conversion ≥ 13pt below V1 (60%) — i.e., below 47%. If so, green penalty is larger than measured and muted_premium should have been primary.",
-      "suggested_revision": "Univest A/B tests V5a (green) vs V5b (muted_premium) as the V5 ship rather than picking one at synthesis time. This is the cheapest way to resolve the green-vs-muted decision with real data."
+      "severity": "watch",
+      "v1_severity_was": "should_fix",
+      "title": "Trust Seeker green-CTA penalty",
+      "challenge": "V2->V3 contrast showed Trust Seeker -10pt from green CTA on light theme. V4 demonstrated recovery via dark-theme-restoration. v2 V5 keeps V4's dark + green combo, so the V3-light-theme penalty doesn't apply structurally. Residual risk: if Trust Seeker conversion still drops, switch to muted_premium dark teal (mockup pre-rendered as v5b-muted-premium.png).",
+      "kill_condition": "Trust Seeker < 47% after 2 weeks → switch to muted_premium for next ramp stage.",
+      "status_in_v2": "Watch item; post-ship contingency in place. Not a launch blocker."
     },
     {
       "id": "obj-006",
-      "targets": ["evidence_detail"],
-      "severity": "should_fix",
-      "in_matrix_challenge": "71% stock-naming cite is strong direction but on V1's specific stock roster. Mechanism depends on user-stock relationship, which is out-of-matrix context.",
-      "out_of_matrix_mechanism": "Stock-selection dependence: the V1 simulation used ZOMATO (context for specific persona cohort). Real users may have no relationship with ZOMATO. Indian F&O traders (growing segment) may dismiss ZOMATO/RELIANCE as 'too basic.' Also temporal: a 2023 ZOMATO win referenced in 2026 feels stale.",
-      "falsifiable_prediction": "V5 Curious Beginner engagement time on the named-wins carousel < 2s avg — mechanism didn't land. Or A/B test with personalized (user's watchlist) vs fixed roster shows ≥ 3pt delta.",
-      "suggested_revision": "Spec-writer specifies: stock selection criteria (top-5 by recent closed-trade volume OR personalized to user's watchlist/search), refresh cadence (daily minimum), staleness limit (no trade older than 7 days referenced)."
+      "targets": ["urgency_mechanism"],
+      "severity": "should_fix_NEW_in_v2",
+      "title": "Removing countdown timer is a Bargain Hunter risk",
+      "challenge": "v1 matrix incorrectly had the timer as V1-only. v2 reveals timer is V1-V4. Removing it in V5 is a real change. Bargain Hunter conversion in V1 (54%) was 16pt above Control's 38% — some of that lift may have been timer-driven urgency. V4's 7s avg conversion suggests the structural urgency (price + 'free trades' framing) works without explicit timer, but the mechanism is partially confounded.",
+      "kill_condition": "Bargain Hunter conversion drops > 5pt vs V4 over 2 weeks → restore timer (V5.1 with timer = pure A/B test of timer effect).",
+      "status_in_v2": "Should-fix surfaced by re-extraction. Watch in instrumentation."
     },
     {
       "id": "obj-007",
-      "targets": ["layout"],
-      "severity": "instrument",
-      "in_matrix_challenge": "Universal adoption is a weak positive. V1's full_screen_dark and V2-V4's full_screen both 'worked' but were not compared.",
-      "out_of_matrix_mechanism": "Viewport variance: Indian fintech audience skews toward older Android devices with viewport height < 640px. full_screen may cut off CTAs or introduce scroll-friction on these devices.",
-      "falsifiable_prediction": "If ≥ 25% of V5 traffic is on devices with viewport height < 640px and their conversion is ≥ 10pt below overall, responsive behavior is the driver.",
-      "suggested_revision": "Instrument only: observation layer tracks viewport-height vs conversion. No synthesis revision needed; spec-writer should specify a minimum responsive baseline."
+      "targets": ["per_segment_predicted_v5.skeptical_investor"],
+      "severity": "should_fix",
+      "v1_severity_was": "should_fix (kept)",
+      "title": "Skeptical mechanisms are coupled — apply 0.7× discount per coupled mechanism",
+      "challenge": "5 V5 levers target Skeptical via shared 'honesty substrate' (real trade + wins/losses + explicit SLA + countdown removal + CTA copy fix). Independent-mechanism assumption is wrong. Synthesize already applies 0.7 discount to the predicted point; estimator must propagate to interval.",
+      "kill_condition": "Skeptical observed lift < 50% of predicted point → coupling discount was insufficient; revise to 0.5 for next client.",
+      "status_in_v2": "Acknowledged in synthesis drivers list; estimator applies."
     },
     {
       "id": "obj-008",
-      "targets": ["trust_signal"],
-      "severity": "instrument",
-      "in_matrix_challenge": "V1's 60% Trust Seeker was on n=10 with SEBI + named wins together. The mechanisms are still confounded.",
-      "out_of_matrix_mechanism": "Saturation effect: Indian users have seen SEBI numbers on every regulated ad for 5+ years. SEBI alone is table-stakes, not differentiation. The named-wins element is likely doing most of the work that V1's trust_signal block is credited with.",
-      "falsifiable_prediction": "A/B test V5a (SEBI + named wins) vs V5b (named wins only) shows no significant Trust Seeker delta.",
-      "suggested_revision": "Instrument only: post-ship A/B test recommended but not a synthesis revision. SEBI presence is required by law anyway; don't remove."
+      "targets": ["evidence_detail", "stock_selection_for_PastWinsCarousel"],
+      "severity": "should_fix",
+      "title": "Curious Beginner anchor depends on stock selection — out-of-matrix risk",
+      "challenge": "V1's named-wins effect (TMPV/ZOMATO/RELIANCE +rupee gains) depends on user pre-existing relationship with those specific stocks. V5's carousel will name different stocks. The 'I bought it last year' mechanism may not transfer if Univest's actual stock picks don't resonate with each user.",
+      "kill_condition": "Curious Beginner conversion < 30% after 2 weeks AND post-test 'named stock recall' < 10pt above pre-test → carousel personalization is required.",
+      "status_in_v2": "Should-fix; carousel personalization is a V5.1 upgrade."
     }
   ],
-
-  "cross_dimension_objections": [
-    {
-      "id": "cd-001",
-      "severity": "should_fix",
-      "objection": "Three untested values with COUPLED mechanisms, not independent ones. cta_primary_label='See 1 real trade, free' + trade_evidence=real_closed_trade both depend on 'show a real thing' honesty; if real_closed_trade fails (backend variance, stale data, regulatory disclosure bloat), the label's promise is simultaneously broken. Similarly, explicit_sla + real_closed_trade both target Skeptical Investor — if one fails, the other's Skeptical lift compounds negatively, not independently.",
-      "in_matrix_challenge": "synthesize applied a 0.7 non-linearity discount assuming independent mechanisms. Coupled mechanisms warrant a 0.5 discount or lower.",
-      "falsifiable_prediction": "V5 Skeptical Investor actual conversion is ≤ V5-low (30%) even though one of the three mechanisms works — because the others' failures propagate. The propagation is the observable.",
-      "suggested_revision": "synthesize re-run: apply coupled-mechanism discount factor 0.5 for Skeptical predictions (since all 3 untested choices target this segment). Revised Skeptical V5 interval: 27% – 33% – 37% instead of 30% – 35% – 40%. Weighted overall re-estimate: 44% – 48% – 52% (lower bound now at V4 baseline — the risk of zero lift is real)."
-    },
-    {
-      "id": "cd-002",
-      "severity": "should_fix",
-      "objection": "The V5 design depends on operational discipline (60s refund SLA, fresh real_closed_trade with loss-handling, honest 'free' flow, personalized stock selection). If any of these operational/content/ops disciplines slips post-ship, V5 underperforms the synthesis irrespective of design. Synthesis can't see this; the deliverable spec must name the operational contract.",
-      "falsifiable_prediction": "If ANY of the following slips in first 30 days: refund p90 > 60s / real_closed_trade age > 24h avg / conversion flow doesn't match 'free' promise / stock selection stale, V5 actual underperforms V5-point by ≥ 5pt.",
-      "suggested_revision": "Spec-writer MUST include an 'Operational Preconditions' section listing these 4 disciplines as hard prerequisites. If Univest cannot commit to the preconditions, V5 must be downscoped (e.g., revert cta_primary_label, keep blurred_card but ship with named_past_outcome restoration as the one change)."
-    }
-  ],
-
-  "untested_stack_interaction_analysis": "3 untested values, all targeting Skeptical Investor's trust gap via different mechanisms that share the same honesty-and-operational-discipline substrate. This is NOT an independent stack — it's a cluster bet on Univest's ability to deliver 'we show you real things' as a coherent product posture. If they can, V5 may exceed the 53% high tier. If they can't even at one dimension, Skeptical lift collapses and V5 lands at V4-parity (~44%). The cluster risk is not captured in synthesize's 0.7 discount. Recommend synthesize revision with 0.5 discount on Skeptical predictions and an explicit 'operational precondition' flag on the V5 ship.",
 
   "summary": {
-    "blockers": 3,
-    "should_fix": 5,
-    "instrument_only": 2,
-    "recommendation": "revise_with_conditions",
-    "recommendation_detail": "V5 element set is structurally sound — the 12-dimension choices follow the evidence. But 3 blockers require resolution before spec-writer runs: (1) cta_primary_label 'free' language must clear legal AND the subsequent flow must deliver on free (product change); (2) refund SLA must be backed by ops signoff or revised to match operational reality; (3) real_closed_trade needs spec-level rules on selection / staleness / cherry-picking detection / SEBI disclaimer. Additionally, the coupled-mechanism correction reduces Skeptical's predicted interval and opens a real risk of V5 landing at V4 parity. The spec must include an explicit Operational Preconditions section."
-  },
-
-  "overruled_objections": [],
-
-  "handoff": {
-    "next_step": "synthesize revision pass: (1) reduce Skeptical non-linearity discount to 0.5 (coupled mechanisms), (2) flag 3 blockers for spec-writer's attention, (3) maintain balanced-mode high_contrast_green (green is defensible; muted_premium remains an exploratory alternative, now also recommended by adversary as an A/B-at-ship option).",
-    "estimate_conversion_input": "Coupled-mechanism discount factor must flow into Wilson-interval widening for Skeptical segment specifically."
+    "blockers_v1": 3,
+    "blockers_v2": 0,
+    "operational_preconditions_v2": 2,
+    "should_fixes_v2": 4,
+    "watch_items_v2": 1,
+    "resolved_by_re_extraction": 1,
+    "recommends": "approve_with_operational_preconditions",
+    "v2_summary_one_line": "v2 V5 has zero design-blockers. The two remaining gates are operational commitments Univest must make (refund SLA per payment method, free flow delivers 3 trades pre-payment). Everything else is post-ship watch."
   }
 }

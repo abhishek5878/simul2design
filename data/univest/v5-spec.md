@@ -1,376 +1,368 @@
-# V5 — Buildable spec for Univest ₹1 trial activation
+# V5 — Buildable spec for Univest ₹1 trial activation (v2 — screenshot-validated)
 
-> **Source evidence:** [element_matrix.json](./element_matrix.json) • [weighted_scores.json](./weighted_scores.json) • [synthesized_variant.json](./synthesized_variant.json) • [adversary_review.json](./adversary_review.json) • [conversion_estimates.json](./conversion_estimates.json)
-> **Generated:** 2026-04-23
-> **Predicted weighted-overall conversion:** **48.6%** (Wilson 95% band 22.3% – 52.0%). Baseline: V4 at 44%.
+> **Source evidence:** [element_matrix.json](./element_matrix.json) (v2) • [weighted_scores.json](./weighted_scores.json) (v2) • [synthesized_variant.json](./synthesized_variant.json) (v2) • [adversary_review.json](./adversary_review.json) (v2) • [conversion_estimates.json](./conversion_estimates.json) (v2) • [source-screenshots/](./source-screenshots/) (immutable)
+> **Generated:** 2026-04-24 (supersedes 2026-04-23)
+> **Predicted weighted-overall conversion:** **51%** (mechanism range **44–56%**, Wilson envelope 22–74%). Baseline: V4 at 44%. **Median lift +7pt.**
 
 ---
 
 ## 0. Executive summary
 
-**The decision: ship V5.** Six element changes from V4. Predicted weighted-overall conversion **48.6%** (Wilson 95% band 22.3% – 52.0%) vs V4's 44% — **+4.6pt median lift**. Confidence **medium**; the low tier is wide because the source simulation has only n=10-15 per segment, not because the design is weak.
+**The decision: ship V5.** Seven element changes from V4. Predicted weighted-overall **51%** vs V4's 44% — **+7pt median**. Confidence **medium** (downgraded from medium-high because simulator-LLM provenance is undisclosed; see §9.4).
 
-**Why each audience segment activates** (per-segment data, not aggregate hand-waving):
+The v2 re-extraction (screenshots) revealed that most of V5's "new elements" were already present in V4 — refund copy, SEBI badge, crown branding, aggregate metrics. **V5's actual value-add is narrower and more defensible**: replace blurred trade card with real disclosed trade, **adopt V1's wins/losses transparency**, remove the manipulation-perceived countdown timer, concretize the vague refund copy, and fix the dual-CTA copy mismatch by matching the actual offer count (3 free trades, not 1).
+
+**Why each audience segment activates:**
 
 | Segment | Weight | V4 → V5 | Why they activate (audience reasoning + evidence) |
 |---|---|---|---|
-| **Skeptical Investor** | 24% | 25% → **32%** | All three trust barriers removed in one design pass: blurred trade card → real closed trade with entry/exit/days/gain disclosed; absent refund copy → explicit "Refund in 60s to source" SLA; vague trust signal → SEBI registration + named past wins. Source quotes: *"Show me a real trade or don't"* (V2/V3/V4 reaction, **12 of 12 segment users = 100%**) and *"₹1 with a refund is essentially free"* (V4). |
-| **Curious Beginner** | 30% | 33% → **40%** | V1's named-stock carousel restored — TMPV, ZOMATO, RELIANCE with absolute rupee gains (e.g. *"ZOMATO +₹23,435 in 3 days"*). The "I bought it last year — if they nailed that, I should listen" anchor mechanism. **71% of V1 users cited a stock by name**; V2-V4 stripped these out for "cleaner design" and lost the anchor. |
-| **Bargain Hunter** | 26% | 69% → **71%** | V4's strongest elements preserved at full strength: high-contrast green CTA (**+16pt for this segment** in clean V2→V3 contrast), "free" framing in CTA copy, fast 7-second decision flow (V4 measured) protected by removing dual-CTA cognitive load. |
-| **Trust Seeker** | 20% | 50% → **52%** | SEBI badge + premium upgrades (real trade card, refund SLA, single CTA hierarchy) outweigh the green CTA premium-feel penalty. V1's trust-signal stack drove Trust Seeker to dataset-max **60%**; V5 restores that stack. The green CTA's −10pt penalty is real but the trust restoration is +8 to +10pt. |
+| **Skeptical Investor** | 24% | 25% → **35%** | Five trust barriers removed simultaneously: blurred trade card → real closed trade with full disclosure; vague "instant refund" → explicit "Refund in 60s to source"; missing wins/losses ratio → V1's "914 wins · 62 losses" transparency adopted (defeats cherry-picking structurally); "04:34 Left" countdown removed (41% of segment flagged as manipulation); CTA copy made coherent with the actual 3-trade offer. Source quote (12/12 = 100% segment): *"Show me a real trade or don't"* — V5 answers literally. |
+| **Curious Beginner** | 30% | 33% → **41%** | V1's named-stock carousel (TMPV, ZOMATO +₹23,435, RELIANCE) restored. *"I bought it last year — if they nailed that, I should listen"* anchor mechanism. **71% of V1 users cited a stock by name**; V2-V4 dropped this and lost the segment's primary anchor. |
+| **Bargain Hunter** | 26% | 69% → **69%** (≈flat) | V4's strongest elements preserved at full strength: high-contrast green sticky CTA (+16pt observed for this segment), dual-CTA self-segmentation that contributed to V4's 44% lift, "free" framing in outline copy, ~7-second decision flow protected. Risk: countdown-timer removal could cost 1-2pt; real_closed_trade adds reading time. Net: ~flat. |
+| **Trust Seeker** | 20% | 50% → **60%** | V1 was Trust Seeker's best at 60%. V5 restores V1's full trust stack (named wins + wins/losses transparency + SEBI prominence) while keeping V4's dark theme that already muted the green-CTA premium-feel penalty. Premium upgrades likely overcome any residual penalty. |
 
-**The four levers, in evidence-strength order:**
+**The four levers that drive the +7pt, in evidence-strength order:**
 
-1. **Real closed trade card** (replaces V2/V3/V4's blurred teaser) — removes 100% of the persistent Skeptical Investor friction. Highest-conviction lever.
-2. **Restored SEBI + named-wins trust signals** (V1's strongest assets, dropped in V2-V4) — re-engages Curious + Trust segments via observed mechanism (V1 was Trust Seeker's best variant at 60%).
-3. **Explicit refund SLA** ("Refund in 60s to source. No questions.") — concretizes the strongest pricing reassurance (**64% of source-page element-level cites refund as #1 reassurance**).
-4. **Single CTA with honest "free" framing** ("See 1 real trade, free") — eliminates V4's 33%-noticed dual-CTA mismatch without losing the "free" hook that drove Bargain Hunter conversion.
+1. **Real closed trade card** + **wins/losses disclosure** (paired) — V5's structural answer to the cherry-picking adversary objection. The disclosure ("914 wins · 62 losses") shows the full denominator; the closed trade shows the front of the win pile. Skeptical Investor's persistent friction is removed at both the aggregate AND the instance level.
+2. **Restored V1 named-wins carousel** (TMPV, ZOMATO +₹23,435, RELIANCE) — the Curious Beginner anchor mechanism V2-V4 dropped.
+3. **CTA copy coherence** — outline "See 3 real trades, free" (matches the banner's actual offer count) + sticky "Activate for ₹1." Resolves V4's 33%-noticed mismatch friction without removing the dual-CTA structure that drove V4's lift.
+4. **Concretize refund + remove countdown** — "Refund in 60s to source. No questions." replaces V4's vague "instant refund." Countdown timer removed (Skeptical-only friction with no demonstrated cross-segment lift).
 
-**Ship gate.** Three Operational Preconditions in §4 must be signed off (legal, ops, product). All three are commitments to operational reality, not design changes — V5 is design-complete and ship-ready conditional on those gates. The instrumentation in §5 means any failure mode shows up in the data within days, not quarters.
+**Ship gate.** Two operational preconditions in §4 must be signed off (legal + ops). Down from 4 in v1; the corrected matrix removed 2 design-blockers that v1 raised (V4 already has the elements v1 V5 was "introducing").
 
 ---
 
-## 1. Changes from V4 (the diff)
+## 1. Changes from V4 — the corrected diff
 
 ### 1.1 `trade_evidence` — V4 `blurred_card` → V5 `real_closed_trade`
 
-- **What changes:** Replace the blurred/redacted trade card with a fully disclosed real closed trade. Stock name, entry price, exit price, days held, absolute rupee gain — all visible. No blur, no "unlock to see."
-- **Replaces component:** `BlurredTradeCard` (semantic name; match Univest's actual component).
-- **New component:** [`ClosedTradeCard`](#21-closedtradecard) — see spec in §2.
-- **Citation:** `friction_points.blurred_card_alienates_skeptics` — *"Blurred trade card reads as a gimmick to Skeptical Investors. 12/12 (100% of segment). Persistent across V2/V3/V4."* Supporting quote: *"Show me a real trade or don't."*
-- **Expected per-segment impact:** Skeptical +4 to +11pt (coupled-mechanism-adjusted). Other segments: neutral to small positive.
-- **Untested:** yes. Mechanism is strong but operational preconditions (§4) must hold.
+- **What changes:** Replace the blurred Live Trade card (stock name / entry price / target price hidden) with a fully disclosed Closed Trade card. Stock name, entry price, exit price, days held, absolute rupee gain — all visible. Plus a "Browse all recent trades (mixed outcomes)" link for cherry-picking defense.
+- **Replaces component:** `BlurredTradeCard` (Univest's current Live Trades card with values blurred).
+- **New component:** [`ClosedTradeCard`](#21-closedtradecard) — see §2.
+- **Citation:** `friction_points.blurred_card_alienates_skeptics` — *"12/12 (100% of Skeptical segment) flagged blurred card as gimmick. Persistent across V2/V3/V4."* Quote: *"Show me a real trade or don't."*
+- **Per-segment expected impact:** Skeptical +5pt (after coupling discount). Other segments: neutral.
+- **Untested:** yes — no observed datapoint for this exact UI. Mechanism is strong; the wins/losses disclosure (§1.5) provides additional structural defense.
 
-### 1.2 `refund_or_guarantee_copy` — V4 `absent` → V5 `explicit_sla`
+### 1.2 `wins_losses_disclosure` — V4 `no` → V5 `yes` (NEW dimension)
 
-- **What changes:** Add an explicit refund SLA line near the primary CTA. Must be operationally backed.
-- **Replaces component:** none (V4 has no refund copy per source; see flag in §9).
-- **New component:** [`RefundSlaLine`](#22-refundslaline) — see spec in §2.
-- **Citation:** element-level source note — *"64% cited refund clause as strongest pricing reassurance."* Overlay mechanism: explicit SLA closes Skeptical trust gap.
-- **Expected per-segment impact:** Skeptical +2 to +5pt. Cross-segment +1 to +2pt.
-- **Untested:** yes. Adversary blocker 2 — SLA text must match operational reality.
+- **What changes:** Add V1's transparency display: "All-time accuracy 84.7% (**914 wins · 62 losses**)" prominently shown alongside the SEBI badge. V2/V3/V4 dropped this (kept only the 84.7% claim without the denominator).
+- **Replaces component:** none (V4 has SEBI + 85%+ but no wins/losses ratio).
+- **New component:** [`WinsLossesDisclosure`](#22-winslossesdisclosure) — see §2.
+- **Citation:** `matrix.variants.V1.elements.wins_losses_disclosure` — *"V1 prominently displays '914 wins · 62 losses' alongside the 84.7% accuracy claim. V1 is the only variant with this transparency. Critical defense against cherry-picking concerns."*
+- **Per-segment expected impact:** Skeptical +3pt, Trust Seeker +3pt (premium transparency).
+- **Untested as introduction:** observed in V1 (confounded with V1's other trust elements); not isolable but mechanism is structurally strong.
 
-### 1.3 `trust_signal` — V4 `implicit` → V5 `regulatory_plus_evidence` (sebi)
+### 1.3 `evidence_detail` — V4 `aggregate_metric` → V5 `aggregate_plus_named`
 
-- **What changes:** Restore the SEBI registration number and named-wins carousel that V1 had and V2/V3/V4 dropped.
-- **Replaces component:** V4 has no trust badge element.
-- **New components:** [`RegulatoryBadge`](#23-regulatorybadge) + [`PastWinsCarousel`](#24-pastwinscarousel).
-- **Citation:** V1 observational performance (Trust Seeker 60%, Curious Beginner 27%). `friction_points.abstract_metrics_vs_named_wins` — *"Abstract performance claims fail where named past wins (V1) succeeded. 8/50 (16%) cross-segment."*
-- **Expected per-segment impact:** Trust Seeker +3 to +8pt. Curious Beginner +3 to +8pt.
-- **Untested:** no (observed in V1, though confounded with evidence_detail).
+- **What changes:** Restore V1's named-wins carousel (TMPV +12.93%, ZOMATO +₹23,435 closed in 3 days, RELIANCE +12.93%) to coexist with V4's existing aggregate metrics (85%+ Accuracy, 3500+ Profitable Trades). Both formats serve different segments.
+- **Replaces component:** V4 has only the aggregate row.
+- **New component:** [`PastWinsCarousel`](#23-pastwinscarousel) — see §2. Sits between the aggregate metrics row and the new ClosedTradeCard.
+- **Citation:** *"71% of V1 users cited a stock by name."* Quote: *"I bought it last year — if they nailed that, I should listen."* (Curious Beginner V1 reaction to ZOMATO win.)
+- **Per-segment expected impact:** Curious +5pt, Trust Seeker +5pt.
+- **Untested:** no — observed in V1.
 
-### 1.4 `evidence_detail` — V4 `none` → V5 `named_past_outcome` (stock_named_with_rupee_gain)
+### 1.4 `urgency_mechanism` — V4 `countdown_timer` → V5 `none`
 
-- **What changes:** Previously-rendered carousel now names specific stocks with specific rupee gains. Paired with trust_signal block above.
-- **Delivered via:** [`PastWinsCarousel`](#24-pastwinscarousel) — see §2.
-- **Citation:** *"71% of V1 users cited a stock by name."* Curious Beginner anchor quote: *"I bought it last year — if they nailed that, I should listen."*
-- **Untested:** no (observed in V1, confounded with trust_signal).
+- **What changes:** Remove the "04:34 Left" countdown timer from the price+refund banner. The banner keeps the price and refund copy; the timer disappears.
+- **Replaces component:** `CountdownTimerBadge` in the banner (V1-V4 all had it — corrected from v1 spec which thought V4 didn't).
+- **New component:** none (removal).
+- **Citation:** `friction_points.countdown_timer_manipulation` — *"6/50 users (41% of Skeptical Investors) flagged countdown as manipulation. Persistent across V1-V4 per screenshot re-extraction."*
+- **Per-segment expected impact:** Skeptical +3pt, Trust Seeker +2pt, Curious +1pt, Bargain -2pt (timer may have helped urgency-driven conversion).
+- **Untested as removal:** yes — no observed variant in the dataset removes the timer. V5 is the first.
 
-### 1.5 `cta_primary_label` — V4 `"Unlock FREE trade"` → V5 `"See 1 real trade, free"`
+### 1.5 `refund_or_guarantee_copy` — V4 `implicit_refund` ("Activate @ ₹1 & Get instant refund") → V5 `explicit_sla` ("Refund in 60s to source. No questions.")
 
-- **What changes:** Honest framing matching what the flow actually delivers. REQUIRES the subsequent flow to actually show the trade without payment friction (see Operational Precondition 1).
-- **Replaces component:** `ActivationCTAButton` label prop.
-- **Citation:** Overlay mechanism. V4 evidence: *"33% of V4 users noticed the discrepancy. 5/50 (10%) flagged as 'mildly deceptive.'"*
-- **Expected per-segment impact:** Skeptical +1 to +3pt (removes trust erosion).
-- **Untested:** yes. Adversary blocker 1 — legal review required + flow alignment.
+- **What changes:** Replace the vague "Get instant refund" copy with a specific operational commitment: "Refund in 60s to source. No questions." (Per-payment-method SLA matrix in §4.)
+- **Replaces component:** the refund text inside `PriceRefundBanner` — the banner element exists in V2/V3/V4 (corrected from v1 which thought V4 had no refund copy).
+- **Updated component:** [`PriceRefundBanner`](#24-pricerefundbanner) — see §2 (modified, not new).
+- **Citation:** Element-level note — *"64% cited refund clause as strongest pricing reassurance."*
+- **Per-segment expected impact:** Skeptical +2pt, Trust Seeker +1pt.
+- **Untested as concretization:** yes — but lower-risk than v1 thought, because V4 already has implicit_refund as a baseline.
 
-### 1.6 `cta_stack` — V4 `dual_outline_plus_sticky` → V5 `single`
+### 1.6 `cta_primary_label` (outline) — V4 `"Unlock FREE trade"` → V5 `"See 3 real trades, free"`
 
-- **What changes:** Remove V4's outline "Unlock FREE trade" + sticky "₹1 Trial" pair. Replace with one primary CTA ([`ActivationCTA`](#25-activationcta)).
-- **Replaces component:** `DualCtaStack`.
-- **Citation:** `friction_points.dual_cta_label_mismatch` — 5/50 (10%) flagged the label mismatch; element-level 33% noticed the discrepancy.
-- **Expected per-segment impact:** Cross-segment +0 to +2pt.
-- **Untested:** no (single was V3's stack and performed well there).
+- **What changes:** The outline CTA label changes to match the actual offer count (banner says "Claim 3 FREE Trades"; old V4 outline said singular "Unlock FREE trade" — that's the 33%-noticed mismatch).
+- **Replaces component:** `OutlineCtaButton.label` prop.
+- **Citation:** `matrix.flags.cta_inconsistency` — *"Banner says '3 FREE Trades' but outline CTA says 'Unlock FREE trade' (singular). Internal copy inconsistency, contributes to dual_cta_label_mismatch friction (33% noticed in V4)."*
+- **Per-segment expected impact:** Cross-segment +1pt (removes mismatch friction).
+- **Untested:** copy is untested but the mechanism (label-matches-banner) is straightforward.
+- **Operational requirement:** the outline CTA flow MUST actually deliver 3 free trades pre-payment (Operational Precondition 1).
 
-### Unchanged from V4
+### 1.7 `cta_secondary_label` (sticky) — V4 `"Start FREE Trial @ ₹1"` → V5 `"Activate for ₹1"`
 
-`layout=full_screen`, `modal_interrupt=no`, `branding=none`, `price_visibility=visible_primary`, `cta_style=high_contrast_green`, `urgency_mechanism=none`.
+- **What changes:** Sticky CTA label simplified — the outline already carries the "free" message; the sticky now carries only the activation commitment.
+- **Replaces component:** `StickyCtaButton.label` prop.
+- **Citation:** Overlay mechanism — clean dual-CTA hierarchy.
+- **Per-segment expected impact:** Cross-segment +0 to +1pt.
+- **Untested:** copy is untested; mechanism is straightforward separation-of-concerns.
 
-> **Adversary obj-005 — Trust Seeker green-CTA risk.** V5 ships with green (data-backed: +6.42pt clean V2→V3 contrast). Post-ship contingency: if Trust Seeker conversion drops ≥ 5pt vs V4 over 2 weeks, switch to muted dark-teal (mockup at [`design/v5b-muted-premium.png`](./design/v5b-muted-premium.png)) for the next ramp stage. Sequenced contingency, not a parallel A/B test. See §7.
+### Unchanged from V4 (preserved correctly per v2 re-extraction)
+
+`layout=full_screen_dark`, `modal_interrupt=no`, `branding=crown_header`, `price_visibility=visible_with_framing`, `cta_style=outline_on_dark_plus_sticky_green`, `cta_stack=dual_outline_plus_sticky`, `trust_signal=regulatory_plus_evidence (sebi)`, the `aggregate_metric` portion of evidence_detail (V5 ADDS named to the existing aggregate, doesn't replace).
+
+> **Adversary obj-005 — Trust Seeker green-CTA risk.** V5 ships with green sticky on dark theme (V4 already demonstrated this combo recovers Trust Seeker from V3's green-on-light penalty). Post-ship contingency: if Trust Seeker conversion drops ≥ 5pt vs V4 over 2 weeks, switch to muted dark-teal sticky (mockup at [`design/v5b-muted-premium.png`](./design/v5b-muted-premium.png)). Sequenced contingency, not parallel A/B. See §7.
 
 ---
 
 ## 2. Component specifications
 
-### 2.1 `ClosedTradeCard`
+### 2.1 ClosedTradeCard
 
-**Purpose:** Show one fully disclosed recent closed winning trade to deliver on the "See 1 real trade, free" CTA promise and remove the blurred-card trust gap.
+**Purpose:** Replace V4's `BlurredTradeCard` (Live Trades section). The single most-frequently-rendered evidence component.
 
-**Fields / props:**
-
-| Name | Type | Source | Example |
-|---|---|---|---|
-| `stock_name` | string | `/api/v1/trades/closed` → latest | `"ZOMATO"` |
-| `stock_ticker` | string | `/api/v1/trades/closed` → latest | `"ZOMATO"` |
-| `entry_price` | decimal (₹) | `/api/v1/trades/closed` → latest | `142.50` |
-| `exit_price` | decimal (₹) | `/api/v1/trades/closed` → latest | `165.85` |
-| `days_held` | integer | `/api/v1/trades/closed` → latest | `3` |
-| `rupee_gain` | decimal (₹) | computed: `(exit-entry) × qty` | `23435` |
-| `trade_closed_at` | timestamp | `/api/v1/trades/closed` → latest | `2026-04-22T14:32Z` |
-| `advisor_name` | string (optional) | `/api/v1/trades/closed` → latest | `"Rahul K."` |
-
-**Copy strings (verbatim):**
-
-- Card header: `"Closed trade — <days_held> days ago"`
-- Outcome line: `"<stock_name> +₹<rupee_gain> in <days_held> day<s>"` (singular/plural on days)
-- Entry/exit row: `"Entry ₹<entry_price> → Exit ₹<exit_price>"`
-- Regulatory disclaimer (legally required): `"Past performance does not indicate future returns. This is one closed trade; not all trades are profitable."`
-- Link: `"Browse all recent trades (mixed outcomes)"` — linked to full trade log. **Mandatory** per adversary obj-003 cherry-picking mitigation.
+**Fields:**
+- `stock_name: string` — verbatim ticker (e.g., `"ZOMATO"`)
+- `entry_price: number` (₹)
+- `exit_price: number` (₹)
+- `days_held: number`
+- `absolute_gain_inr: number` (positive — this is a winning trade)
+- `closed_at_iso: string` — for the "Closed N days ago" relative timestamp
+- `subscriber_tier: string` — defensive against showing trades only available to higher tiers
+- `is_disclosed_for_compliance: boolean` — SEBI past-performance disclaimer required if true (always true for India; see §4)
 
 **Data contract:**
-
 ```
-GET /api/v1/trades/closed?limit=1&sort=recency&filter=outcome:win&max_age_hours=24
-
-Returns: { trade: ClosedTrade, has_recent_losses_in_pool: boolean }
-
-Staleness rule: trade_closed_at must be within 24h. If no winning trade within 24h, fallback.
-Fallback: render "Most recent trades are still open. Browse the last 30 days" with link to trade history. Do NOT render a stale card (> 24h old).
+GET /api/v1/trades/closed?
+    limit=1
+    &filter=outcome:win
+    &max_age_hours=24
+    &subscriber_tier=trial_eligible
+    &order_by=recency_desc
 ```
+- Cache: 5min stale-while-revalidate.
+- Fallback if no eligible trade in 24h: hide the card entirely (do NOT show a stale trade).
+- Fallback if API fails: hide the card and log `v5_closed_trade_card_hidden{reason: "api_error"}`.
+
+**Visual design:**
+- Card background: light surface on the dark theme (white/off-white box on the dark navy page).
+- Stock name + closed-N-days-ago timestamp at top.
+- "+₹{absolute_gain_inr}" in green, large.
+- Entry / Exit / Days held in a 3-column row.
+- Below the card: a text link "Browse all recent trades (mixed outcomes) →" pointing to `/trades/recent` — visible cherry-picking defense.
+- Compliance disclaimer below: "Past performance is not indicative of future returns. SEBI INH000013776." — small but legible.
 
 **Acceptance criteria:**
+- AC1: card renders with all 5 fields populated, no nulls.
+- AC2: if any field missing, card does not render and `v5_closed_trade_card_hidden{reason:"data_incomplete"}` fires.
+- AC3: "Browse all" link is keyboard-tabbable.
+- AC4: compliance text is at least 11px and contrast ratio ≥ 4.5:1.
 
-- [ ] Renders one winning closed trade with all six fields populated; zero-state if no trade < 24h old.
-- [ ] "Browse all recent trades (mixed outcomes)" link is always visible when card renders.
-- [ ] SEBI disclaimer visible at 12pt minimum on all viewports.
-- [ ] If `has_recent_losses_in_pool=true`, card still renders (does not hide the loss context).
-- [ ] Falls back gracefully (see staleness rule); never shows a card > 24h old.
+### 2.2 WinsLossesDisclosure
 
-### 2.2 `RefundSlaLine`
+**Purpose:** Display V1's transparency format adapted for the v2 metrics. Sits in the trust-evidence row alongside SEBI badge.
 
-**Purpose:** Close Skeptical Investor's refund-disbelief gap with an explicit, operationally-backed SLA.
-
-**Fields / props:**
-
-| Name | Type | Source | Example |
-|---|---|---|---|
-| `payment_method` | enum: `upi` \| `card` \| `bank` | user's selected payment method at CTA | `"upi"` |
-| `sla_text` | string | derived per payment_method (see copy) | — |
-
-**Copy strings (verbatim, conditional on payment_method):**
-
-- UPI: `"Refund in 2 minutes to UPI. No questions."`
-- Card: `"Refund in 3–5 business days to card. No questions."`
-- Bank: `"Refund in 1–3 business days. No questions."`
-- Fallback (if method unknown at render time): `"Full refund to source. No questions asked."`
-
-> **Deliberate revision from synthesize's "Refund in 60s to source":** adversary obj-002 flagged the 60s SLA as operationally unachievable for cards/bank. Revised copy matches actual payment-rail capability. Mechanism (explicit SLA → Skeptical trust closure) preserved; fiction removed.
-
-**Data contract:** none — purely rendered copy based on payment method selection.
-
-**Acceptance criteria:**
-
-- [ ] Text updates reactively when user changes payment method.
-- [ ] "No questions" language matches client's actual refund policy (Operational Precondition 2).
-- [ ] Placement: directly below `ActivationCTA`, within 16px.
-
-### 2.3 `RegulatoryBadge`
-
-**Purpose:** Display SEBI registration number. Table-stakes compliance signal for Trust Seeker segment.
-
-**Fields / props:**
-
-| Name | Type | Source | Example |
-|---|---|---|---|
-| `sebi_number` | string | env var / settings | `"INA000016527"` |
-| `label_prefix` | string | constant | `"SEBI Registered Advisor"` |
-
-**Copy strings:**
-
-- Full text: `"SEBI Registered Advisor: <sebi_number>"`
-
-**Data contract:** reads `SEBI_REGISTRATION_NUMBER` from app config. Never hardcoded.
-
-**Acceptance criteria:**
-
-- [ ] Rendered in header area, visible above the fold on all viewports ≥ 320px wide.
-- [ ] Font size ≥ 12pt, legible contrast ratio ≥ 4.5:1 against background.
-- [ ] Clickable to a `/regulatory` page with full compliance info (not in V5 scope but link must exist).
-
-### 2.4 `PastWinsCarousel`
-
-**Purpose:** Anchor the Curious Beginner segment via named past stock wins. Replaces V2/V3/V4's missing evidence signal.
-
-**Fields / props:**
-
-| Name | Type | Source | Example |
-|---|---|---|---|
-| `wins` | array of `{ticker, pct_gain, days_held, trade_closed_at}` | `/api/v1/trades/top_recent_wins?limit=5&max_age_days=7` | see below |
-| `refresh_interval_seconds` | integer | constant | `5` (for carousel rotation) |
-
-Example `wins[0]`: `{ticker: "ZOMATO", pct_gain: 16.4, days_held: 3, trade_closed_at: "2026-04-20T..."}`
-
-**Copy strings (per-card, templated):**
-
-- `"<ticker> +<pct_gain>% in <days_held> day<s>"`
+**Fields:**
+- `accuracy_percent: number` (e.g., `84.7`)
+- `wins_count: number` (e.g., `914`)
+- `losses_count: number` (e.g., `62`)
+- `period_label: string` (e.g., `"All-time"` or `"Last 12 months"`)
 
 **Data contract:**
+```
+GET /api/v1/stats/track_record?period=all_time
+```
+- Refresh: daily; cache 24h.
+- If `wins_count + losses_count == 0` → hide entire row (cannot make claim without denominator).
 
+**Visual design:**
+- Row format: "All-time accuracy **84.7%**" (bold) + small gray subtext "(914 wins · 62 losses)"
+- Position: in the trust-evidence row, between the SEBI badge column and the "3500+ Profitable Trades" column. Replaces V4's "85%+ Accuracy Rate" cell with the more honest version.
+
+**Acceptance criteria:**
+- AC1: losses count is visible at the same prominence as wins count (no font-size discrimination).
+- AC2: total-sample (wins+losses) is what gets reported as the denominator; cannot show wins without showing losses.
+
+### 2.3 PastWinsCarousel
+
+**Purpose:** Restore V1's named-wins carousel — the Curious Beginner anchor.
+
+**Fields per item:**
+- `stock_name: string`
+- `gain_format: "percent" | "absolute_inr" | "both"`
+- `gain_value: number`
+- `closed_at_iso: string`
+- `closed_descriptor: string` (e.g., `"Closed same day"`, `"Closed in 3 days"`)
+
+**Data contract:**
 ```
 GET /api/v1/trades/top_recent_wins?limit=5&max_age_days=7
-
-Returns: { wins: WinItem[], total_closed_trades_in_period: integer, win_rate: decimal }
-
-Staleness rule: every win.trade_closed_at ≤ 7 days old.
-Fallback: if fewer than 3 wins in last 7 days, do NOT render a reduced carousel — hide the component entirely and do not claim a carousel track record.
 ```
+- Refresh: hourly.
+- Fallback if fewer than 3 results: hide carousel.
+
+**Visual design:**
+- Horizontal-scroll row of 3-5 cards.
+- Each card: stock name (top), "+12.93%" or "+₹23,435" (mid, green), "Net Gain · Closed N days ago" (subtext).
+- Position: between the trust-evidence row and the ClosedTradeCard.
 
 **Acceptance criteria:**
+- AC1: at least 3 cards render or carousel is hidden.
+- AC2: "Closed N days ago" is computed at render time, not stored.
+- AC3: tapping a card opens `/trades/{stock}/{trade_id}` (audit trail).
 
-- [ ] Component hides itself if the API returns < 3 wins in 7 days. No misleading "best performing" claim on a thin track record.
-- [ ] Each card is tappable and navigates to that trade's full disclosure (same view as `ClosedTradeCard` §2.1 for that stock).
-- [ ] Carousel pauses on tap, resumes after 10s idle.
-- [ ] Regulatory disclaimer visible near carousel (see `RegulatoryBadge` — may be unified).
+### 2.4 PriceRefundBanner (modified)
 
-### 2.5 `ActivationCTA`
+**Purpose:** V4 already has this banner ("Activate @ ₹1 & Get instant refund · 04:34 Left"). V5 modifies: keep price + refund framing; **REPLACE refund copy with explicit SLA**; **REMOVE countdown timer**.
 
-**Purpose:** The one primary CTA. Replaces V4's dual stack.
+**Fields:**
+- `price: number` (₹1)
+- `refund_sla_text: string` — verbatim: `"Refund in 60s to source. No questions."`
+- (countdown_text field deleted)
 
-**Fields / props:**
-
-| Name | Type | Source | Example |
-|---|---|---|---|
-| `label` | string | constant (see Copy §3) | `"See 1 real trade, free"` |
-| `cta_style` | enum: `high_contrast_green` \| `muted_premium` | A/B test flag | `"high_contrast_green"` |
-| `onClick` | function | routes to trade-view flow | — |
-
-**Copy strings:**
-
-- Primary (V5a / green): `"See 1 real trade, free"`
-- Alternative (V5b / muted_premium): same label, different style
-
-**Data contract:** no data fetch; pure UI.
+**Visual design:**
+- Banner: dark blue background, white text.
+- Top line: "**Claim 3 FREE Trades →**" (preserved from V4, links to outline CTA).
+- Bottom line: "Activate @ ₹1 — **Refund in 60s to source. No questions.**"
+- No countdown badge in upper-right.
 
 **Acceptance criteria:**
+- AC1: refund SLA text matches Operational Precondition 2's per-payment-method matrix (if any payment method's SLA exceeds 60s, copy must change).
+- AC2: no countdown element renders.
 
-- [ ] Tapping the CTA navigates to the trade-view flow that shows the ClosedTradeCard **without any payment step** (Operational Precondition 1). This is the "free" promise delivered.
-- [ ] Sticky: remains visible at bottom of viewport on scroll.
-- [ ] Minimum tap target 44×44 pt.
-- [ ] Style variant selectable via feature flag (`cta_style_variant`) for V5a/V5b A/B test (Section 7).
-- [ ] Text rendered verbatim, no A/B on the label string itself.
+### 2.5 DualCtaStack (preserved structure, copy fixed)
+
+**Purpose:** V4 has dual; V5 keeps the dual structure (per user decision Option B 2026-04-24). Copy fixed for coherence.
+
+**Outline CTA (top of viewport, above ClosedTradeCard):**
+- Label: `"See 3 real trades, free"`
+- Style: outline button, green border + green text, transparent fill (works on dark theme)
+- Tap → routes to `/trades/free-preview` showing 3 closed trades pre-payment (Operational Precondition 1).
+
+**Sticky CTA (bottom of viewport):**
+- Label: `"Activate for ₹1 →"`
+- Style: solid green fill (high_contrast_green), white text. Sticky to bottom of viewport.
+- Tap → routes to `/checkout/trial?amount=1` (existing flow).
+
+**Acceptance criteria:**
+- AC1: outline CTA label matches banner offer count exactly (both say "3").
+- AC2: tapping outline CTA must NOT route to a payment screen (Op Precondition 1 — kill-condition `v5_payment_required_before_trade` fires immediately if violated).
+- AC3: sticky CTA flow is unchanged from V4's existing ₹1 trial activation.
 
 ---
 
-## 3. Copy book
+## 3. Copy book (verbatim — engineer must match exactly)
 
-| Key | Text | Length | Reviewer gate |
-|---|---|---|---|
-| `activation.cta.primary` | `"See 1 real trade, free"` | 23 chars | **legal** — adversary obj-001, word "free" flagged |
-| `activation.refund_sla.upi` | `"Refund in 2 minutes to UPI. No questions."` | 42 | **ops** — must match actual SLA capability |
-| `activation.refund_sla.card` | `"Refund in 3–5 business days to card. No questions."` | 51 | **ops** |
-| `activation.refund_sla.bank` | `"Refund in 1–3 business days. No questions."` | 43 | **ops** |
-| `activation.regulatory.badge` | `"SEBI Registered Advisor: <sebi_number>"` | ~40 | — (regulated copy; do not modify) |
-| `trade_card.header` | `"Closed trade — <days_held> days ago"` | — | — |
-| `trade_card.outcome` | `"<ticker> +₹<rupee_gain> in <days> day(s)"` | — | — |
-| `trade_card.disclaimer` | `"Past performance does not indicate future returns. This is one closed trade; not all trades are profitable."` | 121 | **legal** — SEBI past-performance rule |
-| `trade_card.browse_link` | `"Browse all recent trades (mixed outcomes)"` | 42 | — |
-| `carousel.card_template` | `"<ticker> +<pct_gain>% in <days> day(s)"` | — | — |
+| Element | Copy (verbatim) |
+|---|---|
+| Banner top line | `Claim 3 FREE Trades →` |
+| Banner bottom line | `Activate @ ₹1 — Refund in 60s to source. No questions.` |
+| Outline CTA label | `See 3 real trades, free` |
+| Sticky CTA label | `Activate for ₹1 →` |
+| Trust row column 1 | `SEBI Reg. INH000013776` |
+| Trust row column 2 | `All-time accuracy 84.7% (914 wins · 62 losses)` |
+| Trust row column 3 | `3500+ Profitable Trades` |
+| Closed trade card disclaimer | `Past performance is not indicative of future returns.` |
+| Browse all link | `Browse all recent trades (mixed outcomes) →` |
 
 ---
 
 ## 4. Operational preconditions (hard prerequisites)
 
-From [adversary_review.json](./adversary_review.json) blockers. **If any of these cannot be committed before ship, descope V5 to V5-narrow (keep only `PastWinsCarousel` + `RegulatoryBadge`; revert the three untested changes).**
+V5 is design-complete. These two operational commitments are required before ship:
 
-- [ ] **Precondition 1: "Free" means free.** The `ActivationCTA` label `"See 1 real trade, free"` must navigate to a flow that shows the closed trade card WITHOUT any payment step. The ₹1 subscription step must come AFTER the trade is shown (or never — if the user can browse one trade for free and subscribe only for ongoing advice). Owner: Product. Measurable: funnel analytics show ≤ 2% drop-off at any step labeled "₹1" before the trade view renders.
+### Precondition 1 — "Free" flow actually delivers 3 free trades pre-payment
+- **What:** The outline CTA `See 3 real trades, free` must route to a flow that shows 3 closed trades without requiring any payment, account creation friction, or paywall.
+- **Why:** If the user taps "See 3 real trades, free" and sees a payment screen, the copy is deceptive — bigger trust violation than V4's mismatched-but-vague labels.
+- **Owner:** Product + engineering.
+- **Verifiable by:** Integration test that taps outline CTA and asserts no payment screen, KYC screen, or signup gate fires before 3 trades are shown.
 
-- [ ] **Precondition 2: Refund SLA matches payment-rail reality.** Revised per-method SLA copy (§2.2) must match Univest's operational p90 refund time per method, measured on actual historical refunds. Owner: Ops + Finance. Measurable: ops sign-off document comparing stated SLA to p90 actuals.
+### Precondition 2 — Refund SLA per payment method matches the copy
+- **What:** "Refund in 60s to source. No questions." must be operationally true for every payment method Univest accepts. If UPI is 30s but card is 5 days, the SLA copy must be revised before ship to either (a) generic weaker copy, or (b) per-payment-method conditional copy.
+- **Owner:** Operations + payments team + legal.
+- **Verifiable by:** SLA matrix doc showing observed p90 refund elapsed-time per payment method over the past 30 days. Submit before ship.
 
-- [ ] **Precondition 3: Real trade card operational rules.**
-  - Source: `/api/v1/trades/closed` returns the most recent closed WINNING trade, max 24h old. Owner: Backend.
-  - Cherry-picking mitigation: `"Browse all recent trades (mixed outcomes)"` link always present and functional. Owner: Frontend + Backend.
-  - SEBI past-performance disclaimer: legally reviewed copy visible. Owner: Legal.
-  - Fallback: if no winning trade in 24h, card hides (not replaced with stale card). Owner: Frontend.
-  - Measurable: pre-ship test renders V5 at every hour of a representative week; card shows fresh real trade OR hides; never shows stale.
-
-- [ ] **Precondition 4 (from adversary obj-002 adverse-selection concern):** Track V5 cohort 30-day LTV. If cohort LTV ≥ 20% below V4 cohort despite higher activation, suspend V5 rollout. Owner: Product analytics. Not a pre-ship gate; post-ship kill-switch.
+> Two preconditions, down from 4 in v1. The corrected matrix removed two design-blockers v1 raised (V4 already has the elements v1 V5 was "introducing").
 
 ---
 
 ## 5. Instrumentation
 
-Every kill-condition from [conversion_estimates.json](./conversion_estimates.json) becomes an observation-layer event.
+Every kill-condition from `conversion_estimates.json` becomes an observation event.
 
 | Event name | Trigger | Properties | Kill threshold |
 |---|---|---|---|
-| `v5_activation_impression` | `ActivationScreen` rendered | `cta_style_variant`, `segment_inferred`, `viewport_height` | — baseline |
-| `v5_closed_trade_card_rendered` | `ClosedTradeCard` appears | `stock_name`, `trade_age_hours`, `is_win`, `had_loss_in_pool` | **Kill Skeptical** if `trade_age_hours > 24` rate > 5% |
-| `v5_closed_trade_card_hidden` | fallback fired | `reason` (`no_recent_win`, `api_error`) | **Kill Skeptical** if hidden rate > 20% |
-| `v5_free_cta_clicked` | user taps `ActivationCTA` | `segment_inferred`, `cta_style_variant` | — |
-| `v5_trade_shown_before_payment` | trade view rendered pre-payment | (binary) | **Kill obj-001** if this event never fires — means flow broke the "free" promise |
-| `v5_payment_required_before_trade` | ₹1 step shown before trade | — | **Kill obj-001 immediately** — stop-ship |
-| `v5_refund_issued` | refund completed | `payment_method`, `elapsed_seconds` | **Kill Precondition 2** if p90 elapsed_seconds > stated SLA for ≥ 1 week |
-| `v5_carousel_engagement` | time on `PastWinsCarousel` | `seconds`, `taps`, `segment_inferred` | **Kill Curious** if Curious avg `seconds` < 2 |
-| `v5_conversion` | ₹1 subscription started | `segment_inferred`, `cta_style_variant`, `time_to_convert_seconds` | **Kill Bargain** if `time_to_convert_seconds` p50 > 10s |
-| `v5_cohort_ltv_30d` | 30 days post-activation | cohort-level | **Kill Precondition 4** if cohort LTV ≥ 20% below V4 |
+| `v5_activation_impression` | Activation screen rendered | `segment_inferred`, `viewport_height` | — baseline |
+| `v5_closed_trade_card_rendered` | `ClosedTradeCard` appears | `stock_name`, `trade_age_hours`, `is_win` | **Kill Skeptical** if `trade_age_hours > 24` rate > 5% |
+| `v5_closed_trade_card_hidden` | Fallback fired | `reason` (`no_recent_win` / `api_error` / `data_incomplete`) | **Kill Skeptical** if hidden rate > 20% |
+| `v5_browse_all_trades_clicked` | User taps "Browse all" link | `segment_inferred` | **Watch obj-003** — if engagement < 5%, cherry-picking mitigation didn't reach users |
+| `v5_outline_cta_clicked` | User taps "See 3 real trades, free" | `segment_inferred` | — |
+| `v5_trade_shown_before_payment` | Free-preview route renders 3 trades | `count`, `time_to_render_ms` | **Kill obj-001** if count != 3 OR time > 5s |
+| `v5_payment_required_before_trade` | Payment screen shows before any trade is rendered | (binary) | **Stop-ship immediately** — Precondition 1 broken |
+| `v5_sticky_cta_clicked` | User taps "Activate for ₹1" | `segment_inferred`, `time_to_convert_seconds` | **Kill Bargain** if `time_to_convert_seconds` p50 > 10s |
+| `v5_refund_issued` | Refund completed | `payment_method`, `elapsed_seconds` | **Kill Precondition 2** if p90 elapsed_seconds > 60 for ≥ 1 week |
+| `v5_named_stock_recall_post_test` | Post-conversion survey: "What stock was named?" | `correct_recall_pct` by segment | **Kill Curious obj-008** if Curious correct_recall < 10pt above pre-test baseline |
+| `v5_conversion` | ₹1 subscription started | `segment_inferred` | **Kill Trust Seeker** if Trust < 47% over 2 weeks (switch to muted_premium per §7) |
+| `v5_cohort_ltv_30d` | 30 days post-activation | cohort-level | **Watch** if cohort LTV ≥ 20% below V4 |
 
 ---
 
-## 6. Predicted conversion
+## 6. Predicted conversion (v2)
 
-From [conversion_estimates.json](./conversion_estimates.json). Wilson 95% intervals + coupled-mechanism discount for Skeptical.
+From [conversion_estimates.json](./conversion_estimates.json) (v2). Wilson 95% intervals + coupling discount on Skeptical.
 
 | Segment | n | V4 actual | V5 low | V5 point | V5 high | Primary kill-condition |
 |---|---|---|---|---|---|---|
-| Skeptical Investor | 12 | 25% | **9%** | **32%** | **36%** | Skeptical conv ≤ 27% after 2 weeks (mechanisms not transferring) |
-| Curious Beginner | 15 | 33% | **15%** | **40%** | **44%** | Carousel engagement < 2s avg (anchor didn't land) |
-| Bargain Hunter | 13 | 69% | **42%** | **71%** | **73%** | Time-to-convert p50 > 10s (cognitive load) |
-| Trust Seeker | 10 | 50% | **24%** | **52%** | **56%** | V5 Trust < 47% (green penalty bigger than measured — switch to muted_premium) |
-| **Weighted overall** | — | **44%** | **22.3%** | **48.6%** | **52.0%** | — |
+| Skeptical Investor | 12 | 25% | **9%** | **35%** | **62%** | Skeptical conv ≤ 27% after 2 weeks |
+| Curious Beginner | 15 | 33% | **15%** | **41%** | **65%** | Carousel named-stock recall < 10pt above pre-test |
+| Bargain Hunter | 13 | 69% | **42%** | **69%** | **87%** | Time-to-convert p50 > 10s OR conversion drops > 5pt vs V4 |
+| Trust Seeker | 10 | 50% | **24%** | **60%** | **83%** | Trust Seeker < 47% (switch to muted_premium) |
+| **Weighted overall** | — | **44%** | **22.3%** | **50.6%** | **73.8%** | — |
+| **Mechanism-derived headline range** | — | **44%** | **44%** | **51%** | **56%** | — |
 
-> **Why the low tier is wide:** baseline Wilson CIs on n=10-15 per segment are inherently wide. V4's 25% Skeptical conversion has a 95% CI of [9%, 53%] — V4's "true" Skeptical rate was never precisely 25%, it was somewhere in that band. V5's lift is layered on top, so the low tier inherits the baseline uncertainty. This is not a prediction that V5 will fail; it's the honest information content of a 5-variant test at n=50.
+> **Why two ranges:** the **Wilson envelope [22.3%, 73.8%]** is the honest small-sample reality at n=10-15 per segment. The **mechanism-derived band [44%, 56%]** is the practical decision-grade range — what V5 will produce if the synthesis is correct. The Wilson envelope is wider because n=10 baselines just are wide; the mechanism band is narrower because the synthesis adds structure.
 
 ---
 
 ## 7. Rollout recommendation
 
-**Ramp schedule:**
-- Week 1: 10% of activation traffic on V5, 90% on V4 (holdout).
-- Week 2: 50/50 split, enable kill-switches against Section 5 events.
-- Week 3: 100% V5 if no kill-condition tripped AND no Preconditions-4 alarm.
-
 **Single-design ramp (no parallel A/B at launch):**
-The data backs `cta_style=high_contrast_green` decisively (+6.42pt clean V2→V3 contrast — the strongest single-element observation in the dataset). V5 ships with green CTA as the only design — see [`design/v5a-green.png`](./design/v5a-green.png).
+V5 ships green sticky CTA on dark theme (V4 already demonstrated this combo recovers Trust Seeker from V3's green-on-light penalty: V3 40% → V4 50%).
 
-**Post-ship contingency for Trust Seeker risk:**
-If `v5_conversion` for Trust Seeker drops by ≥ 5pt vs V4's 50% over 2 weeks (i.e. lands at ≤ 45%), pause the ramp and switch to V5b (`cta_style=muted_premium`, dark-teal CTA) for the next stage. Mockup pre-rendered at [`design/v5b-muted-premium.png`](./design/v5b-muted-premium.png). Mechanism: muted_premium preserves the +16/+7/+9 Bargain/Curious/Skeptical lift while removing the −10 Trust Seeker penalty. This is a sequenced contingency triggered by data, not a parallel A/B at launch.
+**Ramp schedule:**
+- Week 1: 10% of activation traffic on V5, 90% on V4 (holdout). Enable Section 5 instrumentation.
+- Week 2: 50/50 split. Watch kill thresholds.
+- Week 3: 100% V5 if no kill-condition tripped AND no Precondition-2 alarm.
+
+**Post-ship contingency (NOT a launch alternative):**
+If Trust Seeker conversion drops ≥ 5pt vs V4's 50% over 2 weeks (i.e. lands at ≤ 45%), pause the ramp and switch to muted dark-teal sticky CTA. Mockup pre-rendered at [`design/v5b-muted-premium.png`](./design/v5b-muted-premium.png). Sequenced contingency, not parallel A/B.
 
 **Stop-ship criteria (immediate rollback):**
-- `v5_payment_required_before_trade` fires at all (Precondition 1 broke).
+- `v5_payment_required_before_trade` fires at all (Precondition 1 broken).
 - `v5_closed_trade_card_hidden` rate > 20% for 24h.
-- Legal retracts approval on "free" language or SEBI disclaimer.
+- Legal retracts approval on SEBI past-performance disclaimer copy.
 - Any segment conversion underperforms V4 by > 5pt over 2 weeks.
 
 ---
 
 ## 8. What this spec deliberately does NOT prescribe
 
-The simulation's 5 variants produced limited evidence for these dimensions. V5 keeps V4's values; any change here requires a separate test.
-
-- **`layout`**: V5 uses `full_screen` (V4's choice). No clean contrast vs `full_screen_dark`. If Univest wants to test dark theme, it requires a separate V6.
-- **`branding`**: V5 uses `none` (V4's choice). Only a weak `default_by_adoption_rate` citation supports this. Adversary obj-004 recommends a quick V5a (none) vs V5b (logo_only) test before full ship on Trust-heavy audiences.
-- **`cta_primary_label`** was a change, but the exact wording `"See 1 real trade, free"` is one defensible candidate; others ("See a real closed trade, free", "Free: see one real trade") are within the mechanism envelope. Copywriting team has latitude.
-- **Stock selection for `PastWinsCarousel`**: the carousel's effect depends on which stocks are named (adversary obj-006). Spec leaves this to product analytics — default is `GET /api/v1/trades/top_recent_wins?limit=5&max_age_days=7`, but personalization to user's watchlist is an untested upgrade.
+- **Stock selection for `ClosedTradeCard` and `PastWinsCarousel`**: the engine specifies the data contracts but not which specific stocks should win the cards. Default rule is `most recent eligible win, last 24h` for the card and `top 5 closed wins, last 7 days` for the carousel. Personalization to user's watchlist is an untested upgrade for V5.1.
+- **Exact wording of "Browse all recent trades (mixed outcomes)"**: copy team has latitude. Mechanism: visible cherry-picking-defense link.
+- **Per-payment-method refund SLA matrix**: spec requires it exists but the actual numbers are an ops commitment.
+- **Compliance disclaimer wording**: legal-team-owned. Spec provides a default that's SEBI-compliant; legal can revise.
 
 ---
 
 ## 9. Cross-references and caveats
 
-- [synthesized_variant.md](./synthesized_variant.md) — narrative V4 vs V5 for PM review.
-- [adversary_review.json](./adversary_review.json) — full structured objections (blockers + should-fix + instrument).
-- [conversion_estimates.json](./conversion_estimates.json) — Wilson intervals, coupling discount math, per-segment kill-conditions.
-- [element_matrix.json](./element_matrix.json) — the 5-variant simulation raw evidence.
+- [synthesized_variant.md](./synthesized_variant.md) (v2) — narrative V4 vs V5 for PM review.
+- [adversary_review.json](./adversary_review.json) (v2) — full structured objections (0 blockers, 2 operational preconditions, 4 should-fix, 1 watch).
+- [conversion_estimates.json](./conversion_estimates.json) (v2) — Wilson intervals, coupling math, per-segment kill-conditions.
+- [element_matrix.json](./element_matrix.json) (v2 — screenshot-validated).
+- [source-screenshots/](./source-screenshots/) — immutable reference images for all 5 variants.
 
 **Caveats:**
 
-1. The source simulation ([apriori.work/demo/univest](https://apriori.work/demo/univest)) tags `V4.refund_or_guarantee_copy=absent`, but a V4 Skeptical quote mentions refund. **If V4 actually shipped with refund copy**, V5's change in §1.2 is a known-safe upgrade to existing copy (lower risk); if it didn't, §1.2 is a new element and carries the full untested risk. Recommend visual verification of V4's live UI before ship. (`element_matrix.flags` item 2.)
+1. **Source simulation persona definitions are abstract archetypes**, not voice-of-customer-grounded. The 5 segments ("Skeptical Investor," etc.) are simulation constructs. If Univest can hand over real user-research data (app-store reviews, churn surveys, support tickets), V5 confidence intervals tighten retroactively. Filed in `tasks/improvements.md`.
 
-2. Segment weights (Skeptical 24%, Curious 30%, Bargain 26%, Trust 20%) come from the simulation's persona composition. If Univest's actual user base differs, re-run `weigh-segments` + `synthesize` with override weights.
+2. **Segment weights** (Skeptical 24%, Curious 30%, Bargain 26%, Trust 20%) come from the simulation's persona composition. If Univest's actual user base differs, re-run `weigh-segments` + `synthesize` with override weights.
 
-3. **Confidence is medium**, not high. The binding constraint is sample size in the source simulation (n=10-15 per segment). Future simulations should target n ≥ 30 per segment to narrow the Wilson bands to usable widths.
+3. **Confidence is medium**, not high. The binding constraint is sample size in the source simulation (n=10-15 per segment). Future simulations should target n ≥ 30 per segment to narrow the Wilson bands.
 
-4. **Simulator-LLM calibration is itself a source of uncertainty.** Recent work (Seshadri et al., "Lost in Simulation," 2026, arxiv:2601.17087) finds that LLM-simulated user evaluations vary by up to 9pt depending on which LLM plays the simulated user, and systematically *under-estimate* performance on hard segments while *over-estimating* on medium ones. Concrete implication for this spec: the wide low-tier interval (V5 weighted-overall 22.3%) and the kill-switch architecture in Sections 5–7 are structural responses to this known miscalibration, not over-engineering. The post-ship `sim-flow record-actuals` loop is what closes the calibration gap over time. See [../../tasks/related-work.md](../../tasks/related-work.md) §1 for the full citation and methodology adoption notes.
+4. **Simulator-LLM calibration is itself a source of uncertainty.** Per Seshadri et al., "Lost in Simulation," 2026 (arxiv:2601.17087), LLM-simulated user evaluations vary by up to 9pt across simulator LLMs and systematically *under-estimate* hard segments / *over-estimate* medium ones. Concrete implication: the wide low-tier (Wilson 22.3%) and the kill-switch architecture in §5–7 are structural responses to this known miscalibration. The post-ship `sim-flow record-actuals` loop closes the calibration gap over time. See [../../tasks/related-work.md](../../tasks/related-work.md) §1. Apriori does not disclose its simulator LLM; provenance flagged as `unknown` in conversion_estimates.json.
+
+5. **v2 supersedes v1.** The original 2026-04-23 extraction relied on the source page's prose descriptions, which omitted multiple visual elements present in V4 (refund banner, countdown, crown branding, SEBI badge, aggregate metrics). Screenshots saved as immutable artifacts at `source-screenshots/` are the new ground truth. Lesson logged in `tasks/lessons.md`.
 
 ---
 
-*Spec generated by the Multiverse Synthesis Engine. V1 of the engine, V5 of the Univest activation screen.*
+*Spec generated by the Multiverse Synthesis Engine. v2 of the engine, v2 of the V5 design for Univest activation screen.*

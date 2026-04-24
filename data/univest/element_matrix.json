@@ -1,14 +1,22 @@
 {
-  "version": "1.0",
+  "version": "2.0",
   "client": "univest",
   "source": {
     "url": "https://apriori.work/demo/univest",
-    "extracted_at": "2026-04-23",
-    "source_file": "data/univest/source.md"
+    "extracted_at": "2026-04-24",
+    "source_file": "data/univest/source-v2.md",
+    "supersedes_source_file": "data/univest/source.md",
+    "screenshots": "data/univest/source-screenshots/",
+    "extraction_method": "screenshot_validated"
   },
   "taxonomy_base": ".claude/rules/element-taxonomy-base.md",
   "taxonomy_overlay": ".claude/rules/element-taxonomy-univest.md",
   "n_total": 50,
+  "simulator_provenance": "unknown (apriori.work — underlying LLM not disclosed by demo page; flag per estimate-conversion methodology)",
+
+  "schema_version_notes": {
+    "from_v1": "v1 (source.md, 2026-04-23) was extracted from source-page prose only. v2 (source-v2.md, 2026-04-24) re-extracted from variant screenshots. v2 corrects: (a) trust_signal/evidence_detail across Control + V2-V4, (b) refund_copy/urgency_mechanism/branding for V4, (c) cta_primary_label exact text, (d) layout for V4 (full_screen_dark not full_screen), (e) adds trial_offer_count and wins_losses_disclosure as Univest-overlay dimensions."
+  },
 
   "segments": [
     { "id": "skeptical_investor", "name": "Skeptical Investor", "n": 12, "weight": 0.24 },
@@ -29,10 +37,17 @@
         "cta_style": "neutral_default",
         "cta_stack": "single",
         "urgency_mechanism": "none",
-        "refund_or_guarantee_copy": "absent",
-        "trust_signal": "implicit",
-        "evidence_detail": "none",
-        "trade_evidence": "none"
+        "refund_or_guarantee_copy": "implicit_refund",
+        "refund_text_verbatim": "Cancel anytime",
+        "trust_signal": "regulatory_plus_evidence",
+        "trust_signal_regulator": "sebi",
+        "trust_signal_regulator_id": "INH000013776",
+        "evidence_detail": "aggregate_metric",
+        "evidence_extras": ["third_party_logos:google_for_startups,economic_times", "user_testimonial:5_star_50_lakh_indians"],
+        "trade_evidence": "none",
+        "trial_offer_count": 3,
+        "trial_offer_text_verbatim": "3 STOCK/F&O IDEAS FOR FREE",
+        "wins_losses_disclosure": "no"
       },
       "conversion_by_segment": {
         "skeptical_investor": 0.08,
@@ -47,17 +62,25 @@
         "layout": "full_screen_dark",
         "modal_interrupt": "no",
         "branding": "none",
-        "price_visibility": "visible_primary",
-        "cta_primary_label": "Activate for ₹1",
+        "price_visibility": "visible_with_framing",
+        "cta_primary_label": "Start FREE Trial @ ₹1",
         "cta_style": "neutral_default",
         "cta_stack": "single",
         "urgency_mechanism": "countdown_timer",
+        "urgency_text_verbatim": "04:34 Left",
         "refund_or_guarantee_copy": "absent",
         "trust_signal": "regulatory_plus_evidence",
         "trust_signal_regulator": "sebi",
-        "evidence_detail": "named_past_outcome",
-        "evidence_detail_format": "stock_named_with_rupee_gain",
-        "trade_evidence": "none"
+        "trust_signal_regulator_id": "INH000013776",
+        "evidence_detail": "aggregate_plus_named",
+        "evidence_detail_format": "all_time_accuracy_with_wins_losses_AND_named_wins_carousel",
+        "evidence_named_wins": ["TMPV +12.93% closed_same_day", "ZOMATO ₹23,435 closed_in_3_days", "RELIANCE +12.93%"],
+        "trade_evidence": "live_trades_gated",
+        "trade_evidence_note": "LIVE Trades section shown with 'Open FREE' buttons — stock names gated; not closed trades",
+        "trial_offer_count": 3,
+        "trial_offer_text_verbatim": "Claim your 3 FREE Trades",
+        "wins_losses_disclosure": "yes",
+        "wins_losses_text_verbatim": "All-time-accuracy 84.7% (914 wins · 62 losses)"
       },
       "conversion_by_segment": {
         "skeptical_investor": 0.17,
@@ -73,14 +96,22 @@
         "modal_interrupt": "no",
         "branding": "crown_header",
         "price_visibility": "visible_with_framing",
-        "cta_primary_label": "Activate for ₹1",
+        "cta_primary_label": "Unlock FREE trade",
         "cta_style": "low_contrast_subordinate",
         "cta_stack": "single",
-        "urgency_mechanism": "none",
+        "urgency_mechanism": "countdown_timer",
+        "urgency_text_verbatim": "04:34 Left",
         "refund_or_guarantee_copy": "implicit_refund",
-        "trust_signal": "implicit",
-        "evidence_detail": "none",
-        "trade_evidence": "blurred_card"
+        "refund_text_verbatim": "Activate @ ₹1 & Get instant refund",
+        "trust_signal": "regulatory_plus_evidence",
+        "trust_signal_regulator": "sebi",
+        "evidence_detail": "aggregate_metric",
+        "evidence_detail_format": "85_pct_accuracy_3500_profitable_trades",
+        "trade_evidence": "blurred_card",
+        "trade_evidence_note": "LIVE Trades card with stock_name/entry_price/target_price all blurred",
+        "trial_offer_count": 3,
+        "trial_offer_text_verbatim": "Claim 3 FREE Trades",
+        "wins_losses_disclosure": "no"
       },
       "conversion_by_segment": {
         "skeptical_investor": 0.08,
@@ -96,14 +127,21 @@
         "modal_interrupt": "no",
         "branding": "crown_header",
         "price_visibility": "visible_with_framing",
-        "cta_primary_label": "Activate for ₹1",
+        "cta_primary_label": "Unlock FREE trade",
         "cta_style": "high_contrast_green",
         "cta_stack": "single",
-        "urgency_mechanism": "none",
+        "urgency_mechanism": "countdown_timer",
+        "urgency_text_verbatim": "04:34 Left",
         "refund_or_guarantee_copy": "implicit_refund",
-        "trust_signal": "implicit",
-        "evidence_detail": "none",
-        "trade_evidence": "blurred_card"
+        "refund_text_verbatim": "Activate @ ₹1 & Get instant refund",
+        "trust_signal": "regulatory_plus_evidence",
+        "trust_signal_regulator": "sebi",
+        "evidence_detail": "aggregate_metric",
+        "evidence_detail_format": "85_pct_accuracy_3500_profitable_trades",
+        "trade_evidence": "blurred_card",
+        "trial_offer_count": 3,
+        "trial_offer_text_verbatim": "Claim 3 FREE Trades",
+        "wins_losses_disclosure": "no"
       },
       "conversion_by_segment": {
         "skeptical_investor": 0.17,
@@ -115,18 +153,27 @@
     {
       "id": "V4",
       "elements": {
-        "layout": "full_screen",
+        "layout": "full_screen_dark",
         "modal_interrupt": "no",
-        "branding": "none",
-        "price_visibility": "visible_primary",
+        "branding": "crown_header",
+        "price_visibility": "visible_with_framing",
         "cta_primary_label": "Unlock FREE trade",
-        "cta_style": "high_contrast_green",
+        "cta_secondary_label": "Start FREE Trial @ ₹1",
+        "cta_style": "outline_on_dark_plus_sticky_green",
         "cta_stack": "dual_outline_plus_sticky",
-        "urgency_mechanism": "none",
-        "refund_or_guarantee_copy": "absent",
-        "trust_signal": "implicit",
-        "evidence_detail": "none",
-        "trade_evidence": "blurred_card"
+        "urgency_mechanism": "countdown_timer",
+        "urgency_text_verbatim": "04:34 Left",
+        "refund_or_guarantee_copy": "implicit_refund",
+        "refund_text_verbatim": "Activate @ ₹1 & Get instant refund",
+        "trust_signal": "regulatory_plus_evidence",
+        "trust_signal_regulator": "sebi",
+        "evidence_detail": "aggregate_metric",
+        "evidence_detail_format": "85_pct_accuracy_3500_profitable_trades",
+        "trade_evidence": "blurred_card",
+        "trial_offer_count": 3,
+        "trial_offer_text_verbatim": "Claim 3 FREE Trades",
+        "trial_offer_cta_inconsistency": "banner says '3 FREE Trades' but outline CTA says 'Unlock FREE trade' (singular) — internal copy inconsistency, possibly contributes to dual_cta_label_mismatch friction",
+        "wins_losses_disclosure": "no"
       },
       "conversion_by_segment": {
         "skeptical_investor": 0.25,
@@ -163,19 +210,20 @@
       "summary": "Countdown timer perceived as manufactured urgency, alienates Skeptical Investors",
       "count": 6,
       "of_total": 50,
-      "variants": ["V1"],
+      "variants_with_timer": ["V1", "V2", "V3", "V4"],
       "segment_pattern": "skeptical_investor",
-      "persistence": "introduced_then_removed"
+      "persistence": "persistent",
+      "v2_correction_note": "Original source.md said timer was V1-only. Screenshots show timer present in V2/V3/V4 banner ('04:34 Left'). The 6/50 friction is an aggregate count from V1 that likely persists in V2/V3/V4. Source-page prose called it 'V1 only' because V1 introduced it; subsequent variants kept it but didn't surface as a separate friction in the Apriori analysis."
     },
     {
       "id": "dual_cta_label_mismatch",
-      "summary": "Outline 'Unlock FREE trade' vs sticky '₹1 Trial' perceived as label mismatch / mildly deceptive",
+      "summary": "Outline 'Unlock FREE trade' (singular) vs banner 'Claim 3 FREE Trades' (plural) AND vs sticky 'Start FREE Trial @ ₹1' — internal copy inconsistency perceived as deceptive",
       "count": 5,
       "of_total": 50,
       "variants": ["V4"],
       "segment_pattern": "cross_segment",
       "persistence": "introduced",
-      "notes": "Element-level: 33% of V4 users noticed the discrepancy. 5/50 flagged it as friction."
+      "notes": "Element-level: 33% of V4 users noticed the discrepancy. 5/50 flagged it as friction. Re-extraction reveals the mismatch is two-fold: (1) outline CTA singular vs banner plural, (2) outline 'free trade' vs sticky 'free trial @ ₹1' wording mismatch."
     },
     {
       "id": "green_cta_premium_feel",
@@ -184,8 +232,8 @@
       "of_total": 50,
       "variants": ["V3"],
       "segment_pattern": "trust_seeker",
-      "persistence": "introduced",
-      "notes": "Trust Seeker conversion dropped V2 50% -> V3 40%, attributed to this change (V2->V3 differs only in cta_style)."
+      "persistence": "introduced_then_modulated",
+      "notes": "Trust Seeker conversion dropped V2 50% -> V3 40% (-10pt) when cta_style went low_contrast_subordinate -> high_contrast_green. V4 recovered Trust Seeker to 50% via dark-theme-restoration which made the green CTA feel less budget-y on dark background (now an outline+sticky combo)."
     },
     {
       "id": "blurred_card_alienates_skeptics",
@@ -198,13 +246,13 @@
     },
     {
       "id": "abstract_metrics_vs_named_wins",
-      "summary": "Abstract performance claims fail where named past wins (V1) succeeded",
+      "summary": "Abstract performance claims (85%+, 3500+) fail where named past wins (V1's TMPV/ZOMATO/RELIANCE with rupee gains) succeeded",
       "count": 8,
       "of_total": 50,
       "variants": ["V2", "V3", "V4"],
       "segment_pattern": "cross_segment",
       "persistence": "persistent",
-      "notes": "V1 was the only variant with trust_signal=regulatory_plus_evidence + evidence_detail=named_past_outcome; dropping both in V2+ is the mechanism."
+      "notes": "V1 has BOTH aggregate metrics (84.7% with 914W·62L) AND named wins. V2-V4 dropped the named-wins carousel and kept only the aggregate format (85%+, 3500+). The friction is the loss of named wins, not the presence of aggregates."
     },
     {
       "id": "cta_visibility_v2",
@@ -229,25 +277,25 @@
       "segment": "skeptical_investor",
       "variant": "V2|V3",
       "quote": "Show me a real trade or don't",
-      "context": "blurred_card reaction"
+      "context": "blurred_card reaction — note: this is the segment asking for transparency. V1's wins+losses disclosure (914W·62L) is the structural answer; V5 must adopt this format."
     },
     {
       "segment": "skeptical_investor",
       "variant": "V4",
       "quote": "I still don't believe the 84.7% claim, but ₹1 with a refund is essentially free",
-      "context": "price + refund framing — note: V4 has refund_or_guarantee_copy=absent per source; this quote may be cross-variant reflection or a source inconsistency"
+      "context": "v2 correction: V4 DOES show refund copy ('Activate @ ₹1 & Get instant refund'). The original v1 flag about source inconsistency is now resolved — the quote refers to the visible refund banner."
     },
     {
       "segment": "curious_beginner",
       "variant": "V1",
       "quote": "I bought it last year — if they nailed that, I should listen",
-      "context": "named_wins_carousel reaction (ZOMATO)"
+      "context": "named_wins_carousel reaction (ZOMATO +₹23,435 in 3 days)"
     },
     {
       "segment": "trust_seeker",
       "variant": "V4",
       "quote": "Best of both worlds — looks premium and tells me the price",
-      "context": "V4 reception — source annotates n=48 which does not match Trust Seeker segment size n=10; treated as aggregate/cross-segment note"
+      "context": "V4 reception. Re-extraction insight: 'looks premium' likely refers to the dark-theme restoration (V4 reverted to V1's dark theme) more than to the dual CTA. Trust Seeker recovered from V3's 40% → V4's 50% primarily via dark theme + crown + premium hierarchy. Source annotates n=48 — treated as aggregate."
     }
   ],
 
@@ -275,30 +323,31 @@
       { "variant": "V1", "note": "71% cited a stock by name (Recent Wins effect)" },
       { "variant": "V2|V3", "note": "64% cited refund clause as strongest pricing reassurance" },
       { "variant": "V1", "note": "Bargain Hunter conversion avg 11s" },
-      { "variant": "V4", "note": "Bargain Hunter conversion avg 7s" }
+      { "variant": "V4", "note": "Bargain Hunter conversion avg 7s" },
+      { "variant": "V1", "note": "wins_losses_disclosure: 84.7% ALL-TIME accuracy with 914 wins · 62 losses prominently shown — V1 is the only variant with this transparency. Critical defense against cherry-picking concerns." }
     ]
   },
 
   "confounds": [
     {
-      "elements": ["branding=crown_header", "trade_evidence=blurred_card", "refund_or_guarantee_copy=implicit_refund"],
-      "variants_involved": ["V2", "V3"],
-      "note": "Crown header, blurred card, and implicit refund copy co-occur exclusively in V2/V3. V4 drops crown_header and refund copy but retains blurred_card, partially breaking this cluster."
+      "elements": ["branding=crown_header", "trade_evidence=blurred_card", "trust_signal=regulatory_plus_evidence(aggregate)", "urgency_mechanism=countdown_timer"],
+      "variants_involved": ["V2", "V3", "V4"],
+      "note": "Crown + blurred card + aggregate-metric trust signals + countdown timer all co-occur in V2/V3/V4 (V1 has them all too except crown and blurred). Cannot independently attribute element effects within this cluster from the V2-V4 variants alone. V2-V4 differ by cta_style/cta_stack/layout — those are isolable; the rest is package."
     },
     {
       "elements": ["price_visibility=visible_with_framing", "refund_or_guarantee_copy=implicit_refund"],
-      "variants_involved": ["V2", "V3"],
-      "note": "Refund framing in price_visibility and refund_or_guarantee_copy co-vary perfectly — cannot attribute independently. They may be two names for the same on-screen element."
+      "variants_involved": ["V1", "V2", "V3", "V4"],
+      "note": "V1 has visible_with_framing + absent refund text on the banner (banner shows ₹1 + countdown but no refund word). V2/V3/V4 banner adds refund. The two dimensions are NOT perfectly co-varying — V1 demonstrates price-framing without refund. Confound is partial."
     },
     {
-      "elements": ["cta_style=high_contrast_green", "cta_stack=dual_outline_plus_sticky"],
+      "elements": ["cta_style=high_contrast_green", "cta_stack=dual_outline_plus_sticky", "layout=full_screen_dark"],
       "variants_involved": ["V4"],
-      "note": "High-contrast green only appears with dual stack in V4; V3 has green with single stack, which breaks the cluster. Isolated attribution possible via V3 vs V4 contrast."
+      "note": "V4 uniquely combines dark theme + dual stack + green sticky + outline-on-dark. V3 has green-on-light with single stack. The V3->V4 contrast confounds dark-theme-reversion with cta_stack change."
     },
     {
-      "elements": ["trust_signal=regulatory_plus_evidence", "evidence_detail=named_past_outcome"],
+      "elements": ["trust_signal=regulatory_plus_evidence", "evidence_detail=aggregate_plus_named", "wins_losses_disclosure=yes"],
       "variants_involved": ["V1"],
-      "note": "In Univest data, SEBI presence and named-wins evidence appear together only in V1 and nowhere else. Cannot attribute Curious Beginner's 27pt Control->V1 lift to one vs the other from data alone. See improvements.md: split trust_signal."
+      "note": "V1 uniquely combines all three trust-evidence elements: SEBI badge + named wins carousel + wins/losses transparency disclosure. Cannot attribute the +60% Trust Seeker / +27% Curious to one vs another from data alone. All three are likely synergistic; V5 should adopt all three together."
     }
   ],
 
@@ -307,46 +356,64 @@
       "contrast": "V2 -> V3",
       "diff": { "cta_style": ["low_contrast_subordinate", "high_contrast_green"] },
       "observation": "Only cta_style changed. Bargain Hunter +16pts (46 -> 62). Trust Seeker -10pts (50 -> 40). Skeptical +9pts (8 -> 17). Curious +7pts (20 -> 27).",
-      "inference": "high_contrast_green helps conversion-focused segments; penalizes premium-sensitive Trust Seeker."
+      "inference": "high_contrast_green helps conversion-focused segments; penalizes premium-sensitive Trust Seeker by 10pts on light-theme background.",
+      "v2_correction_note": "Re-validated: V2 and V3 differ ONLY in cta_style. Confirmed clean."
+    },
+    {
+      "contrast": "V3 -> V4",
+      "diff": {
+        "layout": ["full_screen", "full_screen_dark"],
+        "cta_stack": ["single", "dual_outline_plus_sticky"],
+        "cta_style": ["high_contrast_green", "outline_on_dark_plus_sticky_green"]
+      },
+      "observation": "Skeptical +8pts (17 -> 25); Curious +6pts (27 -> 33); Bargain +7pts (62 -> 69); Trust Seeker +10pts (40 -> 50).",
+      "inference": "Re-extraction reveals V3->V4 is much cleaner than originally thought (3 elements changed, not 5). Trust Seeker's +10pt recovery is the most striking — likely attributable to dark-theme-restoration rather than dual CTA (dual CTA introduced the 33%-noticed mismatch friction). The lift is dark-theme+CTA-package; cannot fully decompose."
     },
     {
       "contrast": "Control -> V1",
       "diff": {
         "layout": ["bottom_modal", "full_screen_dark"],
         "modal_interrupt": ["yes", "no"],
-        "price_visibility": ["opaque", "visible_primary"],
-        "cta_primary_label": ["Start Trial Now", "Activate for ₹1"],
+        "price_visibility": ["opaque", "visible_with_framing"],
+        "cta_primary_label": ["Start Trial Now", "Start FREE Trial @ ₹1"],
         "urgency_mechanism": ["none", "countdown_timer"],
-        "trust_signal": ["implicit", "regulatory_plus_evidence"],
-        "evidence_detail": ["none", "named_past_outcome"]
+        "evidence_detail": ["aggregate_metric", "aggregate_plus_named"],
+        "wins_losses_disclosure": ["no", "yes"],
+        "trade_evidence": ["none", "live_trades_gated"]
       },
-      "observation": "Overall completion +16pts; friction count drops from 3 to 2 (price opacity + modal interrupt resolved; countdown introduced).",
-      "inference": "Cannot isolate single-element contribution without more variants — confounded change set."
-    },
-    {
-      "contrast": "V3 -> V4",
-      "diff": {
-        "branding": ["crown_header", "none"],
-        "price_visibility": ["visible_with_framing", "visible_primary"],
-        "cta_primary_label": ["Activate for ₹1", "Unlock FREE trade"],
-        "cta_stack": ["single", "dual_outline_plus_sticky"],
-        "refund_or_guarantee_copy": ["implicit_refund", "absent"]
-      },
-      "observation": "Skeptical +8pts (17 -> 25); Curious +6pts (27 -> 33); Bargain +7pts (62 -> 69); Trust +10pts (40 -> 50).",
-      "inference": "Confounded change set — attribution requires decomposing via friction data (dual-CTA mismatch at 33% notice rate suggests dual_stack is net positive despite friction)."
+      "observation": "Overall completion +16pts; friction count drops from 3 to 2 (price opacity + modal interrupt resolved; countdown introduced as friction).",
+      "inference": "Cannot isolate single-element contribution — confounded change set. But Trust Seeker +20pt (40->60) and Curious Beginner +20pt (7->27) are unmatched by any other contrast in the dataset, suggesting the trust-evidence-package (named wins + wins/losses disclosure + SEBI prominence) is the dominant lever."
     }
   ],
 
   "extraction_confidence": {
-    "V2.cta_primary_label": "inferred",
-    "V3.cta_primary_label": "inferred",
-    "_note": "inferred = not stated explicitly in source; derived from adjacent evidence. Downstream synthesis must not treat inferred values as directly sourced."
+    "_v2_note": "v2 extraction is screenshot-validated. All extraction_confidence flags from v1 are RESOLVED.",
+    "v1_resolutions": {
+      "V2.cta_primary_label": "RESOLVED — screenshot shows 'Unlock FREE trade' (NOT 'Activate for ₹1' as v1 inferred)",
+      "V3.cta_primary_label": "RESOLVED — screenshot shows 'Unlock FREE trade' green (NOT 'Activate for ₹1' as v1 inferred)",
+      "V4.refund_or_guarantee_copy": "RESOLVED — screenshot shows 'Activate @ ₹1 & Get instant refund' banner. v1's 'absent' was wrong.",
+      "V4.urgency_mechanism": "RESOLVED — screenshot shows '04:34 Left' countdown. v1's 'none' was wrong.",
+      "V4.branding": "RESOLVED — screenshot shows crown_header. v1's 'none' was wrong.",
+      "V4.layout": "RESOLVED — screenshot shows dark theme (full_screen_dark). v1's 'full_screen' (light) was wrong.",
+      "Control.trust_signal": "RESOLVED — screenshot shows SEBI INH000013776 + multiple third-party trust signals. v1's 'implicit' was wrong.",
+      "Control.evidence_detail": "RESOLVED — screenshot shows aggregate metrics + 3rd-party logos + 5-star rating. v1's 'none' was wrong.",
+      "V2_V3_V4.trust_signal": "RESOLVED — screenshots show SEBI Reg + 85%+ Accuracy + 3500+ Trades. v1's 'implicit' was wrong for all three.",
+      "V2_V3_V4.evidence_detail": "RESOLVED — screenshots show aggregate_metric (85%+, 3500+). v1's 'none' was wrong.",
+      "V2_V3_V4.urgency_mechanism": "RESOLVED — countdown_timer is in the banner of V2/V3/V4 too, not V1-only as v1 source-prose claimed."
+    },
+    "open": []
   },
 
   "flags": [
     "Trust Seeker quote attributed to n=48 in source; segment size is n=10. Treated as aggregate observation, not segment-bound.",
-    "Skeptical Investor V4 quote mentions 'refund' but V4's refund_or_guarantee_copy is 'absent' per source variant description. Possible source inconsistency or quote refers to ₹1 price framing rather than explicit refund copy. Flagged, not resolved. See tasks/improvements.md: confirm V4.refund via UI screenshot.",
     "Conversion rates are rounded percentages (8%, 17%, 25%). Given small n per segment (10-15), the true uncertainty band is ±5-10 percentage points. Downstream synthesis should not overfit to 1-2pt differences.",
-    "V2/V3 cta_primary_label is inferred from the 'Activate @ ₹1' banner, not from an explicitly stated button label. See extraction_confidence."
-  ]
+    "V4 outline CTA says 'Unlock FREE trade' (singular) but banner says 'Claim 3 FREE Trades' (plural). This internal inconsistency is part of the dual-CTA-mismatch friction. V5 must commit to one offer count consistently.",
+    "Simulator LLM is undisclosed by apriori.work demo. Per estimate-conversion methodology (Lost in Simulation, Seshadri et al. 2026), simulator_provenance=unknown downgrades overall confidence one tier."
+  ],
+
+  "v5_design_decisions_recorded": {
+    "cta_stack_call": "B (dual_outline_plus_sticky preserved from V4 but made functionally coherent — outline shows trades for free, sticky activates ₹1 subscription)",
+    "decided_at": "2026-04-24",
+    "rationale": "Source page recommendation + user direction + V4 lift attribution analysis. V4's 44% lift came partly from dual-CTA self-segmentation; preserving that mechanism while fixing the mismatch via consistent copy is more defensible than removing it."
+  }
 }

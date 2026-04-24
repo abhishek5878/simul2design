@@ -2,44 +2,57 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>V5a — Univest ₹1 trial activation (green CTA)</title>
+<title>V5 — Univest ₹1 trial activation (v2 — dark + dual CTA + 3 trades + wins/losses)</title>
 <style>
   :root {
-    --bg: #FFFFFF;
-    --surface: #F8FAFC;
-    --text-strong: #0F172A;
-    --text: #1E293B;
-    --text-muted: #64748B;
-    --text-faint: #94A3B8;
-    --border: #E2E8F0;
-    --border-strong: #CBD5E1;
-    --accent-green: #10B981;     /* high_contrast_green primary */
+    --bg-page: #0B1426;
+    --bg-card: #FFFFFF;
+    --bg-trust-row: #1A2942;
+    --bg-banner: #243A5E;
+    --bg-carousel-card: #FFFFFF;
+
+    --text-strong: #F8FAFC;
+    --text: #E2E8F0;
+    --text-muted: #94A3B8;
+    --text-faint: #64748B;
+    --text-on-card: #0F172A;
+    --text-on-card-muted: #475569;
+
+    --accent-green: #10B981;
+    --accent-green-bright: #22C55E;
     --accent-green-dark: #059669;
-    --positive: #059669;
+    --accent-green-soft: #ECFDF5;
+
+    --positive: #16A34A;
     --negative: #DC2626;
-    --highlight-bg: #ECFDF5;
-    --sebi-badge: #EEF2FF;
-    --sebi-text: #4338CA;
+
+    --sebi-bg: #1E3A8A;
+    --sebi-text: #DBEAFE;
+    --gold: #F59E0B;
+
+    --border-on-dark: #334155;
+    --border-on-light: #E2E8F0;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-font-smoothing: antialiased; }
   html, body {
     font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
-    background: #CBD5E1;
+    background: #1E293B;
     color: var(--text);
     font-size: 15px;
     line-height: 1.4;
   }
   .phone {
     width: 375px;
-    height: 812px;
+    min-height: 812px;
     margin: 20px auto;
-    background: var(--bg);
+    background: var(--bg-page);
     border-radius: 32px;
-    box-shadow: 0 20px 60px rgba(0,0,0,.18);
-    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,.35);
+    overflow: visible;
     position: relative;
     display: flex;
     flex-direction: column;
+    padding-bottom: 88px;
   }
   .status-bar {
     height: 44px;
@@ -50,312 +63,375 @@
     font-size: 14px;
     font-weight: 600;
     color: var(--text-strong);
+    flex-shrink: 0;
   }
-  .status-bar .icons {
-    display: flex;
-    gap: 6px;
-    font-size: 12px;
-  }
-  .app-header {
-    padding: 8px 20px 16px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border-bottom: 1px solid var(--border);
-  }
-  .brand {
-    font-weight: 700;
-    font-size: 17px;
-    color: var(--text-strong);
-    letter-spacing: -0.01em;
-  }
-  .sebi-badge {
-    background: var(--sebi-badge);
-    color: var(--sebi-text);
-    font-size: 10px;
-    font-weight: 600;
-    padding: 4px 8px;
-    border-radius: 6px;
-    letter-spacing: 0.02em;
-  }
-  .sebi-badge .label { opacity: .75; font-weight: 500; }
+  .status-bar .icons { display: flex; gap: 6px; font-size: 12px; }
   .scroll-area {
     flex: 1;
-    overflow-y: auto;
-    padding: 20px 20px 120px;
+    overflow: visible;
   }
-  .eyebrow {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--accent-green-dark);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    margin-bottom: 8px;
+
+  /* Crown header */
+  .crown-block {
+    display: flex; flex-direction: column; align-items: center;
+    padding: 8px 20px 12px;
   }
-  .headline {
-    font-size: 24px;
-    font-weight: 700;
-    color: var(--text-strong);
-    line-height: 1.15;
-    letter-spacing: -0.015em;
+  .crown {
+    width: 38px; height: 30px;
+    background: linear-gradient(180deg, #93C5FD 0%, #3B82F6 100%);
+    border-radius: 4px 4px 8px 8px;
+    position: relative;
     margin-bottom: 6px;
   }
-  .subhead {
-    font-size: 14px;
-    color: var(--text-muted);
-    margin-bottom: 20px;
+  .crown::before {
+    content: '';
+    position: absolute;
+    top: -8px; left: 0; right: 0;
+    height: 12px;
+    background:
+      radial-gradient(circle at 14% 100%, #DBEAFE 5px, transparent 6px),
+      radial-gradient(circle at 50% 100%, #DBEAFE 6px, transparent 7px),
+      radial-gradient(circle at 86% 100%, #DBEAFE 5px, transparent 6px);
   }
-  .wins-section { margin-bottom: 24px; }
-  .section-label {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--text-faint);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    margin-bottom: 8px;
-  }
-  .wins-carousel {
-    display: flex;
-    gap: 8px;
-    overflow-x: auto;
-    scrollbar-width: none;
-    margin: 0 -20px;
-    padding: 0 20px;
-  }
-  .wins-carousel::-webkit-scrollbar { display: none; }
-  .win-chip {
-    flex: 0 0 auto;
-    background: var(--highlight-bg);
-    border: 1px solid #A7F3D0;
-    border-radius: 10px;
-    padding: 8px 12px;
-    min-width: 140px;
-  }
-  .win-chip .ticker {
-    font-weight: 700;
-    font-size: 13px;
+  .brand-title {
+    font-size: 18px; font-weight: 700;
     color: var(--text-strong);
     letter-spacing: -0.01em;
   }
-  .win-chip .gain {
-    font-size: 12px;
-    color: var(--positive);
-    font-weight: 600;
+  .brand-title em {
+    color: var(--accent-green-bright);
+    font-style: italic; font-weight: 700;
   }
-  .win-chip .meta {
-    font-size: 11px;
-    color: var(--text-muted);
+  .brand-sub {
+    font-size: 12px; color: var(--text-muted);
+    margin-top: 2px; letter-spacing: 0.02em;
+  }
+
+  /* Trust evidence row — SEBI + wins/losses + trades */
+  .trust-row {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr 1fr;
+    gap: 1px;
+    background: var(--border-on-dark);
+    margin: 14px 16px 0;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border-on-dark);
+  }
+  .trust-cell {
+    background: var(--bg-trust-row);
+    padding: 12px 10px;
+    text-align: center;
+  }
+  .trust-cell .label {
+    font-size: 10px; color: var(--text-muted); text-transform: uppercase;
+    letter-spacing: 0.04em; margin-bottom: 4px;
+  }
+  .trust-cell .value {
+    font-size: 14px; font-weight: 700; color: var(--text-strong);
+    line-height: 1.15;
+  }
+  .trust-cell .sub {
+    font-size: 10px; color: var(--text-muted); margin-top: 2px;
+  }
+  .trust-cell .accuracy-large {
+    font-size: 16px; color: var(--accent-green-bright); font-weight: 700;
+  }
+  .wins-losses {
+    font-size: 10px; color: var(--text-muted); margin-top: 3px;
+    letter-spacing: 0.02em;
+  }
+  .wins-losses .win { color: var(--positive); font-weight: 600; }
+  .wins-losses .loss { color: #FCA5A5; font-weight: 600; }
+  .sebi-tag {
+    display: inline-block;
+    background: var(--sebi-bg); color: var(--sebi-text);
+    padding: 2px 6px; border-radius: 4px;
+    font-size: 9px; font-weight: 700;
+    letter-spacing: 0.05em;
     margin-top: 2px;
   }
-  .trade-card {
-    background: var(--surface);
-    border: 1.5px solid var(--border-strong);
-    border-radius: 16px;
-    padding: 20px;
-    margin-bottom: 16px;
+
+  /* Banner — Claim 3 FREE Trades + Refund SLA (no countdown) */
+  .banner {
+    margin: 14px 16px 0;
+    background: var(--bg-banner);
+    border-radius: 12px;
+    padding: 14px 14px;
+    display: flex; flex-direction: column; gap: 6px;
+    border: 1px solid #334155;
   }
-  .trade-card__eyebrow {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    margin-bottom: 10px;
+  .banner-claim {
+    font-size: 14px; font-weight: 700; color: var(--text-strong);
+    display: flex; align-items: center; justify-content: space-between;
   }
-  .dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--positive);
-    display: inline-block;
+  .banner-claim .arrow { font-size: 16px; color: var(--accent-green-bright); }
+  .banner-sub {
+    font-size: 12px; color: var(--text); line-height: 1.45;
   }
-  .trade-card__outcome {
-    display: flex;
-    align-items: baseline;
-    gap: 8px;
+  .banner-sub .sla {
+    color: var(--accent-green-bright); font-weight: 600;
+  }
+
+  /* Outline CTA right under banner */
+  .outline-cta {
+    margin: 14px 16px 0;
+    padding: 14px;
+    background: transparent;
+    border: 2px solid var(--accent-green-bright);
+    border-radius: 12px;
+    color: var(--accent-green-bright);
+    font-size: 15px; font-weight: 700;
+    text-align: center;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .outline-cta::before {
+    content: '👁'; font-size: 14px;
+  }
+
+  /* Past wins carousel */
+  .section-label {
+    margin: 18px 16px 8px;
+    font-size: 11px; font-weight: 700;
+    color: var(--accent-green-bright);
+    text-transform: uppercase; letter-spacing: 0.08em;
+  }
+  .carousel {
+    display: flex; gap: 10px;
+    padding: 0 16px;
+    overflow-x: hidden;
+  }
+  .win-card {
+    flex: 0 0 auto;
+    width: 110px;
+    background: var(--bg-carousel-card);
+    border-radius: 10px;
+    padding: 10px;
+    color: var(--text-on-card);
+  }
+  .win-card .ticker {
+    font-size: 12px; font-weight: 700;
+    color: var(--text-on-card);
+    margin-bottom: 2px;
+    letter-spacing: 0.02em;
+  }
+  .win-card .gain {
+    font-size: 14px; font-weight: 700;
+    color: var(--positive);
     margin-bottom: 4px;
   }
-  .trade-card__ticker {
-    font-size: 26px;
-    font-weight: 700;
-    color: var(--text-strong);
-    letter-spacing: -0.02em;
+  .win-card .meta {
+    font-size: 10px; color: var(--text-on-card-muted);
+    line-height: 1.3;
   }
-  .trade-card__gain {
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--positive);
-    letter-spacing: -0.01em;
+
+  /* Closed trade card — the headline component */
+  .closed-trade-card {
+    margin: 16px 16px 0;
+    background: var(--bg-card);
+    border-radius: 14px;
+    padding: 14px;
+    color: var(--text-on-card);
+    border: 1px solid #1E40AF;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
   }
-  .trade-card__duration {
-    font-size: 13px;
-    color: var(--text-muted);
-    margin-bottom: 16px;
-  }
-  .trade-card__prices {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    gap: 8px;
-    padding: 12px;
-    background: var(--bg);
-    border-radius: 10px;
-    margin-bottom: 14px;
-    align-items: center;
-  }
-  .price-label { font-size: 10px; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.06em; }
-  .price-value { font-size: 15px; font-weight: 600; color: var(--text-strong); margin-top: 2px; }
-  .price-arrow { color: var(--text-faint); font-size: 18px; padding: 0 4px; }
-  .trade-card__disclaimer {
-    font-size: 11px;
-    color: var(--text-muted);
-    line-height: 1.4;
-    margin-bottom: 12px;
-    padding: 10px;
-    background: var(--bg);
-    border-radius: 8px;
-    border-left: 3px solid var(--border-strong);
-  }
-  .trade-card__browse {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 13px;
-    font-weight: 600;
+  .closed-trade-tag {
+    display: inline-block;
+    background: var(--accent-green-soft);
     color: var(--accent-green-dark);
-    text-decoration: none;
-    border-bottom: 1px dashed var(--accent-green);
-    padding-bottom: 2px;
+    font-size: 9px; font-weight: 700;
+    padding: 3px 7px; border-radius: 4px;
+    text-transform: uppercase; letter-spacing: 0.05em;
+    margin-bottom: 10px;
   }
-  .trust-row {
-    display: flex;
-    gap: 16px;
-    padding: 16px 0;
-    border-top: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 20px;
+  .ct-header {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 8px;
   }
-  .trust-item {
-    flex: 1;
-    font-size: 12px;
-    color: var(--text);
+  .ct-stock {
+    font-size: 18px; font-weight: 700; color: var(--text-on-card);
+    letter-spacing: 0.01em;
   }
-  .trust-item strong {
-    display: block;
-    color: var(--text-strong);
-    font-size: 16px;
-    font-weight: 700;
+  .ct-closed-when {
+    font-size: 11px; color: var(--text-on-card-muted);
+  }
+  .ct-gain {
+    font-size: 26px; font-weight: 800; color: var(--positive);
+    letter-spacing: -0.01em;
+    margin: 2px 0 12px;
+  }
+  .ct-row {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 4px;
+    border-top: 1px solid var(--border-on-light);
+    padding-top: 10px;
+  }
+  .ct-cell {
+    text-align: center;
+  }
+  .ct-cell .l {
+    font-size: 9px; color: var(--text-on-card-muted);
+    text-transform: uppercase; letter-spacing: 0.05em;
     margin-bottom: 2px;
   }
-  .trust-item span { color: var(--text-muted); font-size: 11px; }
-  .cta-footer {
+  .ct-cell .v {
+    font-size: 13px; color: var(--text-on-card); font-weight: 700;
+  }
+  .browse-all {
+    display: block;
+    margin: 10px 16px 0;
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.04);
+    border: 1px dashed var(--border-on-dark);
+    border-radius: 8px;
+    color: var(--text-strong);
+    font-size: 12px;
+    text-align: center;
+  }
+  .browse-all .arrow { color: var(--accent-green-bright); }
+  .compliance {
+    margin: 8px 16px 0;
+    font-size: 10px;
+    color: var(--text-faint);
+    text-align: center;
+    line-height: 1.4;
+  }
+
+  /* Sticky CTA */
+  .sticky-cta-wrap {
     position: absolute;
     bottom: 0; left: 0; right: 0;
-    padding: 16px 20px 24px;
-    background: var(--bg);
-    border-top: 1px solid var(--border);
-    box-shadow: 0 -8px 24px rgba(15,23,42,.06);
+    padding: 12px 16px 16px;
+    background: linear-gradient(180deg, transparent 0%, var(--bg-page) 30%);
+    z-index: 10;
   }
-  .cta-button {
-    display: block;
+  .sticky-cta {
     width: 100%;
-    background: var(--accent-green);
+    padding: 16px 16px;
+    background: var(--accent-green-bright);
     color: white;
-    border: none;
+    font-size: 16px; font-weight: 700;
     border-radius: 12px;
-    padding: 16px;
-    font-size: 16px;
-    font-weight: 700;
-    letter-spacing: -0.01em;
-    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.32);
-    cursor: pointer;
+    text-align: center;
+    border: none;
+    box-shadow: 0 8px 24px rgba(34, 197, 94, 0.35);
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    letter-spacing: 0.01em;
   }
-  .cta-sub {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-    margin-top: 10px;
-    font-size: 11px;
-    color: var(--text-muted);
-  }
-  .cta-sub .sla-dot {
-    color: var(--positive);
-    font-weight: 700;
+  .sticky-cta .arrow { font-size: 18px; }
+  .home-indicator {
+    width: 134px; height: 5px;
+    background: rgba(255,255,255,0.25);
+    border-radius: 3px;
+    margin: 6px auto 0;
   }
 </style>
 </head>
 <body>
-  <div class="phone">
-    <div class="status-bar">
-      <span>9:41</span>
-      <span class="icons">●●● ▲ 100%</span>
-    </div>
-    <div class="app-header">
-      <div class="brand">Univest</div>
-      <div class="sebi-badge"><span class="label">SEBI Reg.</span> INA000016527</div>
-    </div>
-    <div class="scroll-area">
-      <div class="eyebrow">Today's proof</div>
-      <h1 class="headline">See today's real trade —<br>before you pay anything.</h1>
-      <p class="subhead">One closed trade from our advisors, fully disclosed. Not a teaser.</p>
+<div class="phone">
+  <div class="status-bar">
+    <span>9:41</span>
+    <span class="icons">●●●● 5G ▮▮</span>
+  </div>
 
-      <div class="wins-section">
-        <div class="section-label">Recent wins · last 7 days</div>
-        <div class="wins-carousel">
-          <div class="win-chip">
-            <div class="ticker">ZOMATO</div>
-            <div class="gain">+16.4% in 3 days</div>
-            <div class="meta">Closed Apr 20</div>
-          </div>
-          <div class="win-chip">
-            <div class="ticker">RELIANCE</div>
-            <div class="gain">+8.2% in 5 days</div>
-            <div class="meta">Closed Apr 18</div>
-          </div>
-          <div class="win-chip">
-            <div class="ticker">TATA MOTORS</div>
-            <div class="gain">+11.7% in 2 days</div>
-            <div class="meta">Closed Apr 17</div>
-          </div>
+  <div class="scroll-area">
+    <div class="crown-block">
+      <div class="crown"></div>
+      <div class="brand-title">India's <em>Trusted</em> Advisory</div>
+      <div class="brand-sub">Stocks · F&amp;O · Commodity</div>
+    </div>
+
+    <div class="trust-row">
+      <div class="trust-cell">
+        <div class="label">Regulator</div>
+        <div class="value" style="font-size: 12px;">SEBI Reg.</div>
+        <div class="sebi-tag">INH000013776</div>
+      </div>
+      <div class="trust-cell">
+        <div class="label">All-time accuracy</div>
+        <div class="accuracy-large">84.7%</div>
+        <div class="wins-losses">
+          <span class="win">914 wins</span> · <span class="loss">62 losses</span>
         </div>
       </div>
-
-      <div class="trade-card">
-        <div class="trade-card__eyebrow"><span class="dot"></span> Closed trade · 1 day ago</div>
-        <div class="trade-card__outcome">
-          <div class="trade-card__ticker">ZOMATO</div>
-          <div class="trade-card__gain">+₹23,435</div>
-        </div>
-        <div class="trade-card__duration">in 3 days · advised by Rahul K.</div>
-        <div class="trade-card__prices">
-          <div>
-            <div class="price-label">Entry</div>
-            <div class="price-value">₹142.50</div>
-          </div>
-          <div class="price-arrow">→</div>
-          <div style="text-align: right;">
-            <div class="price-label">Exit</div>
-            <div class="price-value">₹165.85</div>
-          </div>
-        </div>
-        <div class="trade-card__disclaimer">
-          Past performance does not indicate future returns. This is one closed trade; not all trades are profitable.
-        </div>
-        <a class="trade-card__browse" href="#">Browse all recent trades (mixed outcomes) →</a>
-      </div>
-
-      <div class="trust-row">
-        <div class="trust-item"><strong>127</strong><span>trades closed · 30 days</span></div>
-        <div class="trust-item"><strong>62%</strong><span>win rate · last quarter</span></div>
-        <div class="trust-item"><strong>₹1</strong><span>for first trade access</span></div>
+      <div class="trust-cell">
+        <div class="label">Closed</div>
+        <div class="value">3500+</div>
+        <div class="sub">profitable trades</div>
       </div>
     </div>
-    <div class="cta-footer">
-      <button class="cta-button">See 1 real trade, free</button>
-      <div class="cta-sub"><span class="sla-dot">●</span> Refund in 2 minutes to UPI. No questions.</div>
+
+    <div class="banner">
+      <div class="banner-claim">
+        <span>Claim 3 FREE Trades</span>
+        <span class="arrow">→</span>
+      </div>
+      <div class="banner-sub">
+        Activate @ ₹1 — <span class="sla">Refund in 60s to source. No questions.</span>
+      </div>
+    </div>
+
+    <div class="outline-cta">
+      See 3 real trades, free
+    </div>
+
+    <div class="section-label">Recent Wins</div>
+    <div class="carousel">
+      <div class="win-card">
+        <div class="ticker">TMPV</div>
+        <div class="gain">+12.93%</div>
+        <div class="meta">Net Gain<br>Closed same day 🔥</div>
+      </div>
+      <div class="win-card">
+        <div class="ticker">ZOMATO</div>
+        <div class="gain">+₹23,435</div>
+        <div class="meta">Net Gain<br>Closed in 3 days</div>
+      </div>
+      <div class="win-card">
+        <div class="ticker">RELIANCE</div>
+        <div class="gain">+12.93%</div>
+        <div class="meta">Net Gain<br>Closed in 2 days</div>
+      </div>
+    </div>
+
+    <div class="section-label">Most Recent Closed Trade</div>
+    <div class="closed-trade-card">
+      <span class="closed-trade-tag">✓ Closed · Win</span>
+      <div class="ct-header">
+        <div class="ct-stock">ZOMATO</div>
+        <div class="ct-closed-when">Closed 18h ago · 3 days held</div>
+      </div>
+      <div class="ct-gain">+ ₹23,435</div>
+      <div class="ct-row">
+        <div class="ct-cell">
+          <div class="l">Entry</div>
+          <div class="v">₹186.45</div>
+        </div>
+        <div class="ct-cell">
+          <div class="l">Exit</div>
+          <div class="v">₹209.88</div>
+        </div>
+        <div class="ct-cell">
+          <div class="l">Days Held</div>
+          <div class="v">3</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="browse-all">
+      Browse all recent trades (mixed outcomes) <span class="arrow">→</span>
+    </div>
+    <div class="compliance">
+      Past performance is not indicative of future returns.
     </div>
   </div>
+
+  <div class="sticky-cta-wrap">
+    <button class="sticky-cta">
+      Activate for ₹1 <span class="arrow">→</span>
+    </button>
+    <div class="home-indicator"></div>
+  </div>
+</div>
 </body>
 </html>

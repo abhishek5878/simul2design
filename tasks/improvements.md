@@ -40,12 +40,7 @@ An improvement lands here when I notice something is weak but don't need to fix 
 - **Severity:** should-fix (deferred — source paper is single-author HCI, methodology inspirational rather than authoritative; defer structural refactor until either a stronger source surfaces or a client provides data that motivates it)
 - **Filed:** 2026-04-24
 
-### Confirm V4.refund_copy via UI screenshot, not just extracted text
-- **Why it matters:** WebFetch returned text descriptions. Source variant description says V4 has no refund copy. But Skeptical Investor V4 quote mentions "₹1 with a refund is essentially free." Either the text description is incomplete or the quote reflects carried-over mental model. If V4 actually shows refund copy, V5 synthesis might mistakenly de-prioritize it.
-- **Trigger to fix:** Before running `synthesize` on Univest V5.
-- **Fix path:** Open the Apriori demo page in a browser, screenshot V4, verify visually. Update matrix if the UI differs from the text description.
-- **Severity:** blocker (for Univest V5 synthesis)
-- **Filed:** 2026-04-23
+### ~~Confirm V4.refund_copy via UI screenshot~~ → see Applied (2026-04-24)
 
 ### Confound auto-detector is naive (over-detects default+default coincidences)
 - **Why it matters:** `scripts/detect-confounds.py` catches 9 full confounds in Univest's matrix where the hand-written list has 3. 8 of the auto-detected are spurious — "branding=none ↔ refund=absent" just means both are the default values that happen to coincide in 3 variants. Meaningful confounds (3+-way clusters with partial breaks) are missed.
@@ -113,6 +108,14 @@ An improvement lands here when I notice something is weak but don't need to fix 
 ---
 
 ## Applied (moved here when shipped)
+
+### 2026-04-24 — Matrix v2: full screenshot-validated re-extraction (cascade through pipeline)
+- Discovered via user fact-challenge ("if 3 trials, use 3") that v1 matrix had multiple extraction errors. Source page prose ≠ actual variant UI. Pulled all 5 variant screenshots from `/screens/univest/{1.1,2,3,4,5}.png`, saved to `data/univest/source-screenshots/` as immutable artifacts.
+- 11 corrections across Control/V1/V2/V3/V4 (trial offer count, trust signals, refund copy, urgency, branding, layout, CTA labels). Wrote `data/univest/source-v2.md` as new immutable extraction. Updated `element_matrix.json` to v2 schema (added `simulator_provenance`, `trial_offer_count`, `wins_losses_disclosure` dimensions; added v1→v2 audit trail).
+- Cascaded through full pipeline: weighted_scores.json (v2), synthesized_variant.{json,md} (v2), adversary_review.json (v2 — 3 blockers → 0 blockers + 2 op preconditions), conversion_estimates.json (v2), v5-spec.md (v2), v5a-green.{html,png} (v2 — dark theme + dual CTA + 3 trades + wins/losses).
+- Net effect on V5: same ~7pt median lift (50.6% vs 48.6%), but smaller untested stack (1 vs 3) and more defensible because most "untested elements" turned out to be V4 concretizations.
+- Resolves improvements.md "Confirm V4.refund_copy via UI screenshot" Open entry.
+- 3 new lessons logged.
 
 ### 2026-04-23 (later) — Adversary sub-agent built and exercised
 - `.claude/agents/adversary/AGENT.md` created with structural anti-bias rules (blind-review requirement, client-preference bias check) and falsifiable-prediction requirement on every objection.
