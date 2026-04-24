@@ -8,7 +8,25 @@
 
 ## 0. Executive summary
 
-V5 replaces six elements of Univest's ₹1 trial activation screen to restore V1's trust-signaling strengths while keeping V4's conversion-oriented CTA style and removing V4's 33%-noticed "Unlock FREE trade" / "₹1 Trial" label mismatch. Primary levers: **real closed trade card** (replacing blurred teaser), **explicit refund SLA**, **restored SEBI + named-wins trust signals**, **single CTA with honest "free" framing**. Predicted median lift: **+4.6pt weighted** over V4 (48.6% vs 44%). Three operational preconditions must be met before ship (Section 4). Adversary flagged 3 blockers — none caused element revisions, all require ops/legal/product commitment. Confidence: **medium**; low tier is wide due to small-sample baselines (n=10-15 per segment in the source simulation).
+**The decision: ship V5.** Six element changes from V4. Predicted weighted-overall conversion **48.6%** (Wilson 95% band 22.3% – 52.0%) vs V4's 44% — **+4.6pt median lift**. Confidence **medium**; the low tier is wide because the source simulation has only n=10-15 per segment, not because the design is weak.
+
+**Why each audience segment activates** (per-segment data, not aggregate hand-waving):
+
+| Segment | Weight | V4 → V5 | Why they activate (audience reasoning + evidence) |
+|---|---|---|---|
+| **Skeptical Investor** | 24% | 25% → **32%** | All three trust barriers removed in one design pass: blurred trade card → real closed trade with entry/exit/days/gain disclosed; absent refund copy → explicit "Refund in 60s to source" SLA; vague trust signal → SEBI registration + named past wins. Source quotes: *"Show me a real trade or don't"* (V2/V3/V4 reaction, **12 of 12 segment users = 100%**) and *"₹1 with a refund is essentially free"* (V4). |
+| **Curious Beginner** | 30% | 33% → **40%** | V1's named-stock carousel restored — TMPV, ZOMATO, RELIANCE with absolute rupee gains (e.g. *"ZOMATO +₹23,435 in 3 days"*). The "I bought it last year — if they nailed that, I should listen" anchor mechanism. **71% of V1 users cited a stock by name**; V2-V4 stripped these out for "cleaner design" and lost the anchor. |
+| **Bargain Hunter** | 26% | 69% → **71%** | V4's strongest elements preserved at full strength: high-contrast green CTA (**+16pt for this segment** in clean V2→V3 contrast), "free" framing in CTA copy, fast 7-second decision flow (V4 measured) protected by removing dual-CTA cognitive load. |
+| **Trust Seeker** | 20% | 50% → **52%** | SEBI badge + premium upgrades (real trade card, refund SLA, single CTA hierarchy) outweigh the green CTA premium-feel penalty. V1's trust-signal stack drove Trust Seeker to dataset-max **60%**; V5 restores that stack. The green CTA's −10pt penalty is real but the trust restoration is +8 to +10pt. |
+
+**The four levers, in evidence-strength order:**
+
+1. **Real closed trade card** (replaces V2/V3/V4's blurred teaser) — removes 100% of the persistent Skeptical Investor friction. Highest-conviction lever.
+2. **Restored SEBI + named-wins trust signals** (V1's strongest assets, dropped in V2-V4) — re-engages Curious + Trust segments via observed mechanism (V1 was Trust Seeker's best variant at 60%).
+3. **Explicit refund SLA** ("Refund in 60s to source. No questions.") — concretizes the strongest pricing reassurance (**64% of source-page element-level cites refund as #1 reassurance**).
+4. **Single CTA with honest "free" framing** ("See 1 real trade, free") — eliminates V4's 33%-noticed dual-CTA mismatch without losing the "free" hook that drove Bargain Hunter conversion.
+
+**Ship gate.** Three Operational Preconditions in §4 must be signed off (legal, ops, product). All three are commitments to operational reality, not design changes — V5 is design-complete and ship-ready conditional on those gates. The instrumentation in §5 means any failure mode shows up in the data within days, not quarters.
 
 ---
 
@@ -68,7 +86,7 @@ V5 replaces six elements of Univest's ₹1 trial activation screen to restore V1
 
 `layout=full_screen`, `modal_interrupt=no`, `branding=none`, `price_visibility=visible_primary`, `cta_style=high_contrast_green`, `urgency_mechanism=none`.
 
-> **Adversary obj-005** recommends A/B testing V5a (green) vs V5b (muted dark-teal) at ship. See §7.
+> **Adversary obj-005 — Trust Seeker green-CTA risk.** V5 ships with green (data-backed: +6.42pt clean V2→V3 contrast). Post-ship contingency: if Trust Seeker conversion drops ≥ 5pt vs V4 over 2 weeks, switch to muted dark-teal (mockup at [`design/v5b-muted-premium.png`](./design/v5b-muted-premium.png)) for the next ramp stage. Sequenced contingency, not a parallel A/B test. See §7.
 
 ---
 
@@ -311,10 +329,11 @@ From [conversion_estimates.json](./conversion_estimates.json). Wilson 95% interv
 - Week 2: 50/50 split, enable kill-switches against Section 5 events.
 - Week 3: 100% V5 if no kill-condition tripped AND no Preconditions-4 alarm.
 
-**A/B alternatives to run:**
-- V5a: `cta_style=high_contrast_green` (primary; +6.42pt observed).
-- V5b: `cta_style=muted_premium` (adversary obj-005 hedge against wider-than-measured green penalty on Trust Seeker).
-- 50/50 split within V5 traffic. Decide primary based on 2-week cumulative Trust Seeker conversion delta.
+**Single-design ramp (no parallel A/B at launch):**
+The data backs `cta_style=high_contrast_green` decisively (+6.42pt clean V2→V3 contrast — the strongest single-element observation in the dataset). V5 ships with green CTA as the only design — see [`design/v5a-green.png`](./design/v5a-green.png).
+
+**Post-ship contingency for Trust Seeker risk:**
+If `v5_conversion` for Trust Seeker drops by ≥ 5pt vs V4's 50% over 2 weeks (i.e. lands at ≤ 45%), pause the ramp and switch to V5b (`cta_style=muted_premium`, dark-teal CTA) for the next stage. Mockup pre-rendered at [`design/v5b-muted-premium.png`](./design/v5b-muted-premium.png). Mechanism: muted_premium preserves the +16/+7/+9 Bargain/Curious/Skeptical lift while removing the −10 Trust Seeker penalty. This is a sequenced contingency triggered by data, not a parallel A/B at launch.
 
 **Stop-ship criteria (immediate rollback):**
 - `v5_payment_required_before_trade` fires at all (Precondition 1 broke).

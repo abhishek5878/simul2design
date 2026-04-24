@@ -42,13 +42,13 @@ This is the *synthesis*, not the *spec*. Adversary reviews this before spec-writ
 
 Three untested stacked. Each individually has a concrete mechanism argument. Combined interaction is unobserved; post-ship per-segment data is required to close the loop.
 
-## Exploratory alternative (untested upgrade)
+## Post-ship contingency (untested fallback — NOT a launch alternative)
 
-**Swap cta_style: high_contrast_green → muted_premium** (dark teal).
+**Swap cta_style: high_contrast_green → muted_premium** (dark teal). Use only if Trust Seeker conversion drops ≥ 5pt vs V4 over the first 2 weeks post-ship. At launch, V5 ships green-CTA only (data-backed +6.42pt clean contrast).
 
-- Predicted: **46.5% – 50.3% – 54.0%** (median +1.0pt vs primary).
+- Predicted (if triggered): **46.5% – 50.3% – 54.0%** (median +1.0pt vs primary).
 - Mechanism: preserve the +16/+7/+9 pt Bargain/Curious/Skeptical lift while removing the −10pt Trust Seeker green-penalty.
-- Risk: stacks a fourth untested value. Only recommended for Trust-Seeker-heavy audiences or explicit exploratory runs.
+- Risk: stacks a fourth untested value. Only triggered post-ship by observed Trust Seeker underperformance, not at launch.
 
 ## Kill conditions
 
