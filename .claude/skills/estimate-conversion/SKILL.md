@@ -24,6 +24,7 @@ description: Trigger after synthesize has produced per-segment predictions AND a
 2. `data/<client>/element_matrix.json` — segment n (required for Wilson interval).
 3. `data/<client>/adversary_review.json` (optional) — coupling concerns that warrant interval widening beyond pure small-sample uncertainty.
 4. `data/<client>/weighted_scores.json` — evidence type per (dimension, value) for compounding uncertainty accounting.
+5. `data/<client>/element_matrix.json` → `simulator_provenance` field, if present — the LLM and version that generated the persona simulations. **Required for honest calibration accounting.** LLM-simulated user evaluations vary by up to 9pt depending on which simulator LLM is used (Seshadri et al., 2026, arxiv:2601.17087 — see [tasks/related-work.md](../../../tasks/related-work.md) §1). If this field is missing, the estimator MUST flag the output with `simulator_provenance: "unknown"` and downgrade overall confidence one tier (high → medium, medium → low).
 
 ## Methodology
 
@@ -50,6 +51,17 @@ Starting from the Wilson interval on the baseline (the tested variant's observed
 3. **Untested-mechanism-derived lifts**: the overlay's `expected_mechanism` gives a direction + rough magnitude. Apply as a BIASED interval: [0.5 × expected_magnitude, expected_magnitude] on the positive side; ALWAYS include 0 on the negative side. The interval must allow the mechanism to fail entirely.
 4. **Coupled mechanisms** (per adversary): if K mechanisms target the same segment AND share a common substrate (per adversary's analysis), the independent-combination assumption is wrong. Multiply the non-linearity discount by 0.7 for each additional coupled mechanism. Example: 3 coupled mechanisms → discount 0.5 × 0.7² = 0.245 vs independent 0.7³ = 0.343.
 5. **Small-sample ceiling**: an interval whose upper bound exceeds `1.2 × max(baseline, Wilson_upper)` is likely over-reaching; cap at that value with a flag.
+
+### Hard-segment widening (optional calibration adjustment)
+
+Per Seshadri et al. (2026), LLM-simulated user evaluations systematically *underestimate* performance on hard tasks and *overestimate* on medium tasks. "Hard" here means high-sophistication / low-baseline-conversion segments — Skeptical Investor in Univest is the canonical example.
+
+Optional adjustment (DO NOT auto-apply on first run; flag the recommendation instead):
+
+- For any segment whose `baseline_conversion` is in the bottom quartile across segments AND whose persona profile includes sophistication markers (e.g., "skeptical", "experienced", "professional"), the simulator likely *under-states* the predicted lift. Recommend widening the upper bound of `predicted_wilson_95_ci` by ~5pt and surface the recommendation in `flags[]`.
+- For segments in the middle quartile, the simulator likely *over-states* the predicted lift. Recommend narrowing the upper bound by ~3pt.
+
+This is a directional heuristic from a single 2026 study. Until we have post-ship-actuals calibration across multiple clients, leave it as a flagged recommendation rather than an automatic numeric adjustment. The `evaluator/comparison.json` file from `sim-flow record-actuals` will eventually let us decide whether the heuristic holds in practice.
 
 ### Output per segment
 
@@ -84,7 +96,9 @@ Each segment gets:
 
   "method": "wilson_95_with_coupling_adjustment",
   "wilson_z": 1.96,
+  "simulator_provenance": "<llm name + version, or 'unknown'>",
   "coupling_discount_applied": { "<segment_id>": 0.35 },
+  "hard_segment_widening_recommended": { "<segment_id>": "+5pt upper" },
 
   "per_segment_estimate": {
     "<segment_id>": {
@@ -127,3 +141,4 @@ Each segment gets:
 - **Ignoring the adversary's coupling notes.** If adversary flagged coupled mechanisms, you MUST apply the coupling discount — don't treat it as advisory.
 - **Refitting weighted-overall.** Do per-segment first, then weight. Never the reverse.
 - **Claiming post-ship didn't happen within the interval** — unless post-ship actually arrived. The estimator predicts; it doesn't validate. Validation is a separate skill that runs when actuals come back.
+- **Ignoring simulator LLM provenance.** Simulated-user evaluation results vary by up to 9pt depending on which LLM ran the personas (Seshadri et al., 2026). A predicted interval without simulator provenance is a calibration claim with the calibration source hidden. Always record `simulator_provenance` in the output, even if the value is `"unknown"`.

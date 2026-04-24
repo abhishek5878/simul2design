@@ -19,6 +19,27 @@ An improvement lands here when I notice something is weak but don't need to fix 
 
 ## Open
 
+### Audit Univest VoC grounding sources
+- **Why it matters:** The 5 Univest segments ("Skeptical Investor," "Curious Beginner," etc.) are abstract archetypes, not voice-of-customer-grounded personas. Per Truss 2026 (PersonaCite, arxiv:2601.22288 — see `tasks/related-work.md` §2), persona behaviors that can't cite a real source are unverifiable. If real Univest VoC artifacts (app-store reviews, churn-survey responses, support tickets) exist, anchoring the 5 segments to them would tighten V5 confidence intervals retroactively.
+- **Trigger to fix:** Before V5 ships AND Univest can hand over real user-research data; or before a second client engagement, whichever comes first.
+- **Fix path:** Ask Univest for (a) recent app-store reviews tagged by sentiment, (b) any churn-survey or cancellation-reason data, (c) support tickets categorized by issue type. For each segment, attach 2-5 verbatim quotes from real users that justify the segment's stated behaviors. File at `data/univest/voc/<segment_id>.md`.
+- **Severity:** should-fix
+- **Filed:** 2026-04-24
+
+### Persona diversity audit skill (run before parse-simulation on a new client)
+- **Why it matters:** A synthesis is only as good as the simulation's persona coverage. Per Paglieri et al. 2026 (Persona Generators, arxiv:2602.03545 — see `tasks/related-work.md` §3), persona sets benefit from explicit diversity audits — measuring trait variance, opinion diversity, and coverage of the client's actual customer base. Without this, the synthesis output has no defensible "diversity floor" — a confidence cap below which no synthesis can drop regardless of how clean the variant data looks.
+- **Trigger to fix:** Second client engagement. Univest's n=10-per-segment binding constraint is already documented; new clients will hit the same issue more or less severely.
+- **Fix path:** New skill `audit-persona-diversity`. Inputs: simulation persona definitions + client's actual customer-segmentation data (if available). Outputs: per-segment trait-variance score, opinion-diversity score, coverage-vs-real-customer-base ratio, and a diversity floor that downstream skills must respect.
+- **Severity:** nice-to-have
+- **Filed:** 2026-04-24
+
+### parse-simulation should accept VoC grounding artifacts (PersonaCite-derived schema change)
+- **Why it matters:** Today `parse-simulation` ingests variant performance only. Per PersonaCite (Truss 2026, arxiv:2601.22288 — see `tasks/related-work.md` §2), persona definitions that ground in real Voice-of-Customer artifacts produce more verifiable outputs. Schema change: each persona gains a `voc_evidence: [{source_type, source_id, quote}]` field. A persona with empty `voc_evidence` is allowed but flagged as "abstract" in downstream confidence scoring.
+- **Trigger to fix:** Second client engagement OR if Univest provides real user-research data per the "Audit Univest VoC grounding sources" entry above.
+- **Fix path:** (a) extend `parse-simulation` SKILL.md schema with `voc_evidence`; (b) add `data/<client>/voc/` folder convention; (c) add a propagation rule — if `voc_evidence` is empty, downstream `weigh-segments` and `synthesize` must apply a confidence-tier downgrade.
+- **Severity:** should-fix (deferred — source paper is single-author HCI, methodology inspirational rather than authoritative; defer structural refactor until either a stronger source surfaces or a client provides data that motivates it)
+- **Filed:** 2026-04-24
+
 ### Confirm V4.refund_copy via UI screenshot, not just extracted text
 - **Why it matters:** WebFetch returned text descriptions. Source variant description says V4 has no refund copy. But Skeptical Investor V4 quote mentions "₹1 with a refund is essentially free." Either the text description is incomplete or the quote reflects carried-over mental model. If V4 actually shows refund copy, V5 synthesis might mistakenly de-prioritize it.
 - **Trigger to fix:** Before running `synthesize` on Univest V5.
