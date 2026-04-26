@@ -4,6 +4,8 @@ This document covers the end-to-end product loop: Apriori simulation → our eng
 
 The audience is anyone integrating this engine with the [apriori_landing](https://github.com/dechrone/apriori_landing) frontend or running a new client through the pipeline.
 
+> **Recommended integration: drop our package in as a node on Apriori's LangGraph.** See §10 below for the worked example. This eliminates the two-systems-with-handoff problem — synthesis runs in Apriori's existing graph runtime, state flows through naturally, and there's no separate hosting to maintain.
+
 ---
 
 ## 1. The product loop
@@ -274,3 +276,165 @@ The calibration signal feeds back into our `non_linearity_discount` improvement 
 | Auto-detect element confounds | `scripts/detect-confounds.py <client>` |
 
 For the synthesis reasoning steps (`weigh-segments`, `synthesize`, `adversary`, `estimate-conversion`, `generate-spec`), see the corresponding `.claude/skills/<name>/SKILL.md` files.
+
+---
+
+## 10. LangGraph integration (`simul2design` package)
+
+The repo ships as an installable Python package — `simul2design` — that exposes the engine as a class + a pre-built LangGraph node. This is the recommended integration shape: **the synthesis engine becomes a node in Apriori's graph**, not a separate system with hand-off.
+
+### Install
+
+From PyPI (when published):
+
+```bash
+pip install simul2design
+```
+
+Or directly from the repo:
+
+```bash
+pip install git+https://github.com/abhishek5878/simul2design.git
+```
+
+For LangGraph users, install the optional extra:
+
+```bash
+pip install "simul2design[langgraph]"
+```
+
+`simul2design` declares `anthropic>=0.85.0` and `pydantic>=2.0.0` as runtime dependencies. `langgraph` itself is **not** required — the node is a plain async function that any orchestrator can call.
+
+### Library API
+
+```python
+import os, asyncio, json
+from simul2design import SynthesisPipeline, ComparisonData
+
+# Apriori produced this from one of their simulations
+comparison_data = json.load(open("apriori_output.json"))
+
+pipeline = SynthesisPipeline(
+    automap_model="claude-sonnet-4-6",          # default — taxonomy mapping
+    skip_llm_fallback=False,                    # set True for rules-only runs
+    include_low_default_in_llm_pass=False,      # set True for tighter coverage
+    max_llm_cells=None,                         # cap on LLM API calls
+)
+
+result = asyncio.run(pipeline.run(
+    comparison_data,                             # ComparisonData OR raw dict
+    client_slug="univest",
+))
+
+# Always populated (Sprint A — automated portion)
+print(result.element_matrix)                     # taxonomy-normalized matrix
+print(result.automap_trace)                      # per-cell confidence + matched-pattern audit
+print(result.source_markdown)                    # human-readable summary of Apriori's output
+print(result.cells_needing_review)               # list[CellRef] — cells the auto-mapper couldn't resolve
+print(result.ready_for_synthesis)                # True if no cells need human review
+print(result.estimated_cost_usd)                 # LLM cost for this run (~$0.05 typical)
+print(result.token_usage)                        # input/output/cache token counts
+
+# Phase 3c (cascade automation — not yet shipped)
+print(result.synthesized_variant)                # None today; populated once .claude/skills/synthesize is ported
+print(result.spec_markdown)                      # None today
+print(result.report_html)                        # None today
+```
+
+### LangGraph node — drop-in usage
+
+```python
+from langgraph.graph import StateGraph, END
+from typing import TypedDict, Optional, Any
+from simul2design.langgraph_node import synthesis_node
+
+
+# Apriori's existing state — only the two fields the node reads need to be defined
+class AprioriState(TypedDict, total=False):
+    # ... Apriori's existing state fields ...
+    simulation_id: str
+    comparison_data: dict[str, Any]                  # input to our node
+    # output of our node:
+    synthesis_result: Optional[dict[str, Any]]
+    synthesis_ready_for_human: Optional[bool]
+
+
+graph = StateGraph(AprioriState)
+graph.add_node("simulation", run_apriori_simulation)
+graph.add_node("synthesis", synthesis_node)          # ← OUR NODE
+graph.add_node("dashboard", render_apriori_dashboard)
+
+graph.add_edge("simulation", "synthesis")
+graph.add_edge("synthesis", "dashboard")
+graph.set_entry_point("simulation")
+graph.set_finish_point("dashboard")
+
+app = graph.compile()
+final_state = await app.ainvoke({"simulation_id": "sim_abc123", ...})
+
+# Apriori's UI now has access to:
+final_state["synthesis_result"]["element_matrix"]       # the taxonomy-normalized matrix
+final_state["synthesis_result"]["cells_needing_review"] # cells flagged for human review
+final_state["synthesis_result"]["estimated_cost_usd"]   # cost telemetry
+final_state["synthesis_ready_for_human"]                # True if nothing to review
+```
+
+The node:
+1. Reads `state["comparison_data"]` (required) and `state["client_slug"]` (or derives from `simulation_id` / `comparison_data.metadata.simulation_id`).
+2. Runs the SynthesisPipeline (ingest → automap-rules → automap-llm).
+3. Writes `state["synthesis_result"]` (a `SynthesisResult` dict) and `state["synthesis_ready_for_human"]` (bool).
+
+### Pre-configured pipeline injection
+
+For tests, cost caps, or model overrides, construct the pipeline once and pass it to the node:
+
+```python
+from simul2design import SynthesisPipeline
+from simul2design.langgraph_node import synthesis_node
+from functools import partial
+
+pipeline = SynthesisPipeline(
+    anthropic_client=my_anthropic_client,    # for tests / shared client / Bedrock
+    automap_model="claude-haiku-4-5",        # cheaper for high-volume orgs
+    max_llm_cells=10,                        # cost cap per run
+)
+
+# Bind the pipeline to the node
+graph.add_node("synthesis", partial(synthesis_node, pipeline=pipeline))
+```
+
+### Auth + dependencies
+
+- The LLM fallback step requires `ANTHROPIC_API_KEY` in the environment (or a pre-configured `anthropic_client` passed to the pipeline).
+- The pipeline is otherwise self-contained — no external storage, no hosted services, no auth on Apriori's side beyond the `ANTHROPIC_API_KEY` they're already using.
+- For runs without an API key (CI smoke tests, free-tier previews), set `skip_llm_fallback=True` — the pipeline returns a rules-only matrix and zero cost.
+
+### What the node delivers today vs after Phase 3c
+
+| Field on `SynthesisResult` | Today (Sprint A) | After Phase 3c (Sprint B) |
+|---|---|---|
+| `element_matrix` | ✅ taxonomy-normalized, ~95% auto-filled | ✅ + cascade attribution |
+| `automap_trace` | ✅ per-cell audit | ✅ + cascade-step traces |
+| `source_markdown` | ✅ generated from Apriori narrative fields | ✅ unchanged |
+| `cells_needing_review` | ✅ list[CellRef] for human pass | ✅ usually empty |
+| `estimated_cost_usd` | ✅ Sonnet 4.6 LLM cost | ✅ + cascade Opus/Sonnet cost |
+| `weighted_scores` | ❌ None | ✅ per-(dimension, value) weighted score |
+| `synthesized_variant` | ❌ None | ✅ V(N+1) element set with citations |
+| `adversary_review` | ❌ None | ✅ falsifiable objections + op preconditions |
+| `conversion_estimates` | ❌ None | ✅ Wilson intervals + kill conditions |
+| `spec_markdown` | ❌ None | ✅ engineer-ready buildable spec |
+| `report_html` | ❌ None | ✅ customer-facing HTML report |
+
+**Bottom line for Apriori today:** the node delivers the auto-mapped matrix instantly. The cascade outputs (full spec + report) require Phase 3c — porting the 5 SKILL.md reasoning passes from Claude Code to standalone Anthropic-API-calling Python modules. ~3-5 days of work, doesn't change the LangGraph integration shape.
+
+### Tests
+
+```bash
+scripts/test-package.py        # 12 tests: schemas, pipeline, LangGraph node, taxonomy sync
+```
+
+Tests use mocked Anthropic client — no API key required.
+
+### Versioning
+
+The package follows semver. `simul2design==0.1.0` ships the Sprint A scope (automated portion). `0.2.0` will ship Phase 3c (cascade). Breaking changes to the public API bump the major version; the `SynthesisResult` schema is stable across minor versions.

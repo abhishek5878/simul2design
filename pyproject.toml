@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "simul2design"
+version = "0.1.0"
+description = "Multiverse Synthesis Engine — turns Apriori simulation output into a buildable variant spec. Designed to drop into Apriori's LangGraph as a synthesis node."
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "Proprietary"}
+authors = [{name = "Abhishek Vyas"}]
+keywords = ["synthesis", "agents", "anthropic", "langgraph", "apriori", "ab-testing"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "anthropic>=0.85.0",
+    "pydantic>=2.0.0",
+]
+
+[project.optional-dependencies]
+langgraph = ["langgraph>=0.2.0"]
+
+[project.scripts]
+simul2design-ingest = "simul2design.ingest:_cli_main"
+simul2design-automap = "simul2design.automap_rules:_cli_main"
+simul2design-automap-llm = "simul2design.automap_llm:_cli_main"
+
+[project.urls]
+Repository = "https://github.com/abhishek5878/simul2design"
+
+[tool.setuptools.packages.find]
+include = ["simul2design*"]
+exclude = ["scripts*", "tests*", "data*", "tasks*", ".claude*"]
+
+[tool.setuptools.package-data]
+simul2design = ["taxonomy_data/*.md"]
