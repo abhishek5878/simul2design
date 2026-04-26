@@ -18,9 +18,15 @@ from simul2design.synthesize.estimate_conversion import (
     wilson_95_interval,
     apply_wilson_to_segments,
 )
+from simul2design.synthesize.synthesize import run_synthesize
+from simul2design.synthesize.adversary import run_adversary
+from simul2design.synthesize.generate_spec import run_generate_spec
 
 __all__ = [
     "weigh_segments",
     "wilson_95_interval",
     "apply_wilson_to_segments",
+    "run_synthesize",
+    "run_adversary",
+    "run_generate_spec",
 ]

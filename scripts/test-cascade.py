@@ -234,36 +234,8 @@ def test_pipeline_can_disable_cascade_steps():
     assert result.conversion_estimates is None
 
 
-# ─── stub tests (not-yet-ported steps must raise) ───────────────────────────
-
-def test_synthesize_stub_raises():
-    from simul2design.synthesize.synthesize import run_synthesize
-    try:
-        run_synthesize()
-    except NotImplementedError as e:
-        assert "Sprint B follow-up" in str(e)
-    else:
-        raise AssertionError("expected NotImplementedError")
-
-
-def test_adversary_stub_raises():
-    from simul2design.synthesize.adversary import run_adversary
-    try:
-        run_adversary()
-    except NotImplementedError as e:
-        assert "Sprint B follow-up" in str(e)
-    else:
-        raise AssertionError("expected NotImplementedError")
-
-
-def test_generate_spec_stub_raises():
-    from simul2design.synthesize.generate_spec import run_generate_spec
-    try:
-        run_generate_spec()
-    except NotImplementedError as e:
-        assert "Sprint B follow-up" in str(e)
-    else:
-        raise AssertionError("expected NotImplementedError")
+# Note: stub-raises tests removed — the three LLM-required steps were
+# implemented in Sprint B Phase 2 and are now tested by test-cascade-llm.py.
 
 
 # ─── runner ─────────────────────────────────────────────────────────────────
@@ -280,14 +252,10 @@ TESTS = [
     test_weigh_segments_confounded_emits_null,
     test_weigh_segments_evidence_tier_distribution,
     test_weigh_segments_dimension_recommendation,
-    # Pipeline integration
+    # Pipeline integration (deterministic only)
     test_pipeline_includes_weighted_scores_when_enabled,
     test_pipeline_includes_wilson_baseline_when_enabled,
     test_pipeline_can_disable_cascade_steps,
-    # Stubs
-    test_synthesize_stub_raises,
-    test_adversary_stub_raises,
-    test_generate_spec_stub_raises,
 ]
 
 
