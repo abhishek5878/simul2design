@@ -380,9 +380,68 @@ final_state["synthesis_ready_for_human"]                # True if nothing to rev
 ```
 
 The node:
-1. Reads `state["comparison_data"]` (required) and `state["client_slug"]` (or derives from `simulation_id` / `comparison_data.metadata.simulation_id`).
-2. Runs the SynthesisPipeline (ingest → automap-rules → automap-llm).
-3. Writes `state["synthesis_result"]` (a `SynthesisResult` dict) and `state["synthesis_ready_for_human"]` (bool).
+1. Reads either `state["ab_report"]` (apriori_simulation_engine canonical output, preferred) OR `state["comparison_data"]` (legacy). If both are present, `ab_report` wins.
+2. Resolves `state["client_slug"]` (or derives from `simulation_id` / `ab_report.meta.client` / `comparison_data.metadata.simulation_id`).
+3. Runs the SynthesisPipeline (ingest → automap-rules → automap-llm → optional cascade).
+4. Writes `state["synthesis_result"]` (a `SynthesisResult` dict), `state["synthesis_ready_for_human"]` (bool), and `state["synthesis_input_source"]` (`"ab_report"` | `"comparison_data"`).
+
+### Wiring against `dechrone/apriori_simulation_engine`
+
+The engine emits the canonical `AbReport` payload at `src/api/models/ab_report.py:198-208`. To wire simul2design as a synthesis node:
+
+```python
+# In src/core/multiflow_orchestrator.py, around line 273 (right before the
+# `comparison_ready` event yield):
+
+from simul2design.langgraph_node import synthesis_node
+from simul2design import SynthesisPipeline
+
+# Build the pipeline once at module import (or inject from app state):
+_synth_pipeline = SynthesisPipeline(run_full_cascade=True, max_llm_cells=20)
+
+# After the AbReport dict (`report`) is assembled and validated:
+synth_state = {"ab_report": report, "client_slug": meta["client"]}
+synth_out = await synthesis_node(synth_state, pipeline=_synth_pipeline)
+
+# Yield a follow-on event with the synthesis result:
+yield _ndjson({"type": "synthesis_ready", "data": synth_out["synthesis_result"]})
+```
+
+Or as a `StateGraph` node in `src/core/langgraph_orchestrator.py`'s `build_simulation_graph()` at line ~1684:
+
+```python
+graph.add_node("synthesize_design", synthesis_node)
+graph.add_edge("generate_insights", "synthesize_design")
+```
+
+**Latency caveat:** A full cascade run is ~4 minutes synchronous and ~$0.44. The engine's `stream_events()` SSE pattern at `multiflow_orchestrator.py:97` will block for that duration. For production UX, run the cascade in a background task and yield `synthesis_running` heartbeats every 10s, then a final `synthesis_ready` event when it completes. Disable the cascade by leaving `run_full_cascade=False` (default) — the node still returns the auto-mapped matrix in <5 seconds.
+
+### AbReport → ComparisonData adapter (three-tier metric resolution)
+
+The adapter at `simul2design/adapters/ab_report.py` performs a structural conversion between the two schemas. Per-segment per-variant completion rates resolve through three tiers, per cell, in priority order:
+
+1. **`measured_subsample`** — real conversion rate computed from per-persona outcomes mined from `AbReport.deep_dive.personas[].variant_{a,b}.outcome` and `AbReport.monologue_diff[].decision_{a,b}` (de-duped by `persona_id`). Each cell carries `observed_n` so downstream Wilson 95% intervals widen appropriately on small samples.
+2. **`preference_proxy`** — binary 100/0 derived from `AbReport.persona_split[].preferred_variant`, used when no per-persona outcomes exist for that segment. `observed_n = 0`. Direction-only signal.
+3. **`absent`** — both null when `preferred_variant == "neither"` AND `observed_n == 0`.
+
+The per-cell source is recorded in `_extraction_confidence.segment_verdicts.metrics_by_variant.completion_rate.cells = {<segment>: {a: <source>, b: <source>}}`. Aggregate `metrics.completion_rate` uses pooled measured outcomes when any are observed, falling back to preference-share otherwise.
+
+**When measured and preference disagree, measured wins.** If `persona_split` says urban-tech-workers prefers A but the deep-dive persona for that segment converted on B and abandoned A, `metrics_by_variant.a.completion_rate=0` and `b=100` — driven by the actual outcome, not the segment-level tag. (The `winner` field still mirrors `preferred_variant` because that's AbReport's own analysis layer; lift math runs off the measured cells.)
+
+The adapter reads outcomes that already exist in AbReport — no engine-side change is required to get measured rates. To raise the observed_n per segment, the engine team would need to populate more `deep_dive.personas` or `monologue_diff` entries; the adapter automatically picks them up.
+
+```python
+# Direct usage of the adapter, outside the LangGraph node:
+from simul2design import from_ab_report, ComparisonData, SynthesisPipeline
+
+adapted_dict = from_ab_report(ab_report_dump, client_slug="loop_health")
+cd = ComparisonData(**adapted_dict)
+result = await SynthesisPipeline().run(cd, client_slug="loop_health")
+
+# Inspect per-cell sources to see which segments are measured vs proxy:
+print(adapted_dict["_extraction_confidence"]
+      ["segment_verdicts.metrics_by_variant.completion_rate.cells"])
+```
 
 ### Pre-configured pipeline injection
 
@@ -456,9 +515,10 @@ SynthesisPipeline(
 ### Tests
 
 ```bash
-scripts/test-package.py        # 12 tests: schemas, pipeline, LangGraph node, taxonomy sync
-scripts/test-cascade.py        # 12 tests: weigh_segments + Wilson math + pipeline integration
-scripts/test-cascade-llm.py    # 10 tests: synthesize + adversary + generate-spec (mocked)
+scripts/test-package.py             # 12 tests: schemas, pipeline, LangGraph node, taxonomy sync
+scripts/test-cascade.py             # 12 tests: weigh_segments + Wilson math + pipeline integration
+scripts/test-cascade-llm.py         # 10 tests: synthesize + adversary + generate-spec (mocked)
+scripts/test-ab-report-adapter.py   # 16 tests: AbReport → ComparisonData adapter + LangGraph wiring
 ```
 
 Tests use mocked Anthropic client — no API key required. Two critical

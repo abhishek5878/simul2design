@@ -11,9 +11,11 @@ Drop into Apriori's existing LangGraph after their simulation node:
     graph.add_edge("synthesis", "render_dashboard")
 
 The node:
-- Reads `state["comparison_data"]` and `state["client_slug"]` (or
-  `state["simulation_id"]` as fallback).
-- Runs the SynthesisPipeline (ingest → automap-rules → automap-llm).
+- Reads `state["ab_report"]` (apriori_simulation_engine canonical output) OR
+  `state["comparison_data"]` (legacy / direct ComparisonData dict).
+  If both are present, `ab_report` wins.
+- Resolves `state["client_slug"]` (or `state["simulation_id"]` as fallback).
+- Runs the SynthesisPipeline (ingest → automap-rules → automap-llm → optional cascade).
 - Writes `state["synthesis_result"]` (a `SynthesisResult` dict) and
   `state["synthesis_ready_for_human"]` (bool).
 
@@ -26,15 +28,17 @@ from typing import Any, TypedDict, Optional
 
 from simul2design.pipeline import SynthesisPipeline
 from simul2design.schemas import ComparisonData, SynthesisResult
+from simul2design.adapters.ab_report import from_ab_report
 
 
 class SynthesisNodeStateInput(TypedDict, total=False):
     """Fields the node reads from graph state.
 
     Marked total=False because LangGraph state contains many other fields
-    that aren't ours; we only need these two.
+    that aren't ours; we only need these.
     """
-    comparison_data: dict[str, Any]   # Apriori ComparisonData (raw dict OR model_dump)
+    ab_report: dict[str, Any]         # apriori_simulation_engine AbReport dict (preferred)
+    comparison_data: dict[str, Any]   # legacy ComparisonData dict (fallback)
     client_slug: str                  # e.g. "univest" — derived from sim id if missing
     simulation_id: str                # fallback for client_slug if explicit slug absent
 
@@ -43,6 +47,7 @@ class SynthesisNodeStateOutput(TypedDict):
     """Fields the node writes to graph state."""
     synthesis_result: dict[str, Any]
     synthesis_ready_for_human: bool
+    synthesis_input_source: str  # 'ab_report' | 'comparison_data'
 
 
 def _derive_client_slug(state: dict[str, Any]) -> str:
@@ -50,6 +55,13 @@ def _derive_client_slug(state: dict[str, Any]) -> str:
     if state.get("client_slug"):
         return state["client_slug"]
     sid = state.get("simulation_id")
+    if sid:
+        return str(sid).lower().replace("_", "-")
+    ab = state.get("ab_report") or {}
+    client = (ab.get("meta") or {}).get("client")
+    if client:
+        return str(client).lower().replace(" ", "-").replace("_", "-")
+    sid = (ab.get("meta") or {}).get("simulation_id")
     if sid:
         return str(sid).lower().replace("_", "-")
     cd = state.get("comparison_data") or {}
@@ -79,20 +91,30 @@ async def synthesis_node(
     if pipeline is None:
         pipeline = SynthesisPipeline()
 
+    ab_report = state.get("ab_report")
     raw_comp = state.get("comparison_data")
-    if raw_comp is None:
+
+    if ab_report is not None:
+        client_slug = _derive_client_slug(state)
+        adapted = from_ab_report(ab_report, client_slug=client_slug if client_slug != "unknown" else None)
+        comp = ComparisonData(**adapted)
+        source = "ab_report"
+    elif raw_comp is not None:
+        comp = raw_comp if isinstance(raw_comp, ComparisonData) else ComparisonData(**raw_comp)
+        client_slug = _derive_client_slug(state)
+        source = "comparison_data"
+    else:
         raise ValueError(
-            "synthesis_node: state['comparison_data'] is required "
-            "(either Apriori ComparisonData dict or a Pydantic ComparisonData)"
+            "synthesis_node: state must contain 'ab_report' (apriori_simulation_engine "
+            "AbReport dict) or 'comparison_data' (legacy ComparisonData dict)."
         )
-    comp = raw_comp if isinstance(raw_comp, ComparisonData) else ComparisonData(**raw_comp)
-    client_slug = _derive_client_slug(state)
 
     result: SynthesisResult = await pipeline.run(comp, client_slug=client_slug)
 
     return {
         "synthesis_result": result.model_dump(),
         "synthesis_ready_for_human": result.ready_for_synthesis,
+        "synthesis_input_source": source,
     }
 
 

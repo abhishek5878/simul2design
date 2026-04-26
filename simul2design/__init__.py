@@ -38,6 +38,7 @@ from simul2design.schemas import (
     TokenUsage,
 )
 from simul2design.pipeline import SynthesisPipeline
+from simul2design.adapters import from_ab_report
 
 __all__ = [
     "__version__",
@@ -46,4 +47,5 @@ __all__ = [
     "ComparisonData",
     "CellRef",
     "TokenUsage",
+    "from_ab_report",
 ]

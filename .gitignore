@@ -11,3 +11,12 @@ build/
 
 # OS
 .DS_Store
+
+# Python build/cache artifacts
+__pycache__/
+*.pyc
+*.egg-info/
+
+# Claude Code local state
+.claude/scheduled_tasks.lock
+.claude/plans/
