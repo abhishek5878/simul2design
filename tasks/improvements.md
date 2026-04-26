@@ -19,6 +19,13 @@ An improvement lands here when I notice something is weak but don't need to fix 
 
 ## Open
 
+### Phase 3b: LLM fallback for the ~25% of taxonomy cells rules can't auto-map
+- **Why it matters:** Phase 3a (rule-based automap) hits a realistic ceiling at ~75% match against the hand-built v2 univest matrix (~84% on high-confidence cells). The remaining ~25% are cells where Apriori's text doesn't directly state the value (e.g., V4 dark theme, V2-V4 countdown timer presence, cross-variant "Same as V2" inheritance, Univest-overlay compound values like `cta_style=outline_on_dark_plus_sticky_green`). A Sonnet-class LLM can read the screen_comparison summaries + variant context + screenshots and reason about these cells.
+- **Trigger to fix:** Second client engagement (will surface the same 25% gap). Or: when we're ready to commit to Anthropic SDK + ANTHROPIC_API_KEY as a runtime dependency (currently the project has zero LLM-API dependencies — everything runs in Claude Code).
+- **Fix path:** New script `scripts/automap-taxonomy-llm.py <client>` — for each cell where Phase 3a returned `low_default` or `needs_review`, call Anthropic API with: (a) variant context, (b) the dimension's enum, (c) the matched-pattern trace from Phase 3a (so LLM doesn't double-spend reasoning). Tag results as `auto_mapped_llm` confidence tier. Add `anthropic` to a new `requirements.txt`. Document API-key requirement in INTEGRATION.md.
+- **Severity:** should-fix (unblocks Phase 4 webhook by getting onboarding under 30 min)
+- **Filed:** 2026-04-26
+
 ### Audit Univest VoC grounding sources
 - **Why it matters:** The 5 Univest segments ("Skeptical Investor," "Curious Beginner," etc.) are abstract archetypes, not voice-of-customer-grounded personas. Per Truss 2026 (PersonaCite, arxiv:2601.22288 — see `tasks/related-work.md` §2), persona behaviors that can't cite a real source are unverifiable. If real Univest VoC artifacts (app-store reviews, churn-survey responses, support tickets) exist, anchoring the 5 segments to them would tighten V5 confidence intervals retroactively.
 - **Trigger to fix:** Before V5 ships AND Univest can hand over real user-research data; or before a second client engagement, whichever comes first.

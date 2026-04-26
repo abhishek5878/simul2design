@@ -108,22 +108,27 @@ scripts/ingest-apriori.py <client> --from-comparison-json <file>
 #   data/<client>/element_matrix.json       — starter (direct fields populated; taxonomy needs review)
 #   data/<client>/source-screenshots/       — variant PNGs auto-fetched
 
-# 3. Human taxonomy pass (Phase 3 will automate this)
-# Edit data/<client>/element_matrix.json — replace `__needs_review__` taxonomy values with
-# the right enum from .claude/rules/element-taxonomy-base.md, reading the screenshots and
-# the screen_comparison summaries in source.md §6.
-# Edit .claude/rules/element-taxonomy-<client>.md for client-specific overlay.
+# 3. Auto-map taxonomy (Phase 3a — rule-based; ~75% match against hand-built ground truth)
+scripts/automap-taxonomy.py <client>
+# → updates element_matrix.json with high-confidence values where rules match,
+#   sensible defaults where they don't, __needs_review__ where neither
+# → writes data/<client>/automap-trace.json with per-cell confidence + matched-pattern audit
 
-# 4. Run the pipeline cascade (each stage reads the previous)
+# 4. Human review of remaining cells (Phase 3b LLM fallback will reduce this)
+# Open data/<client>/element_matrix.json — review cells where automap-trace.json says
+# 'low_default' (best-guesses) or 'needs_review' (no signal).
+# Edit .claude/rules/element-taxonomy-<client>.md for client-specific overlay (e.g. compound CTA-style values).
+
+# 5. Run the pipeline cascade (each stage reads the previous)
 scripts/sim-flow.py status <client>          # state probe
 # Then weigh-segments → synthesize → adversary → estimate-conversion → generate-spec
 # (each is currently a manual reasoning pass following the SKILL.md docstrings)
 
-# 5. Render the customer-facing report
+# 6. Render the customer-facing report
 scripts/render-report.py <client>            # validates inputs + renders preview PNG
 ```
 
-After Phase 2 (current state, 2026-04-26): step 1 takes ~30s instead of ~2 hours of hand-typing the matrix. **Total onboarding time ≈ 1.5–2 hours** (taxonomy review is the bottleneck). Phase 3 brings it under 30 minutes.
+After Phase 3a (current state): the auto-mapper fills ~75% of taxonomy cells correctly against the hand-built v2 univest matrix; the remaining ~25% are flagged for human review (and Phase 3b LLM fallback). **Total onboarding time ≈ 45–60 minutes** for the human review pass + downstream cascade.
 
 ---
 
@@ -165,16 +170,34 @@ The HTML report is the headline deliverable — it's what a brand stakeholder se
 
 After ingest, the human taxonomy pass + downstream pipeline cascade is unchanged from Phase 1. Onboarding time drops from ~4–6 hours to ~1.5–2 hours (the matrix scaffolding is no longer hand-typed; the taxonomy review remains the bottleneck).
 
-### ⏭ Phase 3 (next, ~2-3 days)
-**Taxonomy auto-mapper (LLM-driven, Sonnet-class)**
-- Reads `screen_comparison[].summaries[v]` natural-language descriptions.
-- Proposes taxonomy values for each (variant, dimension) cell.
-- Marks each as `auto_mapped` (high confidence) or `needs_review` (human required).
-- Eliminates ~70% of the human taxonomy-mapping work on a typical client.
+### ✅ Phase 3a (shipped 2026-04-26) — rule-based auto-mapper
+**`scripts/automap-taxonomy.py <client>`**
+- Reads the starter matrix (with `__needs_review__` taxonomy fields) + `apriori_input.json`.
+- Applies pattern rules per dimension across the variant's text corpus (description + screen_comparison.summaries[this_variant] + present-friction + persistent/introduced themes).
+- Adds derived INFER_* signals from friction antitheses (e.g., modal-friction RESOLVED → INFER_NO_MODAL → maps to `modal_interrupt=no` and `layout=full_screen`) and combined trust signals (regulator + aggregate/named/third-party → `regulatory_plus_evidence`).
+- Negation-aware: stocks like TMPV/ZOMATO matched only outside negation context ("stripped", "no concrete", "absent of"...).
+- Three-tier confidence: `high` (explicit pattern match), `low_default` (sensible default like `none`/`single`/`absent`/`implicit`), `needs_review` (no signal).
+- Audit trail: `data/<client>/automap-trace.json` with per-cell value + confidence + matched_pattern.
 
-After this lands, onboarding time drops to ~30 minutes for a typical client.
+**Validated coverage on real Univest data** (5 variants × 11 dims = 55 cells):
+- 95% cells auto-filled (high or low_default)
+- ~75% match against hand-built v2 univest matrix (overall)
+- ~84% match on high-confidence cells
 
-### ⏭ Phase 4 (after Phase 3 proves on 2-3 clients)
+**Tested by 18-test suite** (`scripts/test-automap-taxonomy.py`): unit tests on helpers (extract_cta_label, _derive_inferences, map_cell), integration tests on synthetic + real-univest fixtures, regression thresholds (≥70% overall match, ≥80% high-confidence, ≥95% auto-fill coverage).
+
+**Limitations (known, by design):**
+- Cannot recover facts that aren't in the text (V4 dark theme, V2-V4 countdown timer where Apriori's friction model was incomplete) — needs Phase 3b LLM or screenshot OCR.
+- Cannot generate Univest-overlay-specific compound values (e.g. `cta_style=outline_on_dark_plus_sticky_green`) — only base-taxonomy enums.
+- Cross-variant inheritance ("Same as V2") is not tracked across variants.
+
+### ⏭ Phase 3b (next, ~1-2 days) — LLM fallback for the ~25% gap
+- For cells flagged `needs_review` or `low_default` after Phase 3a, call Sonnet-class LLM with the variant's screen_comparison summaries + the taxonomy enum + ask for the best value with reasoning.
+- Updates the matrix with `auto_mapped_llm` confidence tier.
+- Requires `anthropic` SDK + `ANTHROPIC_API_KEY`.
+- Onboarding time drops to ~15-20 minutes per client (just the cascade).
+
+### ⏭ Phase 4 (after Phase 3b proves on 2-3 clients)
 **Webhook / GitHub Action**
 - When a new `/src/app/demo/<client>/` lands in apriori_landing → trigger our engine.
 - Engine runs full pipeline + report render.
@@ -223,6 +246,8 @@ The calibration signal feeds back into our `non_linearity_discount` improvement 
 | Action | Command |
 |---|---|
 | **Ingest Apriori ComparisonData** | `scripts/ingest-apriori.py <client> --from-comparison-json <file>` |
+| **Auto-map taxonomy** (rule-based) | `scripts/automap-taxonomy.py <client>` |
+| Test the auto-mapper (18 tests) | `scripts/test-automap-taxonomy.py` |
 | See pipeline state for a client | `scripts/sim-flow.py status <client>` |
 | List all clients | `scripts/sim-flow.py list` |
 | Render the HTML report → PNG | `scripts/render-report.py <client>` |
