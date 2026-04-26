@@ -1,0 +1,797 @@
+{
+  "metadata": {
+    "simulation_id": "UNIVEST_ACTIVATION_COMPARISON",
+    "simulation_name": "Univest Post-Signup Activation Flow",
+    "created_at": "2026-04-12T14:30:00Z",
+    "persona_count": 50,
+    "screen_count": 1,
+    "flow_screens": [
+      "Activation Screen"
+    ]
+  },
+  "variants": [
+    {
+      "id": "control",
+      "label": "Control",
+      "is_control": true,
+      "color": "#8B8FA3",
+      "description": "Bottom-modal popup with 'Start Trial Now' — no ₹1 anywhere on screen"
+    },
+    {
+      "id": "a",
+      "label": "Variant 1",
+      "is_control": false,
+      "color": "#6366F1",
+      "description": "Full-screen dark theme, Recent Wins carousel, explicit ₹1 sticky CTA"
+    },
+    {
+      "id": "b",
+      "label": "Variant 2",
+      "is_control": false,
+      "color": "#0D9488",
+      "description": "Crown header, ₹1 + refund banner, blurred trade card, low-contrast CTA"
+    },
+    {
+      "id": "c",
+      "label": "Variant 3",
+      "is_control": false,
+      "color": "#10B981",
+      "description": "V2 layout + green CTA — single change vs Variant 2"
+    },
+    {
+      "id": "d",
+      "label": "Variant 4",
+      "is_control": false,
+      "color": "#E8913A",
+      "description": "Dual CTA stack: outline 'Unlock FREE trade' + sticky green '₹1 Trial'"
+    }
+  ],
+  "metrics": {
+    "control": {
+      "sus": 58.4,
+      "seq": 3.2,
+      "completion_rate": 22,
+      "friction_count": 3,
+      "avg_sentiment": -0.32
+    },
+    "a": {
+      "sus": 68.7,
+      "seq": 4.6,
+      "completion_rate": 38,
+      "friction_count": 2,
+      "avg_sentiment": 0.08
+    },
+    "b": {
+      "sus": 64.2,
+      "seq": 4.1,
+      "completion_rate": 30,
+      "friction_count": 3,
+      "avg_sentiment": -0.04
+    },
+    "c": {
+      "sus": 70.4,
+      "seq": 4.9,
+      "completion_rate": 36,
+      "friction_count": 3,
+      "avg_sentiment": 0.18
+    },
+    "d": {
+      "sus": 73.6,
+      "seq": 5.2,
+      "completion_rate": 44,
+      "friction_count": 3,
+      "avg_sentiment": 0.32
+    }
+  },
+  "verdict": {
+    "recommended_variant": "d",
+    "recommendation_type": "ship_with_modifications",
+    "modifications": [
+      "Replace the blurred Live Trade card with a real closed trade showing entry, exit, days held, and rupee gain",
+      "Make the dual CTAs functionally different — let 'Unlock FREE trade' show one real trade for free, reserve ₹1 sticky CTA for full activation"
+    ],
+    "verdict_text": "Variant 4 is the highest-converting screen in the study (44%) and the only design that meaningfully cracks the Skeptical Investor segment (25%, up from 8% in Control). The dual-CTA stack lets users self-segment into 'explore first' or 'commit now', and the sticky '₹1 Trial' button makes price impossible to miss. The recommended path is Variant 4's dual-CTA layout with the blurred trade card replaced by a real closed trade, and the outline 'Unlock FREE trade' CTA made functionally different from the ₹1 activation.",
+    "confidence": {
+      "personas_preferring_winner": 12,
+      "total_personas": 15,
+      "dissenting_segments": [
+        "Trust Seeker"
+      ]
+    }
+  },
+  "theme_movement": {
+    "persistent": [
+      {
+        "id": "theme_persist_01",
+        "name": "Blurred trade card alienates Skeptical Investors",
+        "description": "Across Variants 2, 3, and 4, the blurred Live Trade card is immediately recognised as a curiosity gimmick by sophisticated investors. No variant resolved this — it remains the single largest unsolved trust drag.",
+        "present_in": [
+          "b",
+          "c",
+          "d"
+        ],
+        "persona_count": 12,
+        "monologue_evidence": {
+          "persona_name": "Skeptical Investor",
+          "persona_archetype": "Active F&O trader, SEBI-circular reader",
+          "monologues": {
+            "b": "Blurred entry price, blurred target price, clear +14.32% — this is a fake card.",
+            "c": "Same gimmick from before. The green button doesn't fix a fake card.",
+            "d": "Two buttons doesn't fix one fake card. I'd rather have one real trade."
+          }
+        }
+      },
+      {
+        "id": "theme_persist_02",
+        "name": "Abstract metrics underperform concrete past wins",
+        "description": "Variants 2, 3, and 4 replaced Variant 1's named recent wins (TMPV, ZOMATO, RELIANCE) with abstract metrics (85%+ Accuracy, 3500+ Trades). Curious Beginners consistently wanted at least one named stock to anchor on.",
+        "present_in": [
+          "b",
+          "c",
+          "d"
+        ],
+        "persona_count": 8,
+        "monologue_evidence": null
+      }
+    ],
+    "resolved": [
+      {
+        "id": "theme_resolv_01",
+        "name": "Price opacity on the activation screen",
+        "description": "Control never showed ₹1 anywhere — 78% of users couldn't tell if 'Start Trial Now' was free or paid. Every subsequent variant resolved this by making the price explicit in the CTA or banner.",
+        "present_in": [
+          "control"
+        ],
+        "absent_in": [
+          "a",
+          "b",
+          "c",
+          "d"
+        ],
+        "resolved_by": [
+          "a",
+          "b",
+          "c",
+          "d"
+        ],
+        "persona_count_in_control": 39,
+        "monologue_evidence": {
+          "persona_name": "Curious Beginner",
+          "persona_archetype": "First-time advisory user, 1-2 SIPs",
+          "monologues": {
+            "control": "Trial means free, right? But sometimes apps say trial and then charge you. I'll close this for now.",
+            "a": "₹1 on the button — that's clear. I'll do it."
+          }
+        }
+      },
+      {
+        "id": "theme_resolv_02",
+        "name": "CTA visibility failure — low contrast and visual subordination",
+        "description": "Variant 2's CTA was visually subordinate to the 'Activate @ ₹1 & get instant refund' banner above it. 22% of users either missed the CTA entirely or tapped the banner mistakenly. Variant 3 fixed this by switching to a high-contrast green CTA.",
+        "present_in": [
+          "b"
+        ],
+        "absent_in": [
+          "c",
+          "d"
+        ],
+        "resolved_by": [
+          "c",
+          "d"
+        ],
+        "persona_count_in_control": 11,
+        "monologue_evidence": {
+          "persona_name": "Curious Beginner",
+          "persona_archetype": "First-time advisory user",
+          "monologues": {
+            "b": "Where do I tap to actually start? The button blends in — I keep looking at the banner instead.",
+            "c": "I see the green button immediately. I don't even have to think — that's where I tap."
+          }
+        }
+      },
+      {
+        "id": "theme_resolv_03",
+        "name": "Modal interrupts before value preview",
+        "description": "Control's bottom-modal popup slammed over a greyed-out Live Trades screen. 62% of users felt interrupted. Variants 1-4 replaced this with full-screen activation layouts.",
+        "present_in": [
+          "control"
+        ],
+        "absent_in": [
+          "a",
+          "b",
+          "c",
+          "d"
+        ],
+        "resolved_by": [
+          "a",
+          "b",
+          "c",
+          "d"
+        ],
+        "persona_count_in_control": 31,
+        "monologue_evidence": {
+          "persona_name": "Skeptical Investor",
+          "persona_archetype": "Active trader",
+          "monologues": {
+            "control": "I downloaded this to look at the live trades. Why is there a popup on top of them before I've even seen anything?"
+          }
+        }
+      }
+    ],
+    "introduced": [
+      {
+        "id": "theme_intro_01",
+        "name": "Countdown timer manipulation perception",
+        "description": "Variant 1's '04:34 Left' countdown timer converted Bargain Hunters but backfired with 41% of Skeptical Investors who read it as a high-pressure dark pattern.",
+        "present_in": [
+          "a"
+        ],
+        "absent_in": [
+          "control",
+          "b",
+          "c",
+          "d"
+        ],
+        "introduced_by": [
+          "a"
+        ],
+        "persona_count": 6,
+        "monologue_evidence": {
+          "persona_name": "Skeptical Investor",
+          "persona_archetype": "Active F&O trader",
+          "monologues": {
+            "a": "If the offer is real, it'll still be there in an hour. The timer makes me less likely to trust it, not more."
+          }
+        }
+      },
+      {
+        "id": "theme_intro_02",
+        "name": "Dual CTA label mismatch",
+        "description": "Variant 4's 'Unlock FREE trade' and 'Start Free Trial @ ₹1' imply two different flows but both lead to the same ₹1 activation. 33% of users noticed the discrepancy.",
+        "present_in": [
+          "d"
+        ],
+        "absent_in": [
+          "control",
+          "a",
+          "b",
+          "c"
+        ],
+        "introduced_by": [
+          "d"
+        ],
+        "persona_count": 5,
+        "monologue_evidence": {
+          "persona_name": "Curious Beginner",
+          "persona_archetype": "First-time advisory user",
+          "monologues": {
+            "d": "If both lead to ₹1, why have two buttons? Just say it once."
+          }
+        }
+      },
+      {
+        "id": "theme_intro_03",
+        "name": "Green CTA softens premium positioning",
+        "description": "Variant 3's green CTA improved visibility but reduced the premium feel that Trust Seekers valued in Variant 2's darker, more understated CTA. Trust Seeker conversion dropped from 50% to 40%.",
+        "present_in": [
+          "c"
+        ],
+        "absent_in": [
+          "control",
+          "a",
+          "b",
+          "d"
+        ],
+        "introduced_by": [
+          "c"
+        ],
+        "persona_count": 4,
+        "monologue_evidence": {
+          "persona_name": "Trust Seeker",
+          "persona_archetype": "Conservative, premium-seeking investor",
+          "monologues": {
+            "c": "I liked the previous button — it felt more serious. Bright green is friendlier but cheaper-looking."
+          }
+        }
+      }
+    ]
+  },
+  "screen_comparison": [
+    {
+      "screen_name": "Trust / Header Section",
+      "screen_index": 0,
+      "divergence": "high",
+      "divergence_score": 0.78,
+      "summaries": {
+        "control": "SEBI / Google / ET trust badges on a modal. SEBI number rendered in tiny 10pt grey text. 44% found badges reassuring but Skeptical Investors dismissed them as paid placements.",
+        "a": "SEBI number more visible. 914/62 win-loss ratio and 'India's Trusted Advisory' header. All-time accuracy 84.7% claim dismissed by Skeptical Investors as statistically implausible.",
+        "b": "Crown logo + 'India's Trusted Advisory' lockup. 3-column metrics (SEBI Reg / 85%+ Accuracy / 3500+ Trades). Premium feel resonated with Trust Seekers. No concrete past wins.",
+        "c": "Same as Variant 2. Crown + abstract metrics. No changes.",
+        "d": "Same as Variant 2/3. Crown + abstract metrics. No changes."
+      }
+    },
+    {
+      "screen_name": "Proof / Trade Evidence",
+      "screen_index": 1,
+      "divergence": "high",
+      "divergence_score": 0.86,
+      "summaries": {
+        "control": "No trade evidence shown. Greyed-out Live Trades visible behind the modal but inaccessible.",
+        "a": "Recent Wins carousel with TMPV +12.93%, ZOMATO +₹23,435, RELIANCE +12.93%. Most persuasive element — 71% of converters cited a specific stock. But carousel format created cognitive overload for 58%.",
+        "b": "Single blurred Live Trade card with +14.32% visible. Worked as curiosity gap for Curious Beginners (35% wanted to unlock) but felt manipulative to Skeptical Investors.",
+        "c": "Same blurred card as V2. Now the primary unsolved trust problem — 49% recognised it as a gimmick.",
+        "d": "Same blurred card. Impact diluted by strong CTA stack but still 8% drop among Skeptical Investors."
+      }
+    },
+    {
+      "screen_name": "Pricing Communication",
+      "screen_index": 2,
+      "divergence": "high",
+      "divergence_score": 0.91,
+      "summaries": {
+        "control": "No price anywhere on screen. 'Start Trial Now' CTA with 'FREE' headline. 78% of users couldn't tell if it was free or paid. 34% abandoned.",
+        "a": "Explicit '₹1' in the sticky CTA ('START FREE TRIAL @ ₹1'). Resolved 67% of Control's pricing distrust. Minor 'FREE vs ₹1' label contradiction.",
+        "b": "'Activate @ ₹1 & get instant refund' banner — strongest pricing reassurance in the study. 64% cited refund as deciding factor. But the CTA was visually subordinate to the banner.",
+        "c": "Same refund banner as V2 + green CTA. Price + refund + visible button = cleanest combo for Bargain Hunters (62% conversion).",
+        "d": "Sticky green '₹1 Trial' CTA always visible at bottom. Most persistent pricing signal — 82% cited it. 'Unlock FREE trade' outline button above for exploration."
+      }
+    },
+    {
+      "screen_name": "Primary CTA",
+      "screen_index": 3,
+      "divergence": "high",
+      "divergence_score": 0.88,
+      "summaries": {
+        "control": "'Start Trial Now' button inside a modal. Functional but clinical. No price, no urgency, no risk-reversal.",
+        "a": "Sticky green 'START FREE TRIAL @ ₹1' CTA at bottom with countdown timer. Timer converted Bargain Hunters but repelled 41% of Skeptical Investors.",
+        "b": "Teal 'Unlock FREE trade →' CTA visually subordinate to the refund banner above it. 22% drop — users tapped the banner or missed the CTA entirely.",
+        "c": "Same layout as V2 but CTA changed to green. Hunt time dropped from 4-6s to under 1s. Conversion rose 6 points vs V2.",
+        "d": "Dual CTA stack: outline 'Unlock FREE trade →' in card area + sticky green 'Start Free Trial @ ₹1 →' at bottom. 56% felt the choice gave them control."
+      }
+    }
+  ],
+  "persona_journeys": [
+    {
+      "persona_id": "persona_skeptic",
+      "name": "Skeptical Investor",
+      "age": 35,
+      "archetype": "Active F&O trader, SEBI-circular reader",
+      "avatar_emoji": "🧐",
+      "segment": "Skeptical Investor",
+      "preferred_variant": "d",
+      "narrative": "Converted in exactly one variant — Variant 4 — and grudgingly. Dismissed Control's hidden price instantly ('Trial without a price means hidden charge'). In Variant 1, the SEBI number and recent wins briefly held attention but the countdown timer broke the spell. Variants 2 and 3's blurred trade card was the dealbreaker ('Show me a real trade or don't'). In Variant 4, the sticky ₹1 CTA eventually wore down resistance: 'I still don't believe the 84.7% claim, but ₹1 with a refund is essentially free. Worth ₹1 to find out.'"
+    },
+    {
+      "persona_id": "persona_beginner",
+      "name": "Curious Beginner",
+      "age": 26,
+      "archetype": "1-2 SIPs, first-time advisory user",
+      "avatar_emoji": "🤔",
+      "segment": "Curious Beginner",
+      "preferred_variant": "d",
+      "narrative": "Struggled in Control — couldn't decode the offer and closed the modal to 'look around'. In Variant 1, ZOMATO's +₹23k was the turning point ('I bought it last year — if they nailed that, I should listen') but the information overload pushed many out. Variants 2 and 3 were calmer but the missing concrete wins left them unanchored. In Variant 4, the persistent ₹1 sticky CTA finally removed pricing anxiety, though some experienced mild choice paralysis with the dual buttons."
+    },
+    {
+      "persona_id": "persona_bargain",
+      "name": "Bargain Hunter",
+      "age": 29,
+      "archetype": "Tries any ₹1 trial",
+      "avatar_emoji": "💰",
+      "segment": "Bargain Hunter",
+      "preferred_variant": "d",
+      "narrative": "The most reliable converters across all variants. Tapped Control's 'Start Trial Now' within 4 seconds and cheerfully paid ₹1 when it appeared. In Variant 1, the ₹1 + timer combo produced 54% conversion in 11 seconds average. Variant 2's refund clause was their love language but the invisible CTA cost a few. Variant 3 (green CTA + refund + ₹1) hit 62%. Variant 4 reached 69% — approaching the natural ceiling. Average time on screen: 7 seconds."
+    },
+    {
+      "persona_id": "persona_trust",
+      "name": "Trust Seeker",
+      "age": 48,
+      "archetype": "Conservative, premium-seeking investor",
+      "avatar_emoji": "🛡️",
+      "segment": "Trust Seeker",
+      "preferred_variant": "a",
+      "narrative": "Converted at 40% in Control thanks to the trust badges alone. In Variant 1, the SEBI number + recent wins pushed them to 60% — their peak. Variant 2's crown branding + refund clause hit 50% despite the CTA visibility issue. Variant 3's green CTA dropped them to 40% — the green felt 'less premium'. Variant 4 restored the balance: the outline button kept the premium tone while the sticky ₹1 CTA gave pricing confidence. 'Best of both worlds — looks premium and tells me the price.'"
+    }
+  ],
+  "segment_verdicts": [
+    {
+      "segment_name": "Skeptical Investor",
+      "persona_count": 12,
+      "winner": "d",
+      "narrative": "Best conversion in Variant 4 (25%) — triple Control (8%). The sticky ₹1 CTA finally cracked the segment by making the price persistently visible. The blurred trade card remains the bottleneck — replacing it would push this segment past 35%.",
+      "metrics_by_variant": {
+        "control": {
+          "sus": 49.2,
+          "seq": 2.4,
+          "completion_rate": 8
+        },
+        "a": {
+          "sus": 58.4,
+          "seq": 3.6,
+          "completion_rate": 17
+        },
+        "b": {
+          "sus": 53.6,
+          "seq": 3.1,
+          "completion_rate": 8
+        },
+        "c": {
+          "sus": 58.7,
+          "seq": 3.6,
+          "completion_rate": 17
+        },
+        "d": {
+          "sus": 64.2,
+          "seq": 4.4,
+          "completion_rate": 25
+        }
+      }
+    },
+    {
+      "segment_name": "Curious Beginner",
+      "persona_count": 15,
+      "winner": "d",
+      "narrative": "Conversion rose from 7% (Control) to 33% (Variant 4). The persistent ₹1 CTA removed pricing anxiety. Missing concrete past wins (present in Variant 1 but absent in V2-V4) remains a bottleneck — adding one named recent win would push past 40%.",
+      "metrics_by_variant": {
+        "control": {
+          "sus": 53.8,
+          "seq": 2.8,
+          "completion_rate": 7
+        },
+        "a": {
+          "sus": 65.2,
+          "seq": 4.2,
+          "completion_rate": 27
+        },
+        "b": {
+          "sus": 60.4,
+          "seq": 3.7,
+          "completion_rate": 20
+        },
+        "c": {
+          "sus": 67.3,
+          "seq": 4.8,
+          "completion_rate": 27
+        },
+        "d": {
+          "sus": 71,
+          "seq": 5,
+          "completion_rate": 33
+        }
+      }
+    },
+    {
+      "segment_name": "Bargain Hunter",
+      "persona_count": 13,
+      "winner": "d",
+      "narrative": "Highest single-segment conversion in the entire study: 69% in Variant 4. The ₹1 sticky + dual CTA + refund combination collapsed all friction. Average time on screen: 7 seconds. No further changes needed — 69% approaches the natural ceiling.",
+      "metrics_by_variant": {
+        "control": {
+          "sus": 64.1,
+          "seq": 3.9,
+          "completion_rate": 38
+        },
+        "a": {
+          "sus": 74.6,
+          "seq": 5.3,
+          "completion_rate": 54
+        },
+        "b": {
+          "sus": 70.8,
+          "seq": 4.8,
+          "completion_rate": 46
+        },
+        "c": {
+          "sus": 78.4,
+          "seq": 5.7,
+          "completion_rate": 62
+        },
+        "d": {
+          "sus": 81.7,
+          "seq": 5.9,
+          "completion_rate": 69
+        }
+      }
+    },
+    {
+      "segment_name": "Trust Seeker",
+      "persona_count": 10,
+      "winner": "a",
+      "narrative": "Peak conversion was Variant 1 (60%) thanks to the prominent SEBI number and recent wins carousel. Variant 4 restored parity with Variant 2 (50%) by combining premium crown branding with a sticky ₹1 CTA. The green CTA in Variant 3 dropped them to 40% — the green felt less premium.",
+      "metrics_by_variant": {
+        "control": {
+          "sus": 67.3,
+          "seq": 4.1,
+          "completion_rate": 40
+        },
+        "a": {
+          "sus": 78.1,
+          "seq": 5.4,
+          "completion_rate": 60
+        },
+        "b": {
+          "sus": 73.2,
+          "seq": 4.9,
+          "completion_rate": 50
+        },
+        "c": {
+          "sus": 75.1,
+          "seq": 5.4,
+          "completion_rate": 40
+        },
+        "d": {
+          "sus": 78.4,
+          "seq": 5.5,
+          "completion_rate": 50
+        }
+      }
+    }
+  ],
+  "friction_provenance": [
+    {
+      "id": "friction_01",
+      "friction": "Price opacity — no ₹1 visible on screen",
+      "screen": "Activation CTA",
+      "status": "resolved",
+      "resolved_by": [
+        "a",
+        "b",
+        "c",
+        "d"
+      ],
+      "presence": {
+        "control": "present",
+        "a": "absent",
+        "b": "absent",
+        "c": "absent",
+        "d": "absent"
+      }
+    },
+    {
+      "id": "friction_02",
+      "friction": "Modal interrupts before value preview",
+      "screen": "Activation Modal",
+      "status": "resolved",
+      "resolved_by": [
+        "a",
+        "b",
+        "c",
+        "d"
+      ],
+      "presence": {
+        "control": "present",
+        "a": "absent",
+        "b": "absent",
+        "c": "absent",
+        "d": "absent"
+      }
+    },
+    {
+      "id": "friction_03",
+      "friction": "Payment screen ₹1 surprise (expectation violation)",
+      "screen": "Payment",
+      "status": "resolved",
+      "resolved_by": [
+        "a",
+        "b",
+        "c",
+        "d"
+      ],
+      "presence": {
+        "control": "present",
+        "a": "absent",
+        "b": "absent",
+        "c": "absent",
+        "d": "absent"
+      }
+    },
+    {
+      "id": "friction_04",
+      "friction": "CTA visibility failure — visually subordinate to banner",
+      "screen": "Primary CTA",
+      "status": "resolved",
+      "resolved_by": [
+        "c",
+        "d"
+      ],
+      "presence": {
+        "control": "absent",
+        "a": "absent",
+        "b": "present",
+        "c": "absent",
+        "d": "absent"
+      }
+    },
+    {
+      "id": "friction_05",
+      "friction": "Blurred trade card — trust gimmick perception",
+      "screen": "Trade Evidence",
+      "status": "persistent",
+      "presence": {
+        "control": "absent",
+        "a": "absent",
+        "b": "present",
+        "c": "present",
+        "d": "present"
+      }
+    },
+    {
+      "id": "friction_06",
+      "friction": "Abstract metrics without concrete past wins",
+      "screen": "Header",
+      "status": "persistent",
+      "presence": {
+        "control": "absent",
+        "a": "absent",
+        "b": "present",
+        "c": "present",
+        "d": "present"
+      }
+    },
+    {
+      "id": "friction_07",
+      "friction": "Countdown timer manipulation perception",
+      "screen": "Header",
+      "status": "introduced",
+      "introduced_by": [
+        "a"
+      ],
+      "presence": {
+        "control": "absent",
+        "a": "present",
+        "b": "absent",
+        "c": "absent",
+        "d": "absent"
+      }
+    },
+    {
+      "id": "friction_08",
+      "friction": "Cognitive overload — too many content blocks",
+      "screen": "Full Screen",
+      "status": "introduced",
+      "introduced_by": [
+        "a"
+      ],
+      "presence": {
+        "control": "absent",
+        "a": "present",
+        "b": "absent",
+        "c": "absent",
+        "d": "absent"
+      }
+    },
+    {
+      "id": "friction_09",
+      "friction": "Dual CTA label mismatch — both lead to same ₹1 flow",
+      "screen": "CTA Stack",
+      "status": "introduced",
+      "introduced_by": [
+        "d"
+      ],
+      "presence": {
+        "control": "absent",
+        "a": "absent",
+        "b": "absent",
+        "c": "absent",
+        "d": "present"
+      }
+    },
+    {
+      "id": "friction_10",
+      "friction": "Green CTA softens premium positioning for Trust Seekers",
+      "screen": "Primary CTA",
+      "status": "introduced",
+      "introduced_by": [
+        "c"
+      ],
+      "presence": {
+        "control": "absent",
+        "a": "absent",
+        "b": "absent",
+        "c": "present",
+        "d": "absent"
+      }
+    }
+  ],
+  "recommendations": [
+    {
+      "id": "rec_01",
+      "recommendation": "Replace the blurred Live Trade card with a real closed trade showing entry, exit, days held, and rupee gain",
+      "type": "persistent_fix",
+      "applies_to": [
+        "all"
+      ],
+      "priority": "high",
+      "rice_score": 86,
+      "rationale": "The blurred card is the single largest unsolved friction point across V2/V3/V4. Skeptical Investors immediately recognise it as a gimmick and disengage. Replacing it with a real trade would push Skeptical Investor conversion from 25% to 35%+ and overall conversion from 44% to 48-50%.",
+      "effort_estimate": "1-2 days, requires API integration to pull real closed-trade data",
+      "success_metric": "Skeptical Investor conversion rises from 25% to 35%+. Overall conversion rises from 44% to 48-50%."
+    },
+    {
+      "id": "rec_02",
+      "recommendation": "Add one named concrete recent win (e.g., 'ZOMATO +₹23,435 in 3 days') above the trade card",
+      "type": "persistent_fix",
+      "applies_to": [
+        "all"
+      ],
+      "priority": "high",
+      "rice_score": 78,
+      "rationale": "Variant 1's Recent Wins were the most persuasive element in the study (71% cited a stock by name). V2-V4 stripped these out for cleaner design. Adding even one back would increase Curious Beginner conversion by 5-10 points.",
+      "effort_estimate": "< 1 day, frontend-only — add one static card above trade section",
+      "success_metric": "Curious Beginner conversion rises from 33% to 40%+. 'Named stock recall' in post-test increases by 20pts."
+    },
+    {
+      "id": "rec_03",
+      "recommendation": "Ship Variant 4's dual-CTA stack with sticky ₹1 bottom button",
+      "type": "ship",
+      "applies_to": [
+        "d"
+      ],
+      "priority": "high",
+      "rice_score": 91,
+      "rationale": "Highest overall conversion (44%), best SUS score (73.6, Grade B), and the only variant that meaningfully cracks Skeptical Investors (25%). The sticky CTA is the highest-leverage element added in the study.",
+      "effort_estimate": "Ship as-is — no engineering work beyond deployment",
+      "success_metric": "Monitor activation rate for 2 weeks; target: 40%+ sustained. Track 7-day retention separately for Bargain Hunters."
+    },
+    {
+      "id": "rec_04",
+      "recommendation": "Make the dual CTAs functionally different — let 'Unlock FREE trade' show one real trade for free",
+      "type": "variant_fix",
+      "applies_to": [
+        "d"
+      ],
+      "priority": "medium",
+      "rice_score": 65,
+      "rationale": "33% of users noticed that both CTAs lead to the same ₹1 flow and read it as mildly deceptive. Making 'Unlock FREE trade' genuinely free would increase Curious Beginner conversion from 33% to 42%+.",
+      "effort_estimate": "1-2 weeks, requires backend route for free trade preview flow",
+      "success_metric": "Dual-CTA label-mismatch complaints drop to <5%. Curious Beginner conversion rises from 33% to 42%+."
+    },
+    {
+      "id": "rec_05",
+      "recommendation": "Add a refund SLA ('Refund within 60s to source. No questions asked.') to the activation banner",
+      "type": "persistent_fix",
+      "applies_to": [
+        "all"
+      ],
+      "priority": "medium",
+      "rice_score": 60,
+      "rationale": "The 'instant refund' clause is the strongest pricing reassurance in the study (64% cited it). But Skeptical Investors questioned the timing. An explicit SLA would close the remaining refund-disbelief gap.",
+      "effort_estimate": "< 1 day, copy change only",
+      "success_metric": "Refund-disbelief codes in qualitative drop by half. Skeptical Investor conversion rises by 3-5pts."
+    },
+    {
+      "id": "rec_06",
+      "recommendation": "Use a dark-green or teal CTA colour instead of bright green to preserve premium positioning",
+      "type": "variant_fix",
+      "applies_to": [
+        "c",
+        "d"
+      ],
+      "priority": "medium",
+      "rice_score": 55,
+      "rationale": "Trust Seekers dropped from 50% (V2 understated CTA) to 40% (V3 bright green CTA). A dark-green or teal would maintain visibility while restoring the premium tone that Trust Seekers value.",
+      "effort_estimate": "< 1 day, CSS change only",
+      "success_metric": "Trust Seeker conversion recovers from 50% to 55%+. 'Premium feel' sentiment scores rise by 0.1+."
+    }
+  ],
+  "recommended_next_test": {
+    "name": "Variant 4 + Real Closed Trade (V5)",
+    "hypothesis": "Replacing the blurred Live Trade card in Variant 4 with one fully visible recently-closed trade (showing entry, exit, days held, rupee gain) will lift conversion from 44% to ~50% by recovering Skeptical Investors and Curious Beginners.",
+    "predicted_conversion": "48-52%",
+    "predicted_lift": "+4-8 percentage points over V4",
+    "estimated_effort": "1-2 days (replace blur with a real card backed by API)"
+  },
+  "risks_to_monitor": [
+    "Watch the 'tapped Unlock FREE trade then dropped at ₹1' sub-funnel — if real users react more strongly to the label honesty issue, conversion may dip 2-3 points",
+    "Bargain Hunter conversion at 69% may indicate trial-cancellation downstream — track 7-day retention separately",
+    "Skeptical Investor segment is still a 25% conversion ceiling until the blurred card is replaced"
+  ],
+  "variant_screenshots": {
+    "control": [
+      "/screens/univest/1.1.png"
+    ],
+    "a": "/screens/univest/2.png",
+    "b": "/screens/univest/3.png",
+    "c": "/screens/univest/4.png",
+    "d": "/screens/univest/5.png"
+  }
+}

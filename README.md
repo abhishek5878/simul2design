@@ -2,7 +2,7 @@
 
 A Claude Code agent system that ingests simulation output and emits a **prescriptive variant specification** — the optimal untested design derived from per-element, per-segment performance data, weighted by audience composition. The deliverable is a buildable spec, not a research report.
 
-**Proof-of-concept:** Univest ₹1 trial activation screen. 50 synthetic personas, 5 tested variants, synthesized V5 predicted at 52-55% overall vs. V4's 44%.
+**Proof-of-concept:** Univest ₹1 trial activation screen. 50 synthetic personas, 5 tested variants, **synthesized V5 predicted at 51% (mechanism range 45–56%, Wilson envelope 22–74%) vs V4's 44% — +7pt median lift.**
 
 ---
 
@@ -23,37 +23,95 @@ The short version:
 |---|---|
 | [`IDEA.md`](IDEA.md) | Why this project exists. The problem, the insight, the Univest proof. |
 | [`SETUP.md`](SETUP.md) | The disciplined scaffold. How to work in this repo. |
+| [`INTEGRATION.md`](INTEGRATION.md) | **The end-to-end go-live workflow.** Apriori → engine → spec → report → ship → actuals. Read this if you want to plug a new client in. |
 | [`.claude/CLAUDE.md`](.claude/CLAUDE.md) | Project rules loaded automatically. Under 1000 tokens. |
 | [`tasks/todo.md`](tasks/todo.md) | Pointer to the active plan. |
 | [`tasks/lessons.md`](tasks/lessons.md) | The self-improvement ledger. Every correction lands here. |
 
-## Pipeline status at a glance
+---
+
+## Plug-in workflow (for a new client)
+
+The end-to-end flow from an Apriori simulation to a customer-ready V(N+1) spec + report:
 
 ```bash
-scripts/sim-flow.py list                                   # list all clients
-scripts/sim-flow.py status univest                         # one-screen dashboard
-scripts/sim-flow.py record-actuals univest actuals.json    # close the loop post-ship
+# 1. Ingest Apriori's ComparisonData JSON into the engine
+scripts/ingest-apriori.py <client> --from-comparison-json <path/to/apriori_input.json>
+# → produces data/<client>/{apriori_input.json, source.md, element_matrix.json, source-screenshots/}
+
+# 2. Human taxonomy review (Phase 3 will automate this)
+# Edit data/<client>/element_matrix.json — fill in the 12 __needs_review__ taxonomy
+# values per variant by reading the screen_comparison summaries in source.md and
+# the screenshots in source-screenshots/.
+# Edit .claude/rules/element-taxonomy-<client>.md for client-specific overlay.
+
+# 3. Confirm pipeline state
+scripts/sim-flow.py status <client>
+# → one-screen dashboard showing all 7 pipeline stages, blockers, flags, validation, next action
+
+# 4. Cascade through the synthesis skills
+#    weigh-segments → synthesize → adversary → estimate-conversion → generate-spec
+#    (each is a manual reasoning pass against the SKILL.md docstring)
+
+# 5. Render the customer-facing HTML report
+scripts/render-report.py <client>
+# → validates inputs + re-renders data/<client>/report/preview.png
+# → prints `open` commands for the HTML and PNG
 ```
 
-Inspired by SETUP.md's session-start ritual. Reads state directly from `data/<client>/` (no state file to desync). Reports every pipeline stage, adversary blockers, matrix flags, validation status, and the recommended next action. Exit codes: 0 = clean, 1 = input error, 2 = has unresolved blockers (useful for CI).
+After ship, close the calibration loop:
 
-**Immutable evaluator loop:** `record-actuals` freezes `conversion_estimates.json` into `data/<client>/evaluator/predicted.json` at first run (never overwrites — IDEA.md §9 immutability), stores the reported actuals alongside, and computes the predicted-vs-actual comparison. `status` then surfaces per-segment delta + calibration signal in the Post-ship block.
+```bash
+scripts/sim-flow.py record-actuals <client> path/to/actuals.json
+# → freezes predictions immutably, computes predicted-vs-actual delta + calibration signal
+```
+
+**See [`INTEGRATION.md`](INTEGRATION.md) for the full plug-in roadmap (5 phases) and the data shape contract between Apriori and our engine.**
+
+---
+
+## Command reference
+
+| Action | Command |
+|---|---|
+| **Ingest Apriori ComparisonData** | `scripts/ingest-apriori.py <client> --from-comparison-json <file>` |
+| Test the ingest adapter (19 tests) | `scripts/test-ingest-apriori.py` |
+| Pipeline state for a client | `scripts/sim-flow.py status <client>` |
+| List all clients | `scripts/sim-flow.py list` |
+| Render customer-facing HTML report | `scripts/render-report.py <client>` |
+| Record post-ship actuals (immutable) | `scripts/sim-flow.py record-actuals <client> <file>` |
+| Re-fetch source (auto-versioned) | `scripts/refetch-source.sh <url> <client>` |
+| Wilson 95% interval on (p, n) | `scripts/wilson-intervals.py <p> <n>` |
+| Auto-detect element confounds | `scripts/detect-confounds.py <client>` |
+
+`sim-flow.py status` exit codes: `0` = clean / shipped, `1` = input error, `2` = ship-blocked (unresolved blockers OR operational preconditions). Useful for CI.
+
+`ingest-apriori.py --dry-run` validates the input + previews the output paths without writing files. Use `--no-fetch-screenshots` to skip the variant PNG download.
+
+---
 
 ## Starting a session
 
 1. `cat tasks/lessons.md` — skim accumulated rules.
 2. `cat tasks/todo.md` → follow to the active plan. Find the `in_progress` phase.
 3. `tail -50 tasks/progress.md` — what happened last session.
-4. Pick one phase. Write it down. Enter plan mode. Execute.
+4. `cat tasks/handoff-*.md | tail -1` — read the most recent handoff.
+5. Pick one phase. Write it down. Enter plan mode. Execute.
 
 (Full session-start and session-end rituals in `.claude/rules/session-persistence.md`.)
 
+---
+
 ## Current state
 
-- **Univest proof-of-concept: design-complete.** End-to-end pipeline executed: `data/univest/` contains the source, element matrix, weighted scores, synthesized V5 variant, adversary review, Wilson conversion estimates, buildable spec, and visual design mockups (V4 before, V5a green, V5b muted_premium).
-- **Deliverable:** [`data/univest/v5-spec.md`](data/univest/v5-spec.md) (buildable) + [`data/univest/design/`](data/univest/design/) (PNG mockups).
-- **V5 prediction:** 48.6% weighted overall (Wilson 95% band 22.3%–52.0%) vs V4 actual 44%. Medium confidence. Ship blocked on 3 Operational Preconditions (legal / ops / product sign-off per adversary blockers 1-3).
-- **Next work:** post-ship Univest actuals (feeds calibration) OR second-client engagement (genericity test).
+- **Univest proof-of-concept: design-complete** (matrix v2, screenshot-validated re-extraction). End-to-end pipeline executed: `data/univest/` contains the source (+ source-v2 + source-screenshots), element matrix, weighted scores, synthesized V5 variant, adversary review, Wilson conversion estimates, buildable spec, visual mockup, and customer-facing HTML report.
+- **Customer-facing deliverable:** [`data/univest/report/index.html`](data/univest/report/index.html) — single self-contained HTML with per-segment audience reasoning + V5 mockup + diff vs V4 + predictions + ship gates + kill conditions. This is what a brand stakeholder opens.
+- **Engineer-facing deliverable:** [`data/univest/v5-spec.md`](data/univest/v5-spec.md) (buildable) + [`data/univest/design/v5a-green.png`](data/univest/design/v5a-green.png) (mockup).
+- **V5 prediction:** **51%** weighted overall (mechanism range 45–56%, Wilson envelope 22–74%) vs V4 actual 44%. Median lift +7pt. Untested-stack count: 1. Confidence: medium. Ship blocked on **2 Operational Preconditions** ("free" outline-CTA flow delivers 3 trades pre-payment + refund SLA per payment method).
+- **Plug-in roadmap:** Phase 2 (Apriori adapter) shipped 2026-04-26. Phase 3 (LLM taxonomy auto-mapper) is next.
+- **Next work:** post-ship Univest actuals (feeds calibration), second-client engagement (genericity test), or Phase 3 auto-mapper.
+
+---
 
 ## Structure
 
@@ -61,39 +119,72 @@ Inspired by SETUP.md's session-start ritual. Reads state directly from `data/<cl
 .
 ├── IDEA.md                     # Why
 ├── SETUP.md                    # How
+├── INTEGRATION.md              # Plug-in workflow + roadmap
 ├── README.md                   # This file
 ├── .claude/
 │   ├── CLAUDE.md               # Project rules (auto-loaded)
 │   ├── settings.json           # Permissions + hooks
 │   ├── rules/                  # @imported rule files incl. element-taxonomy-{base,<client>}.md
-│   ├── skills/                 # plan, commit, verify + parse-simulation, weigh-segments, synthesize, estimate-conversion, generate-spec
-│   ├── agents/                 # planner, code-reviewer, adversary (folder + AGENT.md + symlink)
-│   ├── hooks/                  # 8 hooks (format, typecheck, plan-anchor, progress-nudge, stop-verify, compact-suggest, log-tool-call, log-user-correction)
+│   ├── skills/                 # plan, commit, verify + parse-simulation, weigh-segments,
+│   │                           # synthesize, estimate-conversion, generate-spec
+│   ├── agents/                 # planner, code-reviewer, adversary
+│   ├── hooks/                  # 8 hooks (format, typecheck, log-*, etc.)
 │   ├── research/               # Daily autoresearch prompt + cron runner
 │   ├── observability/          # Tool-call + correction JSONL logs (gitignored)
 │   └── self-edit/              # Weekly ritual
 ├── data/
-│   └── univest/                # First client's artifacts
-│       ├── source.md                  # Immutable raw simulation source
-│       ├── element_matrix.json        # parse-simulation output
-│       ├── weighted_scores.json       # weigh-segments output
-│       ├── synthesized_variant.json + .md   # V5 element set + citations
-│       ├── adversary_review.json      # 3 blockers, 5 should-fixes
-│       ├── conversion_estimates.json  # Wilson intervals + kill-conditions
-│       ├── v5-spec.md                 # The buildable deliverable
-│       └── design/                    # V4 before + V5a/V5b mockup PNGs
+│   └── univest/
+│       ├── source.md / source-v2.md     # Immutable raw + screenshot-validated v2
+│       ├── source-screenshots/          # Immutable variant PNGs (ground truth)
+│       ├── apriori_input.json           # Canonical Apriori ComparisonData (audit trail)
+│       ├── element_matrix.json          # Taxonomy-normalized matrix
+│       ├── weighted_scores.json         # Per-(dimension, value) weighted score
+│       ├── synthesized_variant.{json,md}# V5 element set + citations
+│       ├── adversary_review.json        # Falsifiable objections
+│       ├── conversion_estimates.json    # Wilson intervals + kill-conditions
+│       ├── v5-spec.md                   # Engineer-facing buildable spec
+│       ├── design/                      # V4-before, V5a-green, V5b-muted-premium mockups
+│       ├── report/index.html            # Customer-facing HTML report
+│       └── evaluator/                   # (created on first record-actuals call)
+│           ├── predicted.json           # Frozen at ship time, never overwrites
+│           ├── actual.json              # Post-ship truth
+│           └── comparison.json          # Derived delta + calibration signal
 ├── scripts/
+│   ├── sim-flow.py             # Pipeline status + record-actuals (v2-schema-aware)
+│   ├── ingest-apriori.py       # Apriori ComparisonData → engine input adapter
+│   ├── test-ingest-apriori.py  # 19-test suite for the adapter
+│   ├── render-report.py        # Validate + re-render customer-facing report PNG
 │   ├── refetch-source.sh       # Versioned source re-fetch (no overwrite)
 │   ├── detect-confounds.py     # Auto-detect element confounds
-│   └── wilson-intervals.py     # Wilson 95% binomial CI helper
+│   ├── wilson-intervals.py     # Wilson 95% binomial CI helper
+│   └── test-fixtures/          # Test inputs for ingest-apriori
+│       ├── apriori-comparison-example.json     # Synthetic 3v×3s
+│       └── apriori-comparison-univest.json     # Real univest 5v×4s×50p
 └── tasks/
     ├── todo.md                 # Active plan pointer
     ├── lessons.md              # Reactive: corrections the user has given
     ├── improvements.md         # Proactive: weaknesses seen, deferred
     ├── findings.md             # Research log
     ├── progress.md             # Backward-looking session log
-    └── *-plan.md               # Feature plans (parse-simulation, weigh-segments, synthesize)
+    ├── related-work.md         # Cited papers + methodology adoption notes
+    ├── handoff-YYYY-MM-DD.md   # Session-end handoffs (most recent = canonical)
+    └── *-plan.md               # Feature plans
 ```
+
+---
+
+## Testing
+
+The ingest adapter is the only piece with automated tests right now (the synthesis skills are reasoning-driven and tested by re-running the pipeline end-to-end).
+
+```bash
+scripts/test-ingest-apriori.py             # 19 tests: unit + integration + edge + real-data
+scripts/test-ingest-apriori.py -v          # verbose: print bodies on failure
+```
+
+Tests cover: helper functions (slugify, variant_label), simple-fixture integration (dry-run + real-run), segment weight computation, aggregate metrics normalization, taxonomy `__needs_review__` flagging, citation extraction from monologues, friction reshaping, edge cases (invalid JSON, missing file, missing required fields), and real-data validation against the hand-built univest v2 matrix (segments, conversions, aggregate metrics all match within tolerance).
+
+---
 
 ## Conventions
 
@@ -102,3 +193,6 @@ Inspired by SETUP.md's session-start ritual. Reads state directly from `data/<cl
 - **Never fabricate validation.** If a step didn't run, say so.
 - **Every synthesis output cites its simulation data point.** No unsupported claims in a deliverable.
 - **Every conversion prediction names its failure condition.** No confidence number without a kill condition.
+- **Source data is immutable.** `source.md` / `source-screenshots/` are never edited after extraction. Re-extractions create `source-v2.md`, `-v3`, etc.
+- **Predictions, once frozen, are never edited.** `evaluator/predicted.json` is overwrite-protected by `record-actuals`. The synthesis system cannot edit what counts as success.
+- **Build for the second client from the first commit.** Every skill, rule, and agent is client-agnostic unless its path makes the client scope explicit.
