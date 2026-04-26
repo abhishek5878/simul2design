@@ -103,15 +103,23 @@ def detect_stage(data_dir: Path, stage: dict) -> tuple[bool, Path | None]:
 
 
 def summarize_adversary(adv: dict) -> str:
-    """One-line severity summary for adversary_review.json."""
+    """One-line severity summary for adversary_review.json. Reads v1 or v2 schema keys."""
     s = adv.get("summary", {})
-    bl, sf, io = s.get("blockers", 0), s.get("should_fix", 0), s.get("instrument_only", 0)
-    rec = s.get("recommendation", "unknown")
+    bl = s.get("blockers", s.get("blockers_v2", 0))
+    sf = s.get("should_fix", s.get("should_fixes_v2", 0))
+    io = s.get("instrument_only", 0)
+    op = s.get("operational_preconditions_v2", 0)
+    watch = s.get("watch_items_v2", 0)
+    rec = s.get("recommendation", s.get("recommends", "unknown"))
     bits = []
     if bl:
         bits.append(RED(f"{bl} blocker{'s' if bl != 1 else ''}"))
+    if op:
+        bits.append(RED(f"{op} op precondition{'s' if op != 1 else ''}"))
     if sf:
         bits.append(YELLOW(f"{sf} should-fix"))
+    if watch:
+        bits.append(DIM(f"{watch} watch"))
     if io:
         bits.append(DIM(f"{io} instrument"))
     if not bits:
@@ -120,6 +128,9 @@ def summarize_adversary(adv: dict) -> str:
 
 
 def summarize_synthesis(synth: dict) -> str:
+    """Reads v1 schema (weighted_overall_prediction.predicted.{low,point,high})
+    or v2 schema (per_segment_predicted_v5.weighted_overall.{predicted_point, predicted_range}).
+    """
     pred = synth.get("weighted_overall_prediction", {})
     p = pred.get("predicted", {})
     if p:
@@ -128,12 +139,20 @@ def summarize_synthesis(synth: dict) -> str:
         high = p.get("high", 0) * 100
         conf = pred.get("confidence_grade", "?")
         return f"predicted {point:.1f}% (range {low:.1f}–{high:.1f}%) · confidence: {conf}"
-    return "parsed but no weighted_overall_prediction"
+    v2_overall = synth.get("per_segment_predicted_v5", {}).get("weighted_overall", {})
+    if v2_overall:
+        point = v2_overall.get("predicted_point", 0) * 100
+        rng = v2_overall.get("predicted_range") or [0, 0]
+        low = rng[0] * 100
+        high = rng[1] * 100
+        conf = synth.get("confidence_grade_overall", "?")
+        return f"predicted {point:.1f}% (range {low:.1f}–{high:.1f}%) · confidence: {conf}"
+    return "parsed but no weighted_overall prediction"
 
 
 def summarize_estimates(est: dict) -> str:
     w = est.get("weighted_overall_estimate", {})
-    rev = w.get("estimator_revised_interval", None)
+    rev = w.get("estimator_revised_interval") or w.get("estimator_revised_interval_wilson")
     point = w.get("estimator_revised_point", None)
     if rev and point is not None:
         return f"Wilson-revised {point*100:.1f}% (band {rev[0]*100:.1f}–{rev[1]*100:.1f}%)"
@@ -154,12 +173,24 @@ def summarize_matrix(m: dict) -> str:
 
 
 def summarize_weighted(w: dict) -> str:
-    s = w.get("dimension_summary", {})
-    full = s.get("fully_rankable_with_pts", 0)
-    direc = s.get("directionally_rankable_no_pts", 0)
-    weak = s.get("weakly_rankable", 0)
-    non_inf = s.get("non_informative", 0)
+    """Reads v1 schema (dimension_summary.{fully_rankable_with_pts, ...})
+    or v2 schema (evidence_tier_distribution_v2.{fully_rankable_clean_contrast, ...}).
+    """
+    s = w.get("dimension_summary")
+    if s:
+        full = s.get("fully_rankable_with_pts", 0)
+        direc = s.get("directionally_rankable_no_pts", 0)
+        weak = s.get("weakly_rankable", 0)
+        non_inf = s.get("non_informative", 0)
+    else:
+        s = w.get("evidence_tier_distribution_v2", {})
+        full = s.get("fully_rankable_clean_contrast", 0)
+        direc = s.get("directional_friction_or_universal", 0)
+        weak = s.get("weak_observational_confounded", 0)
+        non_inf = s.get("non_informative", 0)
     total = full + direc + weak + non_inf
+    if total == 0:
+        return "parsed but no dimension stats"
     return f"{full}/{total} fully rankable · {direc} directional · {weak} weak · {non_inf} non-informative"
 
 
@@ -171,7 +202,10 @@ def summarize_design(design_dir: Path) -> str:
 
 
 def validate_math(data_dir: Path) -> list[str]:
-    """Quick sanity: synthesize's weighted_overall reproduces from per_segment_prediction."""
+    """Quick sanity: synthesize's weighted_overall reproduces from per-segment predictions.
+    Reads v1 schema (per_segment_prediction[sid].predicted_conversion[tier])
+    or v2 schema (per_segment_predicted_v5[sid].predicted_point + .predicted_range).
+    """
     synth_path = data_dir / "synthesized_variant.json"
     if not synth_path.exists():
         return []
@@ -180,20 +214,49 @@ def validate_math(data_dir: Path) -> list[str]:
     except json.JSONDecodeError:
         return [f"{synth_path} is not valid JSON"]
     w = synth.get("audience_weights_used", {})
-    preds = synth.get("per_segment_prediction", {})
-    stated = synth.get("weighted_overall_prediction", {}).get("predicted", {})
     issues = []
-    for tier in ("low", "point", "high"):
-        if tier not in stated:
-            continue
-        try:
-            computed = sum(preds[sid]["predicted_conversion"][tier] * w[sid] for sid in w)
-        except (KeyError, TypeError):
-            continue
-        if abs(computed - stated[tier]) > 0.002:
-            issues.append(
-                f"weighted_overall.{tier}: computed {computed:.3f} vs stated {stated[tier]:.3f}"
+    # v1 path
+    v1_preds = synth.get("per_segment_prediction", {})
+    v1_stated = synth.get("weighted_overall_prediction", {}).get("predicted", {})
+    if v1_preds and v1_stated:
+        for tier in ("low", "point", "high"):
+            if tier not in v1_stated:
+                continue
+            try:
+                computed = sum(v1_preds[sid]["predicted_conversion"][tier] * w[sid] for sid in w)
+            except (KeyError, TypeError):
+                continue
+            if abs(computed - v1_stated[tier]) > 0.002:
+                issues.append(
+                    f"weighted_overall.{tier}: computed {computed:.3f} vs stated {v1_stated[tier]:.3f}"
+                )
+        return issues
+    # v2 path
+    v2_preds = synth.get("per_segment_predicted_v5", {})
+    v2_overall = v2_preds.get("weighted_overall", {})
+    if v2_preds and v2_overall:
+        # tier mapping: low = predicted_range[0], point = predicted_point, high = predicted_range[1]
+        per_seg = {sid: v2_preds[sid] for sid in w if sid in v2_preds}
+        if not per_seg:
+            return issues
+        for tier_idx, tier_name in ((0, "low"), (None, "point"), (1, "high")):
+            stated_val = (
+                v2_overall.get("predicted_point") if tier_name == "point"
+                else (v2_overall.get("predicted_range") or [None, None])[tier_idx]
             )
+            if stated_val is None:
+                continue
+            try:
+                if tier_name == "point":
+                    computed = sum(per_seg[sid]["predicted_point"] * w[sid] for sid in per_seg)
+                else:
+                    computed = sum(per_seg[sid]["predicted_range"][tier_idx] * w[sid] for sid in per_seg)
+            except (KeyError, TypeError, IndexError):
+                continue
+            if abs(computed - stated_val) > 0.005:
+                issues.append(
+                    f"weighted_overall.{tier_name}: computed {computed:.3f} vs stated {stated_val:.3f}"
+                )
     return issues
 
 
@@ -358,12 +421,14 @@ def cmd_status(client: str) -> int:
         print(DIM(f"Post-ship:  [·] no {evaluator.relative_to(ROOT)}/actual.json yet — ship + record via `sim-flow record-actuals <client> <file>`"))
         print()
 
-    # Blockers from adversary
+    # Blockers + operational preconditions from adversary
     adv_path = data_dir / "adversary_review.json"
     if adv_path.exists():
         try:
             adv = json.loads(adv_path.read_text())
-            blockers = [o for o in adv.get("objections", []) if o.get("severity") == "blocker"]
+            objections = adv.get("objections", [])
+            blockers = [o for o in objections if o.get("severity") == "blocker"]
+            op_precs = [o for o in objections if o.get("severity") == "operational_precondition"]
             if blockers:
                 print(BOLD(RED(f"Blockers ({len(blockers)}):")))
                 for b in blockers:
@@ -371,7 +436,17 @@ def cmd_status(client: str) -> int:
                     if isinstance(targets, list):
                         targets = ", ".join(targets)
                     obj_id = b.get("id", "?")
-                    summary = (b.get("suggested_revision") or "").split(".")[0][:100]
+                    summary = (b.get("suggested_revision") or b.get("title") or "").split(".")[0][:100]
+                    print(f"  {RED('!')} {obj_id} [{targets}]: {summary}")
+                print()
+            if op_precs:
+                print(BOLD(RED(f"Operational preconditions ({len(op_precs)}):")))
+                for o in op_precs:
+                    targets = o.get("targets", "?")
+                    if isinstance(targets, list):
+                        targets = ", ".join(targets)
+                    obj_id = o.get("id", "?")
+                    summary = (o.get("title") or o.get("challenge") or "").split(".")[0][:100]
                     print(f"  {RED('!')} {obj_id} [{targets}]: {summary}")
                 print()
         except json.JSONDecodeError:
@@ -413,10 +488,13 @@ def cmd_status(client: str) -> int:
 
     # Exit code
     all_complete = all(s["complete"] for s in stage_states)
-    has_blockers = bool(adv_path.exists() and json.loads(adv_path.read_text()).get("summary", {}).get("blockers", 0))
+    adv_summary = json.loads(adv_path.read_text()).get("summary", {}) if adv_path.exists() else {}
+    has_blockers = bool(adv_summary.get("blockers", adv_summary.get("blockers_v2", 0)))
+    has_op_preconditions = bool(adv_summary.get("operational_preconditions_v2", 0))
+    ship_blocked = has_blockers or has_op_preconditions
     if issues:
         return 2
-    return 0 if all_complete and not has_blockers else (2 if has_blockers else 0)
+    return 0 if all_complete and not ship_blocked else (2 if ship_blocked else 0)
 
 
 def cmd_record_actuals(client: str, actuals_file: str) -> int:

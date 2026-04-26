@@ -72,7 +72,7 @@
 
   "weighted_overall_estimate": {
     "synthesize_point": 0.51,
-    "synthesize_interval": [0.44, 0.56],
+    "synthesize_interval": [0.45, 0.56],
     "estimator_revised_point": 0.506,
     "estimator_revised_interval_wilson": [0.223, 0.738],
     "estimator_recommended_headline_interval": [0.44, 0.51, 0.56],

@@ -1,7 +1,7 @@
 # V5 — Synthesized variant for Univest ₹1 trial activation (v2 — corrected re-extraction)
 
 > **Generated:** 2026-04-24. **Mode:** balanced. **Confidence:** medium-high.
-> Predicted weighted-overall: **44% – 51% – 56%** vs V4 actual **44%** (low to high tier; +0 to +12pt; **median +7pt**).
+> Predicted weighted-overall: **45% – 51% – 56%** vs V4 actual **44%** (low to high tier; +1 to +12pt; **median +7pt**).
 > **Supersedes** the 2026-04-23 synthesis derived from source-prose-only matrix.
 
 This is the *synthesis*, not the *spec*. The corrected extraction (matrix v2, screenshot-validated) shifts the V5 story materially: most elements we thought we were "introducing" were already present in V4, just unnoticed. v2 V5 stacks **only 1 fully-untested element** (down from 3 in v1).
@@ -43,7 +43,7 @@ The rest of V5 is *V4 preserved correctly* — dark theme, crown, price banner, 
 | **Curious Beginner** (30%) | 33% | **36%** | **41%** | **46%** | V1's named-stock carousel (TMPV, ZOMATO +₹23,435, RELIANCE) restored. The *"I bought it last year — if they nailed that, I should listen"* anchor mechanism. 71% of V1 users cited a stock by name; V2-V4 stripped this and lost the segment. |
 | **Bargain Hunter** (26%) | 69% | **63%** | **69%** | **74%** | V4's strongest elements preserved at full strength: green CTA (+16pt observed for this segment), dual-CTA self-segmentation, "free" framing. Risk: countdown removal could cost 1-2pt (timer may have helped urgency-driven conversion); real_closed_trade adds reading time which could slow the 7s decision flow. Net: ~flat. |
 | **Trust Seeker** (20%) | 50% | **52%** | **60%** | **66%** | V1 was Trust Seeker's best variant at 60%; V5 restores V1's trust stack (named wins + wins/losses + premium feel) while keeping V4's dark theme. Premium upgrades likely overcome the green-CTA penalty (which was muted by dark theme in V4 anyway). |
-| **Weighted overall** | **44%** | **44%** | **51%** | **56%** | +0 to +12pt; median **+7pt** |
+| **Weighted overall** | **44%** | **45%** | **51%** | **56%** | +1 to +12pt; median **+7pt** |
 
 ## The untested risk (now down to one element)
 

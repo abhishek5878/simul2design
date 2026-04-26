@@ -2,7 +2,7 @@
 
 > **Source evidence:** [element_matrix.json](./element_matrix.json) (v2) • [weighted_scores.json](./weighted_scores.json) (v2) • [synthesized_variant.json](./synthesized_variant.json) (v2) • [adversary_review.json](./adversary_review.json) (v2) • [conversion_estimates.json](./conversion_estimates.json) (v2) • [source-screenshots/](./source-screenshots/) (immutable)
 > **Generated:** 2026-04-24 (supersedes 2026-04-23)
-> **Predicted weighted-overall conversion:** **51%** (mechanism range **44–56%**, Wilson envelope 22–74%). Baseline: V4 at 44%. **Median lift +7pt.**
+> **Predicted weighted-overall conversion:** **51%** (mechanism range **45–56%**, Wilson envelope 22–74%). Baseline: V4 at 44%. **Median lift +7pt.**
 
 ---
 
@@ -307,7 +307,7 @@ From [conversion_estimates.json](./conversion_estimates.json) (v2). Wilson 95% i
 | Bargain Hunter | 13 | 69% | **42%** | **69%** | **87%** | Time-to-convert p50 > 10s OR conversion drops > 5pt vs V4 |
 | Trust Seeker | 10 | 50% | **24%** | **60%** | **83%** | Trust Seeker < 47% (switch to muted_premium) |
 | **Weighted overall** | — | **44%** | **22.3%** | **50.6%** | **73.8%** | — |
-| **Mechanism-derived headline range** | — | **44%** | **44%** | **51%** | **56%** | — |
+| **Mechanism-derived headline range** | — | **44%** | **45%** | **51%** | **56%** | — |
 
 > **Why two ranges:** the **Wilson envelope [22.3%, 73.8%]** is the honest small-sample reality at n=10-15 per segment. The **mechanism-derived band [44%, 56%]** is the practical decision-grade range — what V5 will produce if the synthesis is correct. The Wilson envelope is wider because n=10 baselines just are wide; the mechanism band is narrower because the synthesis adds structure.
 

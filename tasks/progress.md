@@ -320,3 +320,112 @@ Remaining Open improvements (4): non-linearity discount calibration (needs post-
 
 ### Status — end of session
 Pipeline observability + evaluator loop complete. Univest remains ship-blocked on internal sign-off of the 3 Operational Preconditions; now `sim-flow record-actuals univest <actuals>` is the one-command close-the-loop when they do ship.
+
+---
+
+## 2026-04-24 — Related-work paper citations + simulator-LLM provenance
+
+### Actions taken
+- Verified three Jan/Feb-2026 arxiv papers in dialogue with the engine: Lost in Simulation (Seshadri et al., 2601.17087), PersonaCite (Truss, 2601.22288), Persona Generators (Paglieri et al., 2602.03545). All IDs confirmed via WebFetch against arxiv.
+- Wrote `tasks/related-work.md` — methodology adoption notes per paper. PersonaCite flagged as inspirational-not-authoritative because single-author HCI; the other two are institutionally credible.
+- Adopted Lost in Simulation methodology in `.claude/skills/estimate-conversion/SKILL.md`: added `simulator_provenance` as a required input/output field; documented hard-segment widening as a flagged-not-auto-applied recommendation; added a pitfall on ignoring simulator-LLM provenance.
+- Added Caveat 4 to `data/univest/v5-spec.md` §9 citing the paper as the structural justification for the wide low-tier interval and the kill-switch architecture.
+- Filed three Open improvements derived from the papers: VoC grounding audit, persona diversity audit skill, and the deferred PersonaCite-driven schema change.
+
+### Files modified
+- `.claude/skills/estimate-conversion/SKILL.md` — provenance requirement + hard-segment widening section + pitfall
+- `data/univest/v5-spec.md` — Caveat 4 with citation
+- `tasks/improvements.md` — 3 new Open entries
+- `tasks/related-work.md` — new doc
+
+### Commit
+- `530eef2` — Adopt simulator provenance + cite related-work in estimator and spec
+
+### Status — end of session
+Three citable paper sources now wired into the engine. The PersonaCite-driven schema refactor for parse-simulation is deferred (medium-low source confidence; defer until a stronger source surfaces or a client provides VoC data that motivates it).
+
+---
+
+## 2026-04-24 (later) — Sharpen V5 spec to decisive single-design
+
+### Actions taken
+- User direction: "give me the winning variant... with proper factual and other reasoning." Reframed away from A/B hedging. Apriori supplies the variants + simulation; OUR synthesis call is the value-add.
+- Verified V5 design call against the source page's own modification recommendation (rendered the apriori demo via Chrome headless). Found source page recommends keeping V4's dual-CTA functionally separated; we had chosen single-CTA. Surfaced this as a real fork.
+- Per user's "B" choice: preserved dual-CTA structure but made labels coherent (resolves V4's 33%-noticed mismatch by fixing copy, not by removing structure).
+- Sharpened `data/univest/v5-spec.md` §0 (executive summary) to lead with per-segment audience reasoning + cited evidence, instead of element-centric technical brief.
+- Sharpened §1.6 + §7: dropped V5a/V5b A/B framing. Single-design ramp at green CTA; muted_premium becomes a sequenced post-ship contingency, triggered only if Trust Seeker drops ≥5pt over 2 weeks.
+- Recast `synthesized_variant.md` "Exploratory alternative" as "Post-ship contingency."
+- Re-rendered `data/univest/design/v5a-green.png` from current HTML to ensure pixel artifact matches the now-decisive spec.
+
+### Files modified
+- `data/univest/v5-spec.md` — exec summary rewrite + drop A/B framing
+- `data/univest/synthesized_variant.md` — contingency reframing
+- `data/univest/design/v5a-green.png` — re-render
+
+### Commit
+- `c8701ba` — Sharpen V5 spec to decisive single-design with audience reasoning
+
+### Status — end of session
+V5 spec is now the decisive answer. No options at launch. One sequenced contingency. Audience-led narrative.
+
+---
+
+## 2026-04-24 (later, 3rd session) — Matrix v2: screenshot re-extraction + cascade through pipeline
+
+### Actions taken
+- User flagged "we should be sure on the facts on the other variants, say if they were offering 3 free trials we should use that not 1." Treated as red-flag for cascading extraction errors, not a single-fact verify.
+- Pulled all 5 variant screenshots from `apriori.work/screens/univest/{1.1,2,3,4,5}.png`. Saved to `data/univest/source-screenshots/{control,v1,v2,v3,v4}.png` as immutable artifacts. Read each visually.
+- **Discovered 11 extraction errors** in matrix v1. Source-page prose was prescriptive (highlighting variant-distinguishing features), not descriptive. v1 missed: trial offer count = "3 FREE Trades" not 1; V4's countdown timer; V4's refund banner; V4's crown branding; V4's dark theme; V4's SEBI badge + aggregate metrics; V1's "914 wins · 62 losses" transparency disclosure (the structural defense against cherry-picking).
+- Wrote `data/univest/source-v2.md` as new immutable extraction (per source-immutability rule; source.md preserved for audit trail).
+- Updated `data/univest/element_matrix.json` to v2 schema. Added `simulator_provenance`, `trial_offer_count`, `wins_losses_disclosure` dimensions. Added v1→v2 audit trail block.
+- Cascaded full pipeline against the corrected matrix: `weighted_scores.json` (v2), `synthesized_variant.{json,md}` (v2), `adversary_review.json` (v2), `conversion_estimates.json` (v2), `v5-spec.md` (v2), `data/univest/design/v5a-green.{html,png}` (v2 — dark theme + dual CTA + 3 trades + wins/losses disclosure + real ZOMATO closed trade).
+- Updated `tasks/lessons.md` (+3 lessons): source-prose-vs-screenshot extraction discipline; user fact-challenge as red-flag for cascade; introduction/concretization/removal classification of untested-stack.
+- Moved improvements.md "Confirm V4.refund_copy via UI screenshot" from Open → Applied with the v2 cascade entry.
+
+### Files modified / created
+- `data/univest/source-screenshots/` — new, 5 immutable PNGs
+- `data/univest/source-v2.md` — new, screenshot-validated extraction
+- `data/univest/element_matrix.json` — v2 (rewritten with corrections + new dimensions)
+- `data/univest/weighted_scores.json` — v2
+- `data/univest/synthesized_variant.{json,md}` — v2
+- `data/univest/adversary_review.json` — v2 (3 blockers → 0 + 2 op preconditions)
+- `data/univest/conversion_estimates.json` — v2
+- `data/univest/v5-spec.md` — v2 (rewritten Section 1 diff + new components for wins/losses + carousel)
+- `data/univest/design/v5a-green.{html,png}` — v2 (dark theme, dual CTA, full content)
+- `tasks/lessons.md` (+3 lessons)
+- `tasks/improvements.md` (1 Open → Applied with full cascade write-up)
+
+### Headline impact
+- Predicted weighted-overall: **50.6%** (mechanism range 44–56%, Wilson envelope 22–74%) vs V4's 44%. Median lift +7pt (was +4.6pt in v1).
+- Untested stack: **3 → 1**. Most "untested introductions" were V4 concretizations we missed.
+- Adversary blockers: **3 → 0** + 2 operational preconditions (refund SLA per payment method, "free" flow delivers 3 trades pre-payment).
+- CTA copy: "See 1 real trade, free" → **"See 3 real trades, free"** (matches actual offer).
+
+### Issues encountered
+- sim-flow.py status reports `0/0 fully rankable` and `parsed but no weighted_overall_prediction` — the script's v1 schema-key paths don't match v2 outputs. Cosmetic (pipeline artifacts validate fine), but visible on every status check. Filed as known follow-up in commit message; addressed in next session.
+
+### Commit
+- `a7f55c1` — Matrix v2: screenshot re-extraction + corrected V5 cascade
+
+### Status — end of session
+Three commits (530eef2, c8701ba, a7f55c1) pushed to origin/main. Univest V5 v2 is the corrected, decisive deliverable. Session-end ritual itself was skipped this day; progress.md and handoff updated retroactively in the 2026-04-26 catch-up session.
+
+---
+
+## 2026-04-26 — Catch-up: session persistence + sim-flow v2 schema
+
+### Actions taken
+- Session-start ritual revealed yesterday's session-end was skipped: progress.md, todo.md, and the latest handoff were stale (still pointing at 2026-04-23 state). Caught up retroactively with three backward-looking entries above.
+- Wrote `tasks/handoff-2026-04-26.md` as the new latest handoff. Supersedes `tasks/handoff-2026-04-23-late.md`. Documents the v2 cascade + 12 Open improvements + the sim-flow regression.
+- Updated `tasks/todo.md` to point at the new handoff and reflect "v2 cascade complete" state.
+- Fixed `scripts/sim-flow.py` to read v2 schema keys: `summarize_synthesis`, `summarize_estimates`, `summarize_weighted`, `summarize_adversary`, `validate_math` all gained v2-aware fallbacks. Added new "Operational preconditions" section so v2's 2 ship-gates surface visibly (they aren't `severity=blocker` in the v2 schema but they function as ship gates).
+- Verified: `sim-flow status univest` now shows clean v2 stats (`1/12 fully rankable`, `predicted 50.6% (range 44–56%)`, `0 blockers · 2 op preconditions · 4 should-fix · 1 watch`).
+
+### Files modified
+- `tasks/progress.md` — three retroactive entries + this entry
+- `tasks/handoff-2026-04-26.md` — new
+- `tasks/todo.md` — pointer + state update
+- `scripts/sim-flow.py` — v2-aware schema fallbacks across 5 functions
+
+### Status — end of session
+Process debt closed. Pipeline observability is honest again. Univest still ship-blocked on Univest-internal commitments (2 op preconditions). Three deferred work-streams remain: post-ship actuals capture, second client engagement, weekly self-edit ritual (scheduled 2026-04-30 — 4 days away).
