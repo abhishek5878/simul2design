@@ -1,0 +1,221 @@
+{
+  "_fixture_note": "Minimal but realistic ComparisonData for testing scripts/ingest-apriori.py. Fictional client 'fixturo' — not a real product. All numbers are illustrative. Schema mirrors apriori_landing's ComparisonData type as observed in src/app/demo/<client>/page.tsx.",
+  "metadata": {
+    "simulation_id": "FIXTURO_ONBOARDING_TEST",
+    "simulation_name": "Fixturo Onboarding Flow",
+    "created_at": "2026-04-26T10:00:00Z",
+    "persona_count": 30,
+    "screen_count": 1,
+    "flow_screens": ["Onboarding Activation"]
+  },
+  "variants": [
+    { "id": "control", "label": "Control", "is_control": true, "color": "#8B8FA3", "description": "Baseline onboarding — single-step signup with email + password." },
+    { "id": "a", "label": "Variant 1", "is_control": false, "color": "#6366F1", "description": "Adds social-proof banner above the form: 'Joined by 50,000+ teams.'" },
+    { "id": "b", "label": "Variant 2", "is_control": false, "color": "#10B981", "description": "Replaces password field with magic-link email auth. Removes friction." }
+  ],
+  "metrics": {
+    "control": { "sus": 62.0, "seq": 4.0, "completion_rate": 28, "friction_count": 2, "avg_sentiment": 0.05 },
+    "a":       { "sus": 67.0, "seq": 4.5, "completion_rate": 35, "friction_count": 2, "avg_sentiment": 0.18 },
+    "b":       { "sus": 73.0, "seq": 5.2, "completion_rate": 48, "friction_count": 1, "avg_sentiment": 0.34 }
+  },
+  "verdict": {
+    "recommended_variant": "b",
+    "recommendation_type": "ship",
+    "modifications": [
+      "Test magic-link delivery time across email providers — sub-30s target."
+    ],
+    "verdict_text": "Variant 2 is the highest-converting flow at 48% (vs 28% Control). Magic-link auth removes the password-creation friction that the simulation flagged as the dominant drop-off cause.",
+    "confidence": {
+      "personas_preferring_winner": 24,
+      "total_personas": 30,
+      "dissenting_segments": ["Privacy Hawk"]
+    }
+  },
+  "theme_movement": {
+    "persistent": [],
+    "resolved": [
+      {
+        "id": "theme_resolv_password",
+        "name": "Password creation friction",
+        "description": "Control required users to create + confirm a password meeting strength rules; 23% abandoned at this step. Variant 2's magic-link flow removed this entirely.",
+        "present_in": ["control", "a"],
+        "absent_in": ["b"],
+        "resolved_by": ["b"],
+        "persona_count": 9,
+        "monologue_evidence": {
+          "persona_name": "Time-Pressed Founder",
+          "persona_archetype": "Series-A founder evaluating tools quickly",
+          "monologues": {
+            "control": "Special character, number, capital, minimum 8 chars — I just want to look at this product.",
+            "a": "Same password rigamarole even with the social proof. I'll come back later.",
+            "b": "Magic link to my inbox. Done. I'm in."
+          }
+        }
+      }
+    ],
+    "introduced": [
+      {
+        "id": "theme_intro_email_dependence",
+        "name": "Email delivery dependence",
+        "description": "Variant 2's magic-link adds a hard dependency on email-delivery latency. Some users in the simulation flagged that they 'didn't trust waiting' for an email.",
+        "present_in": ["b"],
+        "absent_in": ["control", "a"],
+        "introduced_by": ["b"],
+        "persona_count": 3,
+        "monologue_evidence": {
+          "persona_name": "Privacy Hawk",
+          "persona_archetype": "Skeptical early adopter who reads ToS",
+          "monologues": {
+            "b": "If I can't see what I'm signing up for until they email me, I'd rather just not sign up."
+          }
+        }
+      }
+    ]
+  },
+  "screen_comparison": [
+    {
+      "screen_name": "Auth Form",
+      "screen_index": 0,
+      "divergence": "high",
+      "divergence_score": 0.84,
+      "summaries": {
+        "control": "Email + password fields, 'Create Account' button. Standard form, no social proof. Clinical.",
+        "a": "Same form, with a banner above: 'Joined by 50,000+ teams' + small avatar stack. Form unchanged.",
+        "b": "Email-only field, 'Send magic link' CTA. No password. Trust badge: 'Magic link expires in 10 min.'"
+      }
+    }
+  ],
+  "persona_journeys": [
+    {
+      "persona_id": "persona_founder",
+      "name": "Time-Pressed Founder",
+      "age": 34,
+      "archetype": "Series-A founder evaluating tools quickly",
+      "avatar_emoji": "⏱️",
+      "segment": "Time-Pressed Founder",
+      "preferred_variant": "b",
+      "narrative": "Bounced off Control during password creation. Variant 1's social proof was nice but the password barrier was still there. Variant 2's magic link converted in under 30 seconds — exactly the experience they want."
+    },
+    {
+      "persona_id": "persona_evaluator",
+      "name": "Cautious Evaluator",
+      "age": 41,
+      "archetype": "IT decision-maker doing diligence",
+      "avatar_emoji": "🔍",
+      "segment": "Cautious Evaluator",
+      "preferred_variant": "a",
+      "narrative": "Liked the social-proof banner in Variant 1 — wanted to see who else uses this. Magic link in Variant 2 felt unfamiliar; preferred the explicit password flow."
+    },
+    {
+      "persona_id": "persona_privacy",
+      "name": "Privacy Hawk",
+      "age": 38,
+      "archetype": "Skeptical, reads terms of service",
+      "avatar_emoji": "🛡️",
+      "segment": "Privacy Hawk",
+      "preferred_variant": "control",
+      "narrative": "Distrusted the magic link — felt it was an extra step that put control in the email provider's hands. Stuck with Control's explicit signup."
+    }
+  ],
+  "segment_verdicts": [
+    {
+      "segment_name": "Time-Pressed Founder",
+      "persona_count": 12,
+      "winner": "b",
+      "narrative": "Magic link wins decisively — sub-30-second activation matches the segment's preference for speed.",
+      "metrics_by_variant": {
+        "control": { "sus": 55.0, "seq": 3.2, "completion_rate": 25 },
+        "a":       { "sus": 62.0, "seq": 4.0, "completion_rate": 33 },
+        "b":       { "sus": 78.0, "seq": 5.8, "completion_rate": 65 }
+      }
+    },
+    {
+      "segment_name": "Cautious Evaluator",
+      "persona_count": 10,
+      "winner": "a",
+      "narrative": "Wants familiar flow + social proof. Magic link feels unfamiliar to this segment.",
+      "metrics_by_variant": {
+        "control": { "sus": 65.0, "seq": 4.2, "completion_rate": 30 },
+        "a":       { "sus": 73.0, "seq": 5.0, "completion_rate": 40 },
+        "b":       { "sus": 70.0, "seq": 4.8, "completion_rate": 35 }
+      }
+    },
+    {
+      "segment_name": "Privacy Hawk",
+      "persona_count": 8,
+      "winner": "control",
+      "narrative": "Prefers explicit auth they control. Magic link reads as an extra trust dependency.",
+      "metrics_by_variant": {
+        "control": { "sus": 70.0, "seq": 4.5, "completion_rate": 30 },
+        "a":       { "sus": 68.0, "seq": 4.4, "completion_rate": 32 },
+        "b":       { "sus": 60.0, "seq": 3.9, "completion_rate": 25 }
+      }
+    }
+  ],
+  "friction_provenance": [
+    {
+      "id": "friction_password",
+      "friction": "Password creation friction — strength rules + confirmation step",
+      "screen": "Auth Form",
+      "status": "resolved",
+      "resolved_by": ["b"],
+      "presence": { "control": "present", "a": "present", "b": "absent" }
+    },
+    {
+      "id": "friction_no_proof",
+      "friction": "No social proof / trust signals on the auth page",
+      "screen": "Auth Form",
+      "status": "resolved",
+      "resolved_by": ["a", "b"],
+      "presence": { "control": "present", "a": "absent", "b": "absent" }
+    },
+    {
+      "id": "friction_email_dep",
+      "friction": "Email delivery dependence — distrust for users who can't see the product first",
+      "screen": "Auth Form",
+      "status": "introduced",
+      "introduced_by": ["b"],
+      "presence": { "control": "absent", "a": "absent", "b": "present" }
+    }
+  ],
+  "recommendations": [
+    {
+      "id": "rec_ship_b",
+      "recommendation": "Ship Variant 2 with magic-link delivery SLA monitoring",
+      "type": "ship",
+      "applies_to": ["b"],
+      "priority": "high",
+      "rice_score": 80,
+      "rationale": "20pt overall conversion lift. Privacy Hawk segment (n=8) is small — the cost of dropping them is less than the gain across other segments.",
+      "effort_estimate": "Already implemented in the test variant",
+      "success_metric": "Activation rate at 45%+ over 4 weeks; magic-link p90 delivery < 30s"
+    },
+    {
+      "id": "rec_passkey",
+      "recommendation": "Pilot passkey auth as a Variant 3 to retain Privacy Hawk segment",
+      "type": "next_test",
+      "applies_to": ["b"],
+      "priority": "medium",
+      "rice_score": 55,
+      "rationale": "Passkeys give Privacy Hawks the explicit-control feel of password without the friction.",
+      "effort_estimate": "1-2 weeks (WebAuthn integration)",
+      "success_metric": "Privacy Hawk conversion in V3 ≥ 35%"
+    }
+  ],
+  "recommended_next_test": {
+    "name": "Variant 2 + Passkey fallback",
+    "hypothesis": "Adding a passkey option alongside magic link will recover the Privacy Hawk segment without sacrificing magic-link's speed advantage for Time-Pressed Founders.",
+    "predicted_conversion": "50-55%",
+    "predicted_lift": "+2-7pp over Variant 2",
+    "estimated_effort": "1-2 weeks (WebAuthn integration)"
+  },
+  "risks_to_monitor": [
+    "Magic-link p90 delivery time across email providers — if > 30s, Time-Pressed Founder conversion may regress.",
+    "Privacy Hawk segment may shrink the addressable market if their objection isn't resolved by V3."
+  ],
+  "variant_screenshots": {
+    "control": "/screens/fixturo/control.png",
+    "a": "/screens/fixturo/v1.png",
+    "b": "/screens/fixturo/v2.png"
+  }
+}

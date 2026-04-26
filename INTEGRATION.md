@@ -91,30 +91,39 @@ The taxonomy mapping (the last row) is the **integration friction**. For Univest
 
 ---
 
-## 3. The current workflow (manual ingestion)
+## 3. The current workflow
 
 For a new client today:
 
 ```bash
-# 1. Hand-write source from Apriori's variant descriptions + screenshots
-mkdir -p data/<client>/source-screenshots
-# (download all variant PNGs from apriori.work/screens/<client>/*.png)
-# Write data/<client>/source.md with variant descriptions, segments, conversion table, friction.
+# 1. Get the Apriori ComparisonData JSON
+# (Apriori dev exports the COMPARISON_DATA constant from src/app/demo/<client>/page.tsx
+#  as JSON, OR provides it via a JSON endpoint — see Phase 5 for productized version.)
 
-# 2. Hand-write the matrix (taxonomy-normalize variant elements)
-# Edit data/<client>/element_matrix.json — see existing data/univest/element_matrix.json as template.
-# Edit .claude/rules/element-taxonomy-<client>.md for the client overlay.
+# 2. Ingest into the engine (Phase 2 — automatic scaffolding)
+scripts/ingest-apriori.py <client> --from-comparison-json <file>
+# Produces:
+#   data/<client>/apriori_input.json        — audit trail
+#   data/<client>/source.md                 — human-readable summary
+#   data/<client>/element_matrix.json       — starter (direct fields populated; taxonomy needs review)
+#   data/<client>/source-screenshots/       — variant PNGs auto-fetched
 
-# 3. Run the pipeline (cascading; each stage reads the previous)
-scripts/sim-flow.py status <client>          # status check; will list missing artifacts
-# Run weigh-segments / synthesize / adversary / estimate-conversion / generate-spec
-# (currently each is a manual reasoning pass following the SKILL.md docstrings)
+# 3. Human taxonomy pass (Phase 3 will automate this)
+# Edit data/<client>/element_matrix.json — replace `__needs_review__` taxonomy values with
+# the right enum from .claude/rules/element-taxonomy-base.md, reading the screenshots and
+# the screen_comparison summaries in source.md §6.
+# Edit .claude/rules/element-taxonomy-<client>.md for client-specific overlay.
 
-# 4. Render the customer-facing report
+# 4. Run the pipeline cascade (each stage reads the previous)
+scripts/sim-flow.py status <client>          # state probe
+# Then weigh-segments → synthesize → adversary → estimate-conversion → generate-spec
+# (each is currently a manual reasoning pass following the SKILL.md docstrings)
+
+# 5. Render the customer-facing report
 scripts/render-report.py <client>            # validates inputs + renders preview PNG
 ```
 
-This works but takes ~4-6 hours of human attention per new client. Phase 2 brings it down to ~30 minutes.
+After Phase 2 (current state, 2026-04-26): step 1 takes ~30s instead of ~2 hours of hand-typing the matrix. **Total onboarding time ≈ 1.5–2 hours** (taxonomy review is the bottleneck). Phase 3 brings it under 30 minutes.
 
 ---
 
@@ -135,27 +144,28 @@ The HTML report is the headline deliverable — it's what a brand stakeholder se
 
 ## 5. Plug-in roadmap
 
-### ✅ Phase 1 (current state, 2026-04-26)
-- Manual ingestion + manual matrix construction.
+### ✅ Phase 1 (shipped 2026-04-26)
 - Manual cascade through `weigh-segments → synthesize → adversary → estimate-conversion → generate-spec`.
 - Hand-curated HTML report per client.
 - `scripts/sim-flow.py` for state probing and immutable evaluator.
 - `scripts/render-report.py` for report PNG re-rendering.
 - One client end-to-end: Univest V5.
 
-### ⏭ Phase 2 (next, ~1 day)
+### ✅ Phase 2 (shipped 2026-04-26)
 **`scripts/ingest-apriori.py <client> --from-comparison-json <file>`**
 - Accepts the `ComparisonData` JSON object (Apriori dev exports it from page.tsx, or fetches from a JSON endpoint Apriori adds).
-- Auto-populates `data/<client>/source.md` (formatted from `screen_comparison` + `theme_movement` + `persona_journeys`).
-- Auto-fetches variant screenshots to `data/<client>/source-screenshots/`.
+- Auto-populates `data/<client>/source.md` (10 sections: variants, segments, conversion table, friction points, theme movement, screen comparison, persona journeys, recommendations, recommended next test, risks).
+- Auto-fetches variant screenshots to `data/<client>/source-screenshots/` (single-PNG and multi-PNG variants both supported).
 - Emits a starter `element_matrix.json` with:
-  - Direct fields (`segments`, `conversion_by_segment`, `aggregate_metrics`) fully populated.
-  - Taxonomy fields flagged `extraction_confidence: needs_review` for the human pass.
-  - `friction_points` re-shaped from `friction_provenance`.
+  - **Auto-populated:** segments (with weights from persona_count), variants[].conversion_by_segment, variants[].id (Apriori `a/b/c` → our `V1/V2/V3`), friction_points (re-shaped from friction_provenance + theme_movement persona_counts), citations (extracted from theme_movement.monologue_evidence), aggregate_metrics (sus/seq/completion_rate/sentiment/friction_count remapped), apriori_recommended_next_test surfaced as metadata.
+  - **Flagged `__needs_review__`:** all 12 taxonomy element values per variant (layout, branding, cta_*, etc.) — these require either a human pass or the Phase 3 LLM auto-mapper.
+- Saves canonical input at `data/<client>/apriori_input.json` for audit trail.
+- Modes: `--dry-run`, `--no-fetch-screenshots`, `-o <output-dir>`.
+- Test fixture at `scripts/test-fixtures/apriori-comparison-example.json` (synthetic 'fixturo' client).
 
-After ingest: human runs the pipeline manually, no different from Phase 1 except the input scaffolding is automated. Onboarding time drops from ~4 hours to ~1 hour (just the taxonomy mapping pass).
+After ingest, the human taxonomy pass + downstream pipeline cascade is unchanged from Phase 1. Onboarding time drops from ~4–6 hours to ~1.5–2 hours (the matrix scaffolding is no longer hand-typed; the taxonomy review remains the bottleneck).
 
-### ⏭ Phase 3 (next quarter, ~2-3 days)
+### ⏭ Phase 3 (next, ~2-3 days)
 **Taxonomy auto-mapper (LLM-driven, Sonnet-class)**
 - Reads `screen_comparison[].summaries[v]` natural-language descriptions.
 - Proposes taxonomy values for each (variant, dimension) cell.
@@ -212,6 +222,7 @@ The calibration signal feeds back into our `non_linearity_discount` improvement 
 
 | Action | Command |
 |---|---|
+| **Ingest Apriori ComparisonData** | `scripts/ingest-apriori.py <client> --from-comparison-json <file>` |
 | See pipeline state for a client | `scripts/sim-flow.py status <client>` |
 | List all clients | `scripts/sim-flow.py list` |
 | Render the HTML report → PNG | `scripts/render-report.py <client>` |
