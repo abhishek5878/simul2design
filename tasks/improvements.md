@@ -19,12 +19,7 @@ An improvement lands here when I notice something is weak but don't need to fix 
 
 ## Open
 
-### Phase 3b: LLM fallback for the ~25% of taxonomy cells rules can't auto-map
-- **Why it matters:** Phase 3a (rule-based automap) hits a realistic ceiling at ~75% match against the hand-built v2 univest matrix (~84% on high-confidence cells). The remaining ~25% are cells where Apriori's text doesn't directly state the value (e.g., V4 dark theme, V2-V4 countdown timer presence, cross-variant "Same as V2" inheritance, Univest-overlay compound values like `cta_style=outline_on_dark_plus_sticky_green`). A Sonnet-class LLM can read the screen_comparison summaries + variant context + screenshots and reason about these cells.
-- **Trigger to fix:** Second client engagement (will surface the same 25% gap). Or: when we're ready to commit to Anthropic SDK + ANTHROPIC_API_KEY as a runtime dependency (currently the project has zero LLM-API dependencies — everything runs in Claude Code).
-- **Fix path:** New script `scripts/automap-taxonomy-llm.py <client>` — for each cell where Phase 3a returned `low_default` or `needs_review`, call Anthropic API with: (a) variant context, (b) the dimension's enum, (c) the matched-pattern trace from Phase 3a (so LLM doesn't double-spend reasoning). Tag results as `auto_mapped_llm` confidence tier. Add `anthropic` to a new `requirements.txt`. Document API-key requirement in INTEGRATION.md.
-- **Severity:** should-fix (unblocks Phase 4 webhook by getting onboarding under 30 min)
-- **Filed:** 2026-04-26
+### ~~Phase 3b: LLM fallback for the ~25% of taxonomy cells rules can't auto-map~~ → see Applied (2026-04-27)
 
 ### Audit Univest VoC grounding sources
 - **Why it matters:** The 5 Univest segments ("Skeptical Investor," "Curious Beginner," etc.) are abstract archetypes, not voice-of-customer-grounded personas. Per Truss 2026 (PersonaCite, arxiv:2601.22288 — see `tasks/related-work.md` §2), persona behaviors that can't cite a real source are unverifiable. If real Univest VoC artifacts (app-store reviews, churn-survey responses, support tickets) exist, anchoring the 5 segments to them would tighten V5 confidence intervals retroactively.
@@ -115,6 +110,16 @@ An improvement lands here when I notice something is weak but don't need to fix 
 ---
 
 ## Applied (moved here when shipped)
+
+### 2026-04-27 — Phase 3b: LLM fallback for taxonomy cells (Sonnet 4.6)
+- Closes the Open entry filed 2026-04-26. Builds `scripts/automap-taxonomy-llm.py`: for each cell where Phase 3a returned `needs_review` (or `low_default` with `--include-low-default`), calls Claude Sonnet 4.6 (configurable via `--model`) with the variant text + dimension enum + Phase 3a verdict; updates the matrix and tags trace as `auto_mapped_llm` for high/medium-confidence picks.
+- Prompt caching on the system message (full taxonomy enum, ~2KB) — first call writes cache (1.25× cost), subsequent calls read at 0.1×. Cost ~$0.05 per typical client (~14 cells × ~$0.003 each).
+- Cost guards: `--max-cells N` cap, `--dry-run` for prompt preview without API calls (no auth required).
+- Error handling: typed exceptions for `AuthenticationError` / `RateLimitError` / `APIStatusError`; SDK auto-retries 5xx; markdown-fence stripping on responses; JSON parse failures surfaced.
+- Added `requirements.txt` (anthropic ≥0.85.0). Documented `ANTHROPIC_API_KEY` requirement in INTEGRATION.md.
+- Tested by 15-test suite using `unittest.mock` to patch `anthropic.Anthropic` — runs without an API key. Covers: taxonomy parsing, prompt building, cell selection (needs_review-only by default; +low_default with flag), LLM call shape (cache_control on system), response parsing (incl. markdown-fence stripping + invalid JSON), auth-error handling, full mocked end-to-end run, low-confidence preserves matrix, --max-cells caps iterations.
+- After Phase 3b: rules fill ~75%, LLM closes most of the remaining 25%, only 1–3 cells per typical client need human review. **Onboarding time ~15–20 min** (down from ~45–60 min after Phase 3a alone, ~1.5–2 hours after Phase 2 alone, ~4–6 hours pre-Phase-2).
+- Unblocks Phase 4 (webhook on apriori_landing PRs → engine triggers automatically).
 
 ### 2026-04-24 — Matrix v2: full screenshot-validated re-extraction (cascade through pipeline)
 - Discovered via user fact-challenge ("if 3 trials, use 3") that v1 matrix had multiple extraction errors. Source page prose ≠ actual variant UI. Pulled all 5 variant screenshots from `/screens/univest/{1.1,2,3,4,5}.png`, saved to `data/univest/source-screenshots/` as immutable artifacts.

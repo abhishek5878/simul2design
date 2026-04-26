@@ -114,21 +114,29 @@ scripts/automap-taxonomy.py <client>
 #   sensible defaults where they don't, __needs_review__ where neither
 # → writes data/<client>/automap-trace.json with per-cell confidence + matched-pattern audit
 
-# 4. Human review of remaining cells (Phase 3b LLM fallback will reduce this)
-# Open data/<client>/element_matrix.json — review cells where automap-trace.json says
-# 'low_default' (best-guesses) or 'needs_review' (no signal).
-# Edit .claude/rules/element-taxonomy-<client>.md for client-specific overlay (e.g. compound CTA-style values).
+# 4. LLM fallback for cells the rules couldn't handle (Phase 3b — Sonnet 4.6)
+scripts/automap-taxonomy-llm.py <client>
+# → for each cell trace shows as needs_review, calls Claude Sonnet 4.6 with the variant text
+#   + the dimension's allowed enum values; updates the matrix when the LLM returns high/medium confidence
+# → cost: ~$0.05 per typical client (~14 cells)
+# → requires ANTHROPIC_API_KEY env var + `pip install -r requirements.txt`
+# → use --dry-run to preview prompts without API calls; --max-cells N to cap iterations
 
-# 5. Run the pipeline cascade (each stage reads the previous)
+# 5. Human review of any cells the LLM still couldn't determine
+# Most clients land at this step with only 1–3 cells left. Edit element_matrix.json
+# for those, plus .claude/rules/element-taxonomy-<client>.md for client-specific
+# overlay values (e.g. compound CTA-style values not in base taxonomy).
+
+# 6. Run the pipeline cascade (each stage reads the previous)
 scripts/sim-flow.py status <client>          # state probe
 # Then weigh-segments → synthesize → adversary → estimate-conversion → generate-spec
 # (each is currently a manual reasoning pass following the SKILL.md docstrings)
 
-# 6. Render the customer-facing report
+# 7. Render the customer-facing report
 scripts/render-report.py <client>            # validates inputs + renders preview PNG
 ```
 
-After Phase 3a (current state): the auto-mapper fills ~75% of taxonomy cells correctly against the hand-built v2 univest matrix; the remaining ~25% are flagged for human review (and Phase 3b LLM fallback). **Total onboarding time ≈ 45–60 minutes** for the human review pass + downstream cascade.
+After Phase 3b (current state): rules fill ~75% of cells, the LLM closes most of the remaining 25%, and only 1–3 cells per client typically need human review. **Total onboarding time ≈ 15–20 minutes** for human review + downstream cascade.
 
 ---
 
@@ -191,11 +199,18 @@ After ingest, the human taxonomy pass + downstream pipeline cascade is unchanged
 - Cannot generate Univest-overlay-specific compound values (e.g. `cta_style=outline_on_dark_plus_sticky_green`) — only base-taxonomy enums.
 - Cross-variant inheritance ("Same as V2") is not tracked across variants.
 
-### ⏭ Phase 3b (next, ~1-2 days) — LLM fallback for the ~25% gap
-- For cells flagged `needs_review` or `low_default` after Phase 3a, call Sonnet-class LLM with the variant's screen_comparison summaries + the taxonomy enum + ask for the best value with reasoning.
-- Updates the matrix with `auto_mapped_llm` confidence tier.
-- Requires `anthropic` SDK + `ANTHROPIC_API_KEY`.
-- Onboarding time drops to ~15-20 minutes per client (just the cascade).
+### ✅ Phase 3b (shipped 2026-04-27) — LLM fallback for the ~25% gap
+**`scripts/automap-taxonomy-llm.py <client>`**
+- For cells flagged `needs_review` (or `low_default` with `--include-low-default`) after Phase 3a, calls Claude Sonnet 4.6 (default; configurable via `--model`) with the variant's text corpus + the dimension's allowed enum values + the Phase 3a verdict.
+- High/medium-confidence LLM picks update the matrix and get tagged `auto_mapped_llm` in the trace; low-confidence picks (or null) are left for the human pass.
+- Prompt caching on the system message (full taxonomy enum, ~2KB) — first call writes cache (1.25× cost), subsequent calls read at 0.1×.
+- Cost: ~$0.05 per typical client (~14 cells × ~$0.003 each on Sonnet 4.6).
+- Cost guards: `--max-cells N` caps iterations; `--dry-run` builds prompts without API calls (no auth required).
+- Error handling: typed exceptions for auth + rate-limit; SDK auto-retries 5xx; markdown-fence stripping; JSON parse failures surfaced.
+- Requires `anthropic` Python SDK (`pip install -r requirements.txt`) + `ANTHROPIC_API_KEY` env var.
+- Tested by 15-test suite (`scripts/test-automap-taxonomy-llm.py`) using mocked API client (no key required to run tests).
+
+**Onboarding time after Phase 3b: ~15–20 minutes** per client — only the human pipeline cascade remains.
 
 ### ⏭ Phase 4 (after Phase 3b proves on 2-3 clients)
 **Webhook / GitHub Action**
@@ -246,8 +261,10 @@ The calibration signal feeds back into our `non_linearity_discount` improvement 
 | Action | Command |
 |---|---|
 | **Ingest Apriori ComparisonData** | `scripts/ingest-apriori.py <client> --from-comparison-json <file>` |
-| **Auto-map taxonomy** (rule-based) | `scripts/automap-taxonomy.py <client>` |
+| **Auto-map taxonomy** (rule-based, Phase 3a) | `scripts/automap-taxonomy.py <client>` |
 | Test the auto-mapper (18 tests) | `scripts/test-automap-taxonomy.py` |
+| **LLM fallback for taxonomy** (Phase 3b, Sonnet 4.6) | `scripts/automap-taxonomy-llm.py <client>` |
+| Test the LLM mapper (15 tests, mocked API) | `scripts/test-automap-taxonomy-llm.py` |
 | See pipeline state for a client | `scripts/sim-flow.py status <client>` |
 | List all clients | `scripts/sim-flow.py list` |
 | Render the HTML report → PNG | `scripts/render-report.py <client>` |

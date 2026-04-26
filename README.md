@@ -39,25 +39,29 @@ The end-to-end flow from an Apriori simulation to a customer-ready V(N+1) spec +
 scripts/ingest-apriori.py <client> --from-comparison-json <path/to/apriori_input.json>
 # → produces data/<client>/{apriori_input.json, source.md, element_matrix.json, source-screenshots/}
 
-# 2. Auto-map taxonomy (rule-based; ~75% match against hand-built ground truth)
+# 2. Auto-map taxonomy (Phase 3a — rule-based; ~75% match against hand-built ground truth)
 scripts/automap-taxonomy.py <client>
 # → updates element_matrix.json with high-confidence values + sensible defaults
 # → writes data/<client>/automap-trace.json (per-cell confidence audit)
 
-# 3. Human review of remaining cells
-# Open automap-trace.json — review cells flagged `low_default` (best-guesses) or
-# `needs_review` (no signal). Edit element_matrix.json to fix.
-# Edit .claude/rules/element-taxonomy-<client>.md for client-specific overlay.
+# 3. LLM fallback for cells the rules couldn't handle (Phase 3b — Sonnet 4.6)
+scripts/automap-taxonomy-llm.py <client>
+# → ~$0.05/client; requires ANTHROPIC_API_KEY + `pip install -r requirements.txt`
+# → use --dry-run to preview prompts without API calls
 
-# 4. Confirm pipeline state
+# 4. Human review of any cells the LLM still couldn't determine (typically 1–3)
+# Edit element_matrix.json for those + .claude/rules/element-taxonomy-<client>.md
+# for client-specific overlay values not in the base taxonomy.
+
+# 5. Confirm pipeline state
 scripts/sim-flow.py status <client>
 # → one-screen dashboard showing all 7 pipeline stages, blockers, flags, validation, next action
 
-# 5. Cascade through the synthesis skills
+# 6. Cascade through the synthesis skills
 #    weigh-segments → synthesize → adversary → estimate-conversion → generate-spec
 #    (each is a manual reasoning pass against the SKILL.md docstring)
 
-# 6. Render the customer-facing HTML report
+# 7. Render the customer-facing HTML report
 scripts/render-report.py <client>
 # → validates inputs + re-renders data/<client>/report/preview.png
 # → prints `open` commands for the HTML and PNG
@@ -80,8 +84,10 @@ scripts/sim-flow.py record-actuals <client> path/to/actuals.json
 |---|---|
 | **Ingest Apriori ComparisonData** | `scripts/ingest-apriori.py <client> --from-comparison-json <file>` |
 | Test the ingest adapter (19 tests) | `scripts/test-ingest-apriori.py` |
-| **Auto-map taxonomy** (rule-based) | `scripts/automap-taxonomy.py <client>` |
+| **Auto-map taxonomy** (Phase 3a, rule-based) | `scripts/automap-taxonomy.py <client>` |
 | Test the auto-mapper (18 tests) | `scripts/test-automap-taxonomy.py` |
+| **LLM fallback for taxonomy** (Phase 3b, Sonnet 4.6) | `scripts/automap-taxonomy-llm.py <client>` |
+| Test the LLM mapper (15 tests, mocked API) | `scripts/test-automap-taxonomy-llm.py` |
 | Pipeline state for a client | `scripts/sim-flow.py status <client>` |
 | List all clients | `scripts/sim-flow.py list` |
 | Render customer-facing HTML report | `scripts/render-report.py <client>` |
@@ -114,7 +120,7 @@ scripts/sim-flow.py record-actuals <client> path/to/actuals.json
 - **Customer-facing deliverable:** [`data/univest/report/index.html`](data/univest/report/index.html) — single self-contained HTML with per-segment audience reasoning + V5 mockup + diff vs V4 + predictions + ship gates + kill conditions. This is what a brand stakeholder opens.
 - **Engineer-facing deliverable:** [`data/univest/v5-spec.md`](data/univest/v5-spec.md) (buildable) + [`data/univest/design/v5a-green.png`](data/univest/design/v5a-green.png) (mockup).
 - **V5 prediction:** **51%** weighted overall (mechanism range 45–56%, Wilson envelope 22–74%) vs V4 actual 44%. Median lift +7pt. Untested-stack count: 1. Confidence: medium. Ship blocked on **2 Operational Preconditions** ("free" outline-CTA flow delivers 3 trades pre-payment + refund SLA per payment method).
-- **Plug-in roadmap:** Phase 2 (Apriori adapter) + Phase 3a (rule-based taxonomy auto-mapper, ~75% match on univest) shipped 2026-04-26. Phase 3b (LLM fallback for the ~25% gap) is next.
+- **Plug-in roadmap:** Phase 2 (Apriori adapter) + Phase 3a (rule-based taxonomy auto-mapper) shipped 2026-04-26. Phase 3b (Sonnet 4.6 LLM fallback for the ~25% gap, ~$0.05/client) shipped 2026-04-27. Phase 4 (webhook on apriori_landing PRs) is next.
 - **Next work:** post-ship Univest actuals (feeds calibration), second-client engagement (genericity test), or Phase 3 auto-mapper.
 
 ---
@@ -161,6 +167,8 @@ scripts/sim-flow.py record-actuals <client> path/to/actuals.json
 │   ├── test-ingest-apriori.py  # 19-test suite for the adapter
 │   ├── automap-taxonomy.py     # Rule-based taxonomy auto-mapper (Phase 3a)
 │   ├── test-automap-taxonomy.py# 18-test suite for the auto-mapper
+│   ├── automap-taxonomy-llm.py # LLM fallback for cells the rules miss (Phase 3b)
+│   ├── test-automap-taxonomy-llm.py # 15-test suite (mocked API)
 │   ├── render-report.py        # Validate + re-render customer-facing report PNG
 │   ├── refetch-source.sh       # Versioned source re-fetch (no overwrite)
 │   ├── detect-confounds.py     # Auto-detect element confounds
@@ -183,11 +191,12 @@ scripts/sim-flow.py record-actuals <client> path/to/actuals.json
 
 ## Testing
 
-Two pieces have automated tests (the synthesis skills are reasoning-driven and tested by re-running the pipeline end-to-end):
+Three pieces have automated tests (the synthesis skills are reasoning-driven and tested by re-running the pipeline end-to-end):
 
 ```bash
 scripts/test-ingest-apriori.py             # 19 tests: unit + integration + edge + real-data
 scripts/test-automap-taxonomy.py           # 18 tests: unit + integration + coverage thresholds
+scripts/test-automap-taxonomy-llm.py       # 15 tests: unit + integration with mocked Anthropic SDK
 ```
 
 **ingest-apriori tests** (19): helper functions (slugify, variant_label), simple-fixture integration (dry-run + real-run), segment weight computation, aggregate metrics normalization, taxonomy `__needs_review__` flagging, citation extraction from monologues, friction reshaping, edge cases (invalid JSON, missing file, missing required fields), and real-data validation against the hand-built univest v2 matrix (segments, conversions, aggregate metrics all match within tolerance).

@@ -1,0 +1,15 @@
+# Python runtime dependencies for the synthesis engine.
+#
+# Most scripts (sim-flow, ingest-apriori, automap-taxonomy, render-report,
+# wilson-intervals, detect-confounds) are pure-stdlib and do NOT need this file.
+#
+# anthropic is required ONLY by scripts/automap-taxonomy-llm.py (Phase 3b LLM
+# fallback). It also requires ANTHROPIC_API_KEY in the environment.
+#
+# Install:
+#     pip install -r requirements.txt
+#
+# Or just the LLM dependency:
+#     pip install 'anthropic>=0.85.0'
+
+anthropic>=0.85.0
