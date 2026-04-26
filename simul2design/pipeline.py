@@ -22,6 +22,7 @@ from simul2design.automap_llm import (
     DEFAULT_MODEL as DEFAULT_LLM_MODEL,
     run_llm_fallback,
 )
+from simul2design.synthesize import weigh_segments, apply_wilson_to_segments
 from simul2design.schemas import (
     CellRef,
     ComparisonData,
@@ -52,6 +53,9 @@ class SynthesisPipeline:
         skip_llm_fallback: bool = False,
         include_low_default_in_llm_pass: bool = False,
         max_llm_cells: Optional[int] = None,
+        run_weigh_segments: bool = True,
+        run_wilson_baseline: bool = True,
+        wilson_baseline_variant: str = "V4",
     ):
         """
         Args:
@@ -64,12 +68,23 @@ class SynthesisPipeline:
                 cells the rules filled with sensible defaults. Costs more but
                 catches edge cases.
             max_llm_cells: Cap on LLM API calls. None = no limit.
+            run_weigh_segments: If True (default), run the cascade's first
+                deterministic step after auto-mapping. Output lands at
+                `result.weighted_scores`. No LLM calls.
+            run_wilson_baseline: If True (default), compute per-segment Wilson
+                95% CI on the baseline variant. Output lands at
+                `result.conversion_estimates['baseline_wilson']`. No LLM calls.
+            wilson_baseline_variant: Variant id used as the Wilson baseline
+                (default 'V4' — the best-observed variant in Univest's case).
         """
         self._anthropic_client = anthropic_client
         self.automap_model = automap_model
         self.skip_llm_fallback = skip_llm_fallback
         self.include_low_default_in_llm_pass = include_low_default_in_llm_pass
         self.max_llm_cells = max_llm_cells
+        self.run_weigh_segments = run_weigh_segments
+        self.run_wilson_baseline = run_wilson_baseline
+        self.wilson_baseline_variant = wilson_baseline_variant
 
     def _ensure_client(self):
         if self._anthropic_client is not None:
@@ -144,6 +159,28 @@ class SynthesisPipeline:
                         current_value=info.get("value"),
                     ))
 
+        # Stage 4: cascade — deterministic steps (no LLM)
+        weighted_scores = None
+        conversion_estimates = None
+        if self.run_weigh_segments:
+            weighted_scores = weigh_segments(matrix)
+        if self.run_wilson_baseline:
+            try:
+                wilson_per_segment = apply_wilson_to_segments(
+                    matrix, baseline_variant_id=self.wilson_baseline_variant)
+                conversion_estimates = {
+                    "method": "wilson_95_baseline_only",
+                    "wilson_z": 1.96,
+                    "baseline_variant": self.wilson_baseline_variant,
+                    "per_segment_baseline": wilson_per_segment,
+                    "_note": ("Wilson 95% CIs on baseline variant only. Mechanism-derived "
+                              "deltas + coupling discount require synthesize + adversary "
+                              "(Sprint B follow-up)."),
+                }
+            except ValueError:
+                # Baseline variant not in matrix — skip silently
+                conversion_estimates = None
+
         return SynthesisResult(
             client_slug=client_slug,
             pipeline_version=__version__,
@@ -155,4 +192,6 @@ class SynthesisPipeline:
                                       if c.confidence == "needs_review"]) == 0),
             estimated_cost_usd=cost,
             token_usage=usage,
+            weighted_scores=weighted_scores,
+            conversion_estimates=conversion_estimates,
         )

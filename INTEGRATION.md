@@ -409,31 +409,42 @@ graph.add_node("synthesis", partial(synthesis_node, pipeline=pipeline))
 - The pipeline is otherwise self-contained — no external storage, no hosted services, no auth on Apriori's side beyond the `ANTHROPIC_API_KEY` they're already using.
 - For runs without an API key (CI smoke tests, free-tier previews), set `skip_llm_fallback=True` — the pipeline returns a rules-only matrix and zero cost.
 
-### What the node delivers today vs after Phase 3c
+### What the node delivers today vs after the rest of Sprint B
 
-| Field on `SynthesisResult` | Today (Sprint A) | After Phase 3c (Sprint B) |
-|---|---|---|
-| `element_matrix` | ✅ taxonomy-normalized, ~95% auto-filled | ✅ + cascade attribution |
-| `automap_trace` | ✅ per-cell audit | ✅ + cascade-step traces |
-| `source_markdown` | ✅ generated from Apriori narrative fields | ✅ unchanged |
-| `cells_needing_review` | ✅ list[CellRef] for human pass | ✅ usually empty |
-| `estimated_cost_usd` | ✅ Sonnet 4.6 LLM cost | ✅ + cascade Opus/Sonnet cost |
-| `weighted_scores` | ❌ None | ✅ per-(dimension, value) weighted score |
-| `synthesized_variant` | ❌ None | ✅ V(N+1) element set with citations |
-| `adversary_review` | ❌ None | ✅ falsifiable objections + op preconditions |
-| `conversion_estimates` | ❌ None | ✅ Wilson intervals + kill conditions |
-| `spec_markdown` | ❌ None | ✅ engineer-ready buildable spec |
-| `report_html` | ❌ None | ✅ customer-facing HTML report |
+| Field on `SynthesisResult` | Sprint A | **Sprint B Phase 1** (today) | Sprint B Phase 2 (next) |
+|---|---|---|---|
+| `element_matrix` | ✅ taxonomy-normalized | ✅ unchanged | ✅ + cascade attribution |
+| `automap_trace` | ✅ per-cell audit | ✅ unchanged | ✅ + cascade-step traces |
+| `source_markdown` | ✅ from Apriori narrative | ✅ unchanged | ✅ unchanged |
+| `cells_needing_review` | ✅ list[CellRef] | ✅ unchanged | ✅ usually empty |
+| `estimated_cost_usd` | ✅ Sonnet 4.6 LLM cost | ✅ unchanged (deterministic = $0) | ✅ + cascade cost |
+| `weighted_scores` | ❌ None | ✅ **per-(dimension, value) score (deterministic)** | ✅ + overlay contradictions |
+| `conversion_estimates` | ❌ None | ✅ **Wilson 95% CI per segment (baseline only)** | ✅ + mechanism deltas + coupling |
+| `synthesized_variant` | ❌ None | ❌ None | ✅ V(N+1) element set (Opus 4.7) |
+| `adversary_review` | ❌ None | ❌ None | ✅ falsifiable objections (Opus 4.7) |
+| `spec_markdown` | ❌ None | ❌ None | ✅ engineer-ready spec (Sonnet 4.6) |
+| `report_html` | ❌ None | ❌ None | ✅ customer-facing HTML report |
 
-**Bottom line for Apriori today:** the node delivers the auto-mapped matrix instantly. The cascade outputs (full spec + report) require Phase 3c — porting the 5 SKILL.md reasoning passes from Claude Code to standalone Anthropic-API-calling Python modules. ~3-5 days of work, doesn't change the LangGraph integration shape.
+**Sprint B Phase 1 (this commit) — what's new:**
+- `simul2design/synthesize/weigh_segments.py` — port of `.claude/skills/weigh-segments/SKILL.md`. Pure Python, NO LLM. Reproduces the hand-calculated cta_style clean contrast (6.42pt for univest V2→V3) exactly. Test suite enforces this.
+- `simul2design/synthesize/estimate_conversion.py` — Wilson 95% binomial CI + per-segment baseline application. Pure math, no LLM. Reproduces conversion_estimates baseline intervals (~[0.089, 0.532] for skeptical V4 at n=12, p=0.25).
+- `simul2design/synthesize/{synthesize,adversary,generate_spec}.py` — skeletoned with `NotImplementedError` + design notes. The three LLM-required steps. Sprint B Phase 2 ports them.
+- `SynthesisPipeline` toggles: `run_weigh_segments=True/False`, `run_wilson_baseline=True/False`, `wilson_baseline_variant="V4"`. Both default ON; both add zero cost.
+
+**Bottom line for Apriori today:** the node now delivers the auto-mapped matrix + per-dimension weighted scores + Wilson baseline intervals automatically. That's enough for the dashboard to show "which dimensions are rankable" and "what's the small-sample uncertainty floor." Sprint B Phase 2 adds the V(N+1) pick + adversary review + spec markdown.
 
 ### Tests
 
 ```bash
 scripts/test-package.py        # 12 tests: schemas, pipeline, LangGraph node, taxonomy sync
+scripts/test-cascade.py        # 15 tests: weigh_segments + Wilson math + cascade stubs
 ```
 
-Tests use mocked Anthropic client — no API key required.
+Tests use mocked Anthropic client — no API key required. The cascade test
+suite enforces a critical regression check: `simul2design/synthesize/weigh_segments.py`
+must reproduce the hand-calculated 6.42pt weighted score for the univest
+V2→V3 cta_style clean contrast. If that breaks, the deterministic arithmetic
+that the SKILL.md spec mandates as a spot-check is broken.
 
 ### Versioning
 
