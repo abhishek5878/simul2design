@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "simul2design"
-version = "0.1.0"
+version = "0.2.0"
 description = "Multiverse Synthesis Engine — turns Apriori simulation output into a buildable variant spec. Designed to drop into Apriori's LangGraph as a synthesis node."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -25,11 +25,13 @@ dependencies = [
 
 [project.optional-dependencies]
 langgraph = ["langgraph>=0.2.0"]
+render = ["playwright>=1.45.0"]
 
 [project.scripts]
 simul2design-ingest = "simul2design.ingest:_cli_main"
 simul2design-automap = "simul2design.automap_rules:_cli_main"
 simul2design-automap-llm = "simul2design.automap_llm:_cli_main"
+simul2design-render = "simul2design.render.cli:main"
 
 [project.urls]
 Repository = "https://github.com/abhishek5878/simul2design"
@@ -39,4 +41,4 @@ include = ["simul2design*"]
 exclude = ["scripts*", "tests*", "data*", "tasks*", ".claude*"]
 
 [tool.setuptools.package-data]
-simul2design = ["taxonomy_data/*.md"]
+simul2design = ["taxonomy_data/*.md", "render/template_assets/*.css"]

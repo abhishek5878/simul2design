@@ -92,7 +92,17 @@ class SynthesisResult(BaseModel):
     spec_markdown: Optional[str] = None
     report_html: Optional[str] = None
 
+    # v0.2.0 — variant visual render (None unless run_render_visual=True
+    # AND simul2design[render] extra is installed)
+    variant_image_path: Optional[str] = None
+    variant_image_size_bytes: Optional[int] = None
+
     @property
     def has_full_spec(self) -> bool:
         """True if Phase 3c cascade ran and a buildable spec is available."""
         return self.spec_markdown is not None
+
+    @property
+    def has_variant_image(self) -> bool:
+        """True if a PNG render of the V(N+1) variant was produced."""
+        return self.variant_image_path is not None

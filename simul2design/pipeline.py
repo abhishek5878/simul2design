@@ -67,6 +67,9 @@ class SynthesisPipeline:
         adversary_model: str = "claude-opus-4-7",
         spec_model: str = "claude-sonnet-4-6",
         conservatism_mode: str = "balanced",
+        run_render_visual: bool = False,
+        render_viewport: tuple[int, int] = (375, 812),
+        render_output_dir: Optional[str] = None,
     ):
         """
         Args:
@@ -96,6 +99,17 @@ class SynthesisPipeline:
             spec_model: Model id for the generate-spec step (default Sonnet 4.6).
             conservatism_mode: 'balanced' (default), 'conservative', or
                 'exploratory'. Passed to synthesize.
+            run_render_visual: If True, render the synthesized variant to a PNG
+                via Playwright. Requires `pip install simul2design[render]` +
+                `playwright install chromium`. No LLM cost; ~2 sec per render.
+                Result lands at `result.variant_image_path`.
+            render_viewport: (width, height) for the render. Default 375×812
+                (iPhone-ish mobile). Pass (1024, 768) for tablet, (1440, 900)
+                for desktop hero.
+            render_output_dir: Directory to write the PNG. Created if missing.
+                If None and run_render_visual=True, the PNG goes to a temp
+                directory and the path is still returned via
+                `result.variant_image_path`. Caller can copy/upload from there.
         """
         self._anthropic_client = anthropic_client
         self.automap_model = automap_model
@@ -110,6 +124,9 @@ class SynthesisPipeline:
         self.adversary_model = adversary_model
         self.spec_model = spec_model
         self.conservatism_mode = conservatism_mode
+        self.run_render_visual = run_render_visual
+        self.render_viewport = render_viewport
+        self.render_output_dir = render_output_dir
 
     def _ensure_client(self):
         if self._anthropic_client is not None:
@@ -247,6 +264,28 @@ class SynthesisPipeline:
                     self._merge_usage(usage, gs_usage)
                     cost += self._estimate_cost_for_call(gs_usage, self.spec_model)
 
+        # Stage 6: visual render (optional — synthesized_variant → PNG via Playwright)
+        variant_image_path = None
+        variant_image_size_bytes = None
+        if self.run_render_visual and synthesized_variant and synthesized_variant.get("elements"):
+            from simul2design.render import render_variant_png
+            import tempfile
+            from pathlib import Path
+
+            out_dir = Path(self.render_output_dir) if self.render_output_dir else (
+                Path(tempfile.gettempdir()) / "simul2design-renders"
+            )
+            out_path = out_dir / f"{client_slug}-v_next.png"
+
+            png_bytes = render_variant_png(
+                synthesized_variant,
+                variant_name=f"{client_slug} V_next",
+                viewport=self.render_viewport,
+                output_path=out_path,
+            )
+            variant_image_path = str(out_path)
+            variant_image_size_bytes = len(png_bytes)
+
         return SynthesisResult(
             client_slug=client_slug,
             pipeline_version=__version__,
@@ -263,6 +302,8 @@ class SynthesisPipeline:
             synthesized_variant=synthesized_variant,
             adversary_review=adversary_review,
             spec_markdown=spec_markdown,
+            variant_image_path=variant_image_path,
+            variant_image_size_bytes=variant_image_size_bytes,
         )
 
     @staticmethod

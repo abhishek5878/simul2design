@@ -519,6 +519,7 @@ scripts/test-package.py             # 12 tests: schemas, pipeline, LangGraph nod
 scripts/test-cascade.py             # 12 tests: weigh_segments + Wilson math + pipeline integration
 scripts/test-cascade-llm.py         # 10 tests: synthesize + adversary + generate-spec (mocked)
 scripts/test-ab-report-adapter.py   # 16 tests: AbReport → ComparisonData adapter + LangGraph wiring
+scripts/test-render-visual.py       # 22 tests: HTML template + Playwright PNG (browser tests gated on RUN_BROWSER_TESTS=1)
 ```
 
 Tests use mocked Anthropic client — no API key required. Two critical
@@ -531,6 +532,103 @@ regression checks:
   and `run_adversary` have NO `narrative` / `idea` parameter — protects the
   anti-bias rule that adversary must not see client preference.
 
+### Variant image render (v0.2.0+)
+
+Engineers asked: "you give me a markdown spec — where's the picture?" The render module produces a PNG mockup of the V(N+1) screen by mapping `synthesized_variant.elements` (taxonomy values) to an HTML/CSS layout, then screenshotting via headless Chromium.
+
+**Install the render extra:**
+
+```bash
+pip install 'simul2design[render]'
+playwright install chromium     # one-time, ~150MB
+```
+
+The render extra is OPTIONAL. The core package + cascade work without it; only the render step needs Playwright. Importing `simul2design` without the extra is safe — `render_variant_png` raises `RenderUnavailableError` with the install hint only when called.
+
+**Pipeline toggle:**
+
+```python
+from simul2design import SynthesisPipeline
+
+pipeline = SynthesisPipeline(
+    run_full_cascade=True,
+    run_render_visual=True,                  # NEW — opt-in
+    render_viewport=(375, 812),               # mobile default; pass (1440, 900) for desktop
+    render_output_dir="/srv/simul2design/renders",  # PNG goes here; None → tmpdir
+)
+
+result = await pipeline.run(comp, client_slug="loop_health")
+print(result.variant_image_path)           # "/srv/simul2design/renders/loop_health-v_next.png"
+print(result.variant_image_size_bytes)     # ~110_000 bytes typical
+```
+
+**Programmatic API (without the pipeline):**
+
+```python
+from simul2design.render import render_variant_html, render_variant_png
+
+# HTML-only — no browser dependency. Always available.
+html = render_variant_html(synthesized_variant, variant_name="V_next", footer=False)
+
+# PNG via Playwright. Requires the render extra.
+png_bytes = render_variant_png(
+    synthesized_variant,
+    variant_name="V_next",
+    viewport=(375, 812),
+    footer=False,                  # set True to overlay the dim→value debug grid
+    output_path="variant.png",     # also returns bytes
+    device_scale_factor=2.0,        # retina by default
+)
+```
+
+**CLI:**
+
+```bash
+# Render from a SynthesisResult JSON (cascade output)
+simul2design-render result.json -o variant.png
+
+# Or from a bare synthesized_variant.json (e.g. extracted manually)
+simul2design-render synthesized_variant.json -o variant.png \
+    --viewport 375x812 \
+    --variant-name "V_next" \
+    --footer                       # debug overlay
+    --device-scale 2.0
+
+# HTML-only mode — useful when Playwright isn't installed
+simul2design-render result.json --html-only > preview.html
+```
+
+**Engine integration (`apriori_simulation_engine`):**
+
+The `synthesis_ready` SSE event already carries the full `SynthesisResult` dict. With `run_render_visual=True` set on the cached `_synth_pipeline` in `multiflow_orchestrator.py`, the engine can:
+
+```python
+# After synthesis_node returns, the path is in the result dict.
+result_dict = synth_out["synthesis_result"]
+png_path = result_dict.get("variant_image_path")  # str | None
+
+if png_path:
+    # Upload to Cloudinary (engine already has cloudinary>=1.36.0)
+    from cloudinary import uploader
+    cdn_url = uploader.upload(png_path, folder=f"variants/{client_slug}")["secure_url"]
+    result_dict["variant_image_url"] = cdn_url
+
+yield _ndjson({"type": "synthesis_ready", "data": result_dict})
+```
+
+The frontend reads `data.result.variant_image_url` and renders the picture next to the spec markdown — exactly the "engineer-ready picture + buildable spec" deliverable.
+
+**Cost & latency:** Zero LLM cost for the render. Adds ~2 seconds to a cascade run (Playwright cold-start dominates). Cached browser instance is feasible if needed but not currently implemented.
+
+**Taxonomy → HTML coverage:** Every base-taxonomy dimension has a render branch. Unknown enum values render as a visible labeled placeholder (never silently dropped) so the engineer immediately sees what was intended but not yet templated.
+
 ### Versioning
 
-The package follows semver. `simul2design==0.1.0` ships the Sprint A scope (automated portion). `0.2.0` will ship Phase 3c (cascade). Breaking changes to the public API bump the major version; the `SynthesisResult` schema is stable across minor versions.
+The package follows semver.
+
+| Version | Scope |
+|---|---|
+| `0.1.0` | Sprint A — ingest + automap (rules + LLM) + Wilson + weigh-segments + full LLM cascade (synthesize/adversary/spec) + AbReport adapter v1.1.0 |
+| `0.2.0` | Adds `simul2design.render` — HTML/PNG visual artifact for the V(N+1) variant. Optional `[render]` extra; existing flows unchanged when toggle is off. |
+
+Breaking changes to the public API bump the major version; the `SynthesisResult` schema is stable across minor versions (new fields are added with `Optional` defaults).

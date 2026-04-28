@@ -29,7 +29,7 @@ returns the auto-mapped matrix + cells-needing-review for human kickoff
 of the cascade.
 """
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 from simul2design.schemas import (
     CellRef,

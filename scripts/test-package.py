@@ -44,7 +44,7 @@ def test_package_imports():
         SynthesisPipeline, SynthesisResult, ComparisonData, CellRef,
         TokenUsage, __version__,
     )
-    assert __version__ == "0.1.0", f"unexpected version: {__version__}"
+    assert __version__ == "0.2.0", f"unexpected version: {__version__}"
 
 
 def test_schemas_validation():
@@ -106,7 +106,7 @@ def test_pipeline_rules_only_mode_no_api_needed():
     result = asyncio.run(pipeline.run(cd, client_slug="univest-test"))
 
     assert result.client_slug == "univest-test"
-    assert result.pipeline_version == "0.1.0"
+    assert result.pipeline_version == "0.2.0"
     assert "variants" in result.element_matrix
     assert len(result.element_matrix["variants"]) == 5
     assert "_summary" in result.automap_trace
@@ -251,7 +251,7 @@ def test_pyproject_toml_well_formed():
             return  # No TOML reader available; can't validate but pip install will catch it
     data = tomllib.loads(pyproject.read_text())
     assert data["project"]["name"] == "simul2design"
-    assert data["project"]["version"] == "0.1.0"
+    assert data["project"]["version"] == "0.2.0"
     assert "anthropic" in " ".join(data["project"]["dependencies"])
     assert "pydantic" in " ".join(data["project"]["dependencies"])
     # CLI entry points point at our package
